@@ -61,7 +61,7 @@ fun TextFieldWithValidation(
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
                 errorContainerColor = Color.Transparent,
-                errorIndicatorColor = GWPPATheme.colors.errorRed
+                errorIndicatorColor = GWPPATheme.colors.liveRed
             )
         )
 
@@ -72,8 +72,8 @@ fun TextFieldWithValidation(
         ) {
             Text(
                 text = errorMessage ?: "",
-                color = GWPPATheme.colors.errorRed,
-                style = GWPPATheme.typography.defaultRegular12,
+                color = GWPPATheme.colors.liveRed,
+                style = GWPPATheme.typography.archivoSemiBold13,
                 modifier = Modifier.padding(start = 16.dp, top = 4.dp)
             )
         }

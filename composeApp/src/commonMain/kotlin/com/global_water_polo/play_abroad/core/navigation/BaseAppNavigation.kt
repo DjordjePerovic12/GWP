@@ -1,25 +1,44 @@
 package com.global_water_polo.play_abroad.core.navigation
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Density
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.navigation
 import co.touchlab.kermit.Logger
-import com.global_water_polo.play_abroad.core.navigation.destinations.exampleScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.loginScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.accountScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.applyReviewScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.athleteHomeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.birthdayScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.clockScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.emailScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.introScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.inviteScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.lookScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.nameScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.parentHomeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.pendingScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.positionScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.reviewStatusScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.saveScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.travelScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.whoScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.windowScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.utils.NavType
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.navigation.utils.ObserveAsEvents
 
-//TODO: Rename after the app name, set start destination to app start destination
-/**
-BaseAppNavigation is the root navigation composable that defines the navigation graph
-for the whole app. It sets up all available screen destinations and their
-respective navigation paths.
+private val enterEasing = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 
-@param navController The NavHostController that manages app navigation
-Key Components:
- * 1. ObserveAsEvents: Acts as a "navigation event listener"
- * 2. NavHost: Defines the navigation structure and screen compositions
+/**
+GWPPA's navigation graph: the spin intro, the onboarding graph (one shared OnboardingViewModel for every
+step of every lane), then the app screens. Screens rise in like the prototype's `.screen.enter`.
 
  showSnackBar is the function responsible for showing a snack bar on our screens
  it should be passed down to all screen across the app
@@ -29,7 +48,8 @@ Key Components:
 fun BaseAppNavigation(
     navController: NavHostController,
     navigator: Navigator,
-    showSnackBar: (String) -> Unit
+    showSnackBar: (String) -> Unit,
+    density: Density
 ) {
 
     ObserveAsEvents(flow = navigator.navigationFlow) { navType ->
@@ -51,11 +71,34 @@ fun BaseAppNavigation(
         }
     }
 
+    val rise = with(density) { 16.dp.roundToPx() }
     NavHost(
         navController = navController,
-        startDestination = Screen.ExampleScreen
+        startDestination = Screen.IntroScreen,
+        enterTransition = { fadeIn(tween(460, easing = enterEasing)) + slideInVertically(tween(460, easing = enterEasing)) { rise } },
+        exitTransition = { fadeOut(tween(200)) },
+        popEnterTransition = { fadeIn(tween(460, easing = enterEasing)) + slideInVertically(tween(460, easing = enterEasing)) { rise } },
+        popExitTransition = { fadeOut(tween(200)) }
     ) {
-        exampleScreenComposable(navController = navController, showSnackBar = showSnackBar)
-        loginScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        introScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        navigation<Screen.OnboardingGraph>(startDestination = Screen.WhoScreen) {
+            whoScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            birthdayScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            clockScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            nameScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            emailScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            windowScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            lookScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            travelScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            positionScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            saveScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            inviteScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            accountScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            pendingScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        }
+        athleteHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        parentHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        applyReviewScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        reviewStatusScreenComposable(navController = navController, showSnackBar = showSnackBar)
     }
 }

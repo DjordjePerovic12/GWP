@@ -14,8 +14,8 @@ object CustomModifiers {
             Snackbar(
                 snackbarData = snackBarData,
                 containerColor = GWPPATheme.colors.colorWhite,
-                contentColor = GWPPATheme.colors.colorBlack,
-                actionColor = GWPPATheme.colors.colorBlack,
+                contentColor = GWPPATheme.colors.inkBlack,
+                actionColor = GWPPATheme.colors.inkBlack,
                 shape = RoundedCornerShape(4.dp)
             )
         }

@@ -5,8 +5,10 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import com.global_water_polo.play_abroad.data.repository.BaseRepositoryImpl
 import com.global_water_polo.play_abroad.data.repository.DataStoreRepositoryImpl
+import com.global_water_polo.play_abroad.data.repository.ProfileRepositoryImpl
 import com.global_water_polo.play_abroad.domain.repository.BaseRepository
 import com.global_water_polo.play_abroad.domain.repository.DataStoreRepository
+import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 
 /**
  Koin module for binding repository implementations to their interfaces.
@@ -18,4 +20,5 @@ import com.global_water_polo.play_abroad.domain.repository.DataStoreRepository
 val repositoryModule = module {
     singleOf(::BaseRepositoryImpl) bind BaseRepository::class
     singleOf(::DataStoreRepositoryImpl) bind DataStoreRepository::class
+    singleOf(::ProfileRepositoryImpl) bind ProfileRepository::class
 }
