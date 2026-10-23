@@ -2,6 +2,7 @@ package com.global_water_polo.play_abroad.presentation.onboarding.birthday.compo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +20,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 import kotlin.math.abs
 import kotlin.math.max
@@ -42,6 +45,7 @@ private val ROW = 40.dp
  * The prototype's birthday picker: three iOS-style wheels (month, day, year) that start blank.
  * The first row of each wheel is its label, so nothing is preset.
  * [onChange] gets 1-based indexes (null while a wheel still shows its label) and whether a person moved it.
+ * Sliding is how the wheels work; [tapToSelect] additionally lets a tap on a visible row roll the wheel to it.
  */
 @Composable
 fun BirthdayWheels(
@@ -54,7 +58,8 @@ fun BirthdayWheels(
     dayLabel: String,
     yearLabel: String,
     onChange: (month: Int?, day: Int?, year: Int?, fromUser: Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tapToSelect: Boolean = false
 ) {
     var m by remember { mutableStateOf(month) }
     var d by remember { mutableStateOf(day) }
@@ -83,9 +88,9 @@ fun BirthdayWheels(
                 .border(1.dp, colors.lineGrey, RoundedCornerShape(12.dp))
         )
         Row(Modifier.fillMaxWidth()) {
-            Wheel(monthLabel, months, m, Modifier.weight(1.5f)) { v, user -> m = v; onChange(m, d, y, user) }
-            Wheel(dayLabel, (1..31).map { it.toString() }, d, Modifier.weight(0.8f)) { v, user -> d = v; onChange(m, d, y, user) }
-            Wheel(yearLabel, years.map { it.toString() }, y?.let { years.indexOf(it) + 1 }?.takeIf { it > 0 }, Modifier.weight(1f)) { v, user ->
+            Wheel(monthLabel, months, m, tapToSelect, Modifier.weight(1.5f)) { v, user -> m = v; onChange(m, d, y, user) }
+            Wheel(dayLabel, (1..31).map { it.toString() }, d, tapToSelect, Modifier.weight(0.8f)) { v, user -> d = v; onChange(m, d, y, user) }
+            Wheel(yearLabel, years.map { it.toString() }, y?.let { years.indexOf(it) + 1 }?.takeIf { it > 0 }, tapToSelect, Modifier.weight(1f)) { v, user ->
                 y = v?.let { years[it - 1] }
                 onChange(m, d, y, user)
             }
@@ -98,6 +103,7 @@ private fun Wheel(
     label: String,
     items: List<String>,
     selected: Int?,
+    tapToSelect: Boolean,
     modifier: Modifier = Modifier,
     onSelected: (Int?, Boolean) -> Unit
 ) {
@@ -107,6 +113,7 @@ private fun Wheel(
     val typography = GWPPATheme.typography
     val colors = GWPPATheme.colors
     var touched by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val center by remember {
         derivedStateOf {
             val info = state.layoutInfo
@@ -140,6 +147,15 @@ private fun Wheel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(ROW)
+                    // Optional: tapping a visible row rolls the wheel to it (faster than sliding, and forgiving).
+                    .then(
+                        if (tapToSelect) {
+                            Modifier.clickable(interactionSource = null, indication = null) {
+                                touched = true
+                                scope.launch { state.animateScrollToItem(k) }
+                            }
+                        } else Modifier
+                    )
                     .graphicsLayer {
                         val info = state.layoutInfo
                         val item = info.visibleItemsInfo.firstOrNull { it.index == k }

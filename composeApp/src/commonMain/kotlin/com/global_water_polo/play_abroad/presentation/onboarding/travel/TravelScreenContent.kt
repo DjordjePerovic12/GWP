@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -32,6 +30,7 @@ import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.BackButton
 import com.global_water_polo.play_abroad.core.components.ChoiceChip
 import com.global_water_polo.play_abroad.core.components.ClockChip
+import com.global_water_polo.play_abroad.core.components.DotSlider
 import com.global_water_polo.play_abroad.core.components.Headline
 import com.global_water_polo.play_abroad.core.components.HelpText
 import com.global_water_polo.play_abroad.core.components.OnboardingLayout
@@ -42,7 +41,6 @@ import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingState
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
-import kotlin.math.roundToInt
 
 /** The next 12 months, starting next month: (offset, "Nov 2026"). */
 @Composable
@@ -120,15 +118,13 @@ fun TravelScreenContent(
                     .fillMaxWidth()
                     .background(colors.colorWhite, RoundedCornerShape(14.dp))
                     .border(1.dp, colors.lineGrey, RoundedCornerShape(14.dp))
-                    .padding(horizontal = 14.dp, vertical = 2.dp)
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Text(text = stringResource(Res.string.travel_custom), style = typography.archivoSemiBold13, color = colors.slateGrey)
-                Slider(
-                    value = length.toFloat(),
-                    onValueChange = { onLengthChanged(it.roundToInt()) },
-                    valueRange = 1f..12f,
-                    steps = 10,
-                    colors = SliderDefaults.colors(thumbColor = colors.chlorineBlue, activeTrackColor = colors.chlorineBlue, inactiveTrackColor = colors.lineGrey),
+                DotSlider(
+                    value = length,
+                    range = 1..12,
+                    onValueChange = onLengthChanged,
                     modifier = Modifier.weight(1f)
                 )
                 Text(

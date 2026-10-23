@@ -65,6 +65,7 @@ fun BirthdayScreenContent(
             dayLabel = stringResource(Res.string.birthday_day),
             yearLabel = stringResource(Res.string.birthday_year),
             onChange = onBirthdayChange,
+            tapToSelect = true,
             modifier = Modifier.padding(top = 18.dp)
         )
         Text(

@@ -1,139 +1,126 @@
 package com.global_water_polo.play_abroad.core.components.globe
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.graphics.Vertices
+import androidx.compose.ui.graphics.VertexMode
 import org.jetbrains.compose.resources.decodeToImageBitmap
 import com.global_water_polo.play_abroad.resources.Res
 import kotlin.math.PI
-import kotlin.math.acos
-import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.pow
 import kotlin.math.sin
-import kotlin.math.sqrt
 
-/** The ball texture (equirectangular map with the bump map baked into its brightness). */
-class GlobeTexture(val width: Int, val height: Int, val argb: IntArray)
-
-/** Loads `files/ball_map.jpg` + `files/ball_bump.jpg` once, at half resolution (1024 x 512). */
-suspend fun loadGlobeTexture(): GlobeTexture {
-    val map = Res.readBytes("files/ball_map.jpg").decodeToImageBitmap().toPixelMap()
-    val bump = Res.readBytes("files/ball_bump.jpg").decodeToImageBitmap().toPixelMap()
-    val w = map.width / 2
-    val h = map.height / 2
-    val out = IntArray(w * h)
+/**
+ * The ball texture (equirectangular, 2048 x 1024) with the bump map baked into its brightness,
+ * so the panel seams and pebble grain show without a lighting pass.
+ */
+suspend fun loadGlobeTexture(): ImageBitmap {
+    val map = Res.readBytes("files/ball_map.jpg").decodeToImageBitmap()
+    val bump = Res.readBytes("files/ball_bump.jpg").decodeToImageBitmap()
+    val w = map.width
+    val h = map.height
+    val colors = IntArray(w * h).also { map.readPixels(it) }
+    val bumps = IntArray(bump.width * bump.height).also { bump.readPixels(it) }
+    val out = PixelImage(w, h)
     for (y in 0 until h) {
+        val by = y * bump.height / h
         for (x in 0 until w) {
-            val c = map[x * 2, y * 2]
-            val b = bump[x * bump.width / w, y * bump.height / h].red
-            // Seams and pebble grain from the bump map darken the colour slightly.
+            val c = colors[y * w + x]
+            val b = (bumps[by * bump.width + x * bump.width / w] shr 16 and 0xFF) / 255f
             val k = 0.8f + 0.28f * b
-            val r = min(255f, c.red * 255f * k).toInt()
-            val g = min(255f, c.green * 255f * k).toInt()
-            val bl = min(255f, c.blue * 255f * k).toInt()
-            out[y * w + x] = (0xFF shl 24) or (r shl 16) or (g shl 8) or bl
+            val r = min(255f, (c shr 16 and 0xFF) * k).toInt()
+            val g = min(255f, (c shr 8 and 0xFF) * k).toInt()
+            val bl = min(255f, (c and 0xFF) * k).toInt()
+            out.pixels[y * w + x] = (0xFF shl 24) or (r shl 16) or (g shl 8) or bl
         }
     }
-    return GlobeTexture(w, h, out)
+    return out.update()
 }
 
 /**
- * Renders the water polo globe as the prototype's three.js scene does: a sphere tilted by
- * rotation.z = -0.32 and rotation.x = 0.18, spinning around its own axis, lit by a key light
- * from the upper left, a cool rim light and a clear-coat highlight.
- *
- * Everything that does not depend on the spin angle is computed once per pixel, so a frame is
- * one texture lookup and a multiply per pixel.
+ * The water polo globe as a textured sphere mesh, drawn by the GPU (Canvas.drawVertices), like the
+ * prototype's three.js scene: tilted by rotation.z = -0.32 and rotation.x = 0.18, spinning around its
+ * own axis. The texture is attached to the ball (fixed UVs), only vertex positions change per frame,
+ * so a frame costs a few thousand multiplications whatever the ball's size on screen.
  */
-class GlobeRenderer(private val texture: GlobeTexture, val size: Int) {
+class GlobeMesh(private val textureWidth: Int, private val textureHeight: Int) {
 
-    // Two buffers: one is on screen while the next frame is drawn into the other (frames render off the main thread).
-    private val images = arrayOf(PixelImage(size, size), PixelImage(size, size))
-    private var next = 0
-    private val count = size * size
-    private val alpha = IntArray(count)
-    private val column = FloatArray(count)
-    private val rowOffset = IntArray(count)
-    private val shade = FloatArray(count)
-    private val specular = FloatArray(count)
+    private val lonSegments = 72
+    private val latSegments = 36
+    private val columns = lonSegments + 1
+    private val count = columns * (latSegments + 1)
+
+    // Point on the unit ball for each vertex (three.js SphereGeometry layout) and its texture position.
+    private val px = FloatArray(count)
+    private val py = FloatArray(count)
+    private val pz = FloatArray(count)
+    private val uv: List<Offset>
+    private val white = List(count) { Color.White }
+
+    private val tiltX = 0.18f
+    private val tiltZ = -0.32f
 
     init {
-        val radius = size / 2f
-        val key = normalize(-3f, 4f, 5f)
-        val rim = normalize(4f, 1.5f, -3f)
-        val half = normalize(key[0], key[1], key[2] + 1f)
-        val tiltX = -0.18f
-        val tiltZ = 0.32f
-        for (py in 0 until size) {
-            for (px in 0 until size) {
-                val i = py * size + px
-                val dx = px + 0.5f - radius
-                val dy = py + 0.5f - radius
-                val dist = sqrt(dx * dx + dy * dy)
-                val coverage = (radius - dist + 0.5f).coerceIn(0f, 1f)
-                alpha[i] = (coverage * 255f).toInt()
-                if (alpha[i] == 0) continue
-                // View-space normal (y up, z towards the viewer).
-                val k = min(1f, dist / radius) / max(dist, 1e-4f)
-                val nx = dx * k
-                val ny = -dy * k
-                val nz = sqrt(max(0f, 1f - nx * nx - ny * ny))
-                // Undo the tilt: Rx(-0.18), then Rz(0.32), to get the point on the ball itself.
-                val y1 = ny * cos(tiltX) - nz * sin(tiltX)
-                val z1 = ny * sin(tiltX) + nz * cos(tiltX)
-                val qx = nx * cos(tiltZ) - y1 * sin(tiltZ)
-                val qy = nx * sin(tiltZ) + y1 * cos(tiltZ)
-                val phi = atan2(z1, -qx)
-                val u = ((phi / (2 * PI).toFloat()) % 1f + 1f) % 1f
-                column[i] = u * texture.width
-                val theta = acos(qy.coerceIn(-1f, 1f))
-                val row = ((theta / PI.toFloat()) * (texture.height - 1)).toInt().coerceIn(0, texture.height - 1)
-                rowOffset[i] = row * texture.width
-                // Lighting: hemisphere ambient + key + rim, clear-coat specular and a soft fresnel edge.
-                val diffuse = max(0f, nx * key[0] + ny * key[1] + nz * key[2])
-                val rimLight = max(0f, nx * rim[0] + ny * rim[1] + nz * rim[2])
-                val ambient = 0.46f + 0.12f * ny
-                shade[i] = ambient + 0.62f * diffuse + 0.3f * rimLight
-                val spec = max(0f, nx * half[0] + ny * half[1] + nz * half[2]).pow(48)
-                val fresnel = (1f - nz).pow(3) * 0.18f
-                specular[i] = (spec * 0.55f + fresnel) * 255f
+        val coords = ArrayList<Offset>(count)
+        for (lat in 0..latSegments) {
+            val theta = PI.toFloat() * lat / latSegments
+            for (lon in 0..lonSegments) {
+                val phi = 2f * PI.toFloat() * lon / lonSegments
+                val i = lat * columns + lon
+                px[i] = -cos(phi) * sin(theta)
+                py[i] = cos(theta)
+                pz[i] = sin(phi) * sin(theta)
+                coords += Offset(textureWidth * lon.toFloat() / lonSegments, textureHeight * lat.toFloat() / latSegments)
             }
         }
+        uv = coords
     }
 
-    /** Draws the ball turned by [angleDegrees] (drag right = positive). */
-    fun render(angleDegrees: Float): ImageBitmap {
-        val image = images[next]
-        next = 1 - next
-        val pixels = image.pixels
-        val tex = texture.argb
-        val width = texture.width
-        val widthF = width.toFloat()
-        val shift = (angleDegrees / 360f % 1f) * widthF
+    /** Triangles of the half of the ball facing the viewer, centred at ([cx], [cy]) with [radius] in px. */
+    fun vertices(angleDegrees: Float, cx: Float, cy: Float, radius: Float): Vertices {
+        val a = angleDegrees * PI.toFloat() / 180f
+        val ca = cos(a)
+        val sa = sin(a)
+        val cz = cos(tiltZ)
+        val sz = sin(tiltZ)
+        val cxr = cos(tiltX)
+        val sxr = sin(tiltX)
+        val positions = ArrayList<Offset>(count)
+        val depth = FloatArray(count)
         for (i in 0 until count) {
-            val a = alpha[i]
-            if (a == 0) {
-                pixels[i] = 0
-                continue
-            }
-            var col = column[i] - shift
-            col -= (col / widthF).toInt() * widthF
-            if (col < 0f) col += widthF
-            val texel = tex[rowOffset[i] + min(width - 1, col.toInt())]
-            val s = shade[i]
-            val sp = specular[i]
-            val r = min(255f, ((texel shr 16) and 0xFF) * s + sp).toInt()
-            val g = min(255f, ((texel shr 8) and 0xFF) * s + sp).toInt()
-            val b = min(255f, (texel and 0xFF) * s + sp).toInt()
-            pixels[i] = (a shl 24) or (r shl 16) or (g shl 8) or b
+            // Spin (Ry), then tilt: Rz(-0.32), then Rx(0.18).
+            val x1 = px[i] * ca + pz[i] * sa
+            val z1 = -px[i] * sa + pz[i] * ca
+            val y1 = py[i]
+            val x2 = x1 * cz - y1 * sz
+            val y2 = x1 * sz + y1 * cz
+            val y3 = y2 * cxr - z1 * sxr
+            val z3 = y2 * sxr + z1 * cxr
+            positions += Offset(cx + x2 * radius, cy - y3 * radius)
+            depth[i] = z3
         }
-        return image.update()
-    }
-
-    private fun normalize(x: Float, y: Float, z: Float): FloatArray {
-        val l = sqrt(x * x + y * y + z * z)
-        return floatArrayOf(x / l, y / l, z / l)
+        val indices = ArrayList<Int>(lonSegments * latSegments * 6 / 2 + 64)
+        for (lat in 0 until latSegments) {
+            for (lon in 0 until lonSegments) {
+                val i0 = lat * columns + lon
+                val i1 = i0 + 1
+                val i2 = i0 + columns
+                val i3 = i2 + 1
+                // A convex ball: quads facing away are hidden, and facing quads never overlap.
+                if (depth[i0] > -0.05f || depth[i1] > -0.05f || depth[i2] > -0.05f || depth[i3] > -0.05f) {
+                    indices += i0; indices += i2; indices += i1
+                    indices += i1; indices += i2; indices += i3
+                }
+            }
+        }
+        return Vertices(
+            vertexMode = VertexMode.Triangles,
+            positions = positions,
+            textureCoordinates = uv,
+            colors = white,
+            indices = indices
+        )
     }
 }

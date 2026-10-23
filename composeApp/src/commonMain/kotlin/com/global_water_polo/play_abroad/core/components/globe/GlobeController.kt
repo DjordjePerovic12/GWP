@@ -8,7 +8,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameMillis
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import kotlin.math.pow
+import kotlin.time.Clock
 
 /** Where the globe sits on the current screen. */
 enum class GlobeMode {
@@ -25,7 +28,7 @@ enum class GlobeMode {
  */
 @Stable
 class GlobeController {
-    var angle by mutableFloatStateOf(-50f)
+    var angle by mutableFloatStateOf(homeAngle())
         private set
     var punch by mutableFloatStateOf(0f)
         private set
@@ -40,10 +43,11 @@ class GlobeController {
     private var dragging = false
     private var userSpin = false
     private var kicked = false
-    private var idleSpeed = 0.004f
+    private var idleSpeed = 0f
 
     fun setMode(mode: GlobeMode) {
-        idleSpeed = if (mode == GlobeMode.INTRO) 0.004f else 0.006f
+        // On the intro the globe rests on the device's own time zone until someone spins it.
+        idleSpeed = if (mode == GlobeMode.INTRO) 0f else 0.006f
         if (mode == GlobeMode.INTRO) {
             kicked = false
             userSpin = false
@@ -64,7 +68,7 @@ class GlobeController {
     /** [velocityDegreesPerMs] from the finger's last movement; clamped like the prototype. */
     fun dragEnd(velocityDegreesPerMs: Float) {
         dragging = false
-        velocity = velocityDegreesPerMs.coerceIn(-2.4f, 2.4f)
+        velocity = velocityDegreesPerMs.coerceIn(-3.6f, 3.6f)
     }
 
     /** A strong spin that slows down quickly, with the ball "punching" bigger for a moment. */
@@ -97,6 +101,15 @@ class GlobeController {
             punch *= 0.02f.pow(dt / 1000f)
         }
     }
+}
+
+/**
+ * Angle that turns the device's time zone to face the viewer: the facing meridian is -90 - angle,
+ * and a UTC offset of h hours sits at longitude 15 * h.
+ */
+fun homeAngle(): Float {
+    val offsetHours = TimeZone.currentSystemDefault().offsetAt(Clock.System.now()).totalSeconds / 3600f
+    return -90f - offsetHours * 15f
 }
 
 val LocalGlobeController = staticCompositionLocalOf { GlobeController() }

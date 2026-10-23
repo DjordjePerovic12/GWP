@@ -84,8 +84,8 @@ fun IntroScreenContent(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(Unit) {
-                // Prototype: 170° of turn per screen width (capped at 700dp), fling with the finger's speed.
-                val degreesPerPx = 170f / min(size.width / density, 700f) / density
+                // 220° of turn per screen width (capped at 700dp), fling with the finger's speed.
+                val degreesPerPx = 220f / min(size.width / density, 700f) / density
                 val tracker = VelocityTracker()
                 detectHorizontalDragGestures(
                     onDragStart = {
