@@ -80,6 +80,8 @@ fun ProfileScreenContent(
                     state = state,
                     onPreviewToggle = { onEvent(ProfileEvent.OnPreviewToggle(it)) },
                     onItemClick = { onEvent(ProfileEvent.OnPortfolioItemClick(it)) },
+                    onFilePicked = { key, file -> onEvent(ProfileEvent.OnPortfolioFilePicked(key, file)) },
+                    onFileRemove = { onEvent(ProfileEvent.OnPortfolioFileRemove(it)) },
                     onVisibilityClick = { onEvent(ProfileEvent.OnVisibilityClick(it)) }
                 )
             }

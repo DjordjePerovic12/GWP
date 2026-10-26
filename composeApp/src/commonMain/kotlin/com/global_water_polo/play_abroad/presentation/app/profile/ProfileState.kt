@@ -79,7 +79,7 @@ data class ProfileState(
         get() = listOf(
             "photo" to ("photo" in profile.uploads),
             "video" to ("video" in profile.uploads),
-            "position" to (profile.position.isNotEmpty() || "position" in profile.uploads),
+            "position" to (profile.position.isNotEmpty() || profile.positionAdded),
             "personal" to ("personal" in profile.uploads),
             "transcript" to ("transcript" in profile.uploads),
             "letters" to ("letters" in profile.uploads)

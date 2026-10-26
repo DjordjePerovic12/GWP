@@ -109,10 +109,14 @@ class ProfileViewModel(
             }
 
             is ProfileEvent.OnLabTestClick -> state.update { it.copy(sheet = ProfileSheet.LabTest(event.index)) }
-            is ProfileEvent.OnLabAngleClick -> profileRepository.update {
+            is ProfileEvent.OnLabAnglePicked -> profileRepository.update {
                 if (event.index in it.labSent) return@update it
                 val angles = it.labAngles[event.index].orEmpty()
-                it.copy(labAngles = it.labAngles + (event.index to (if (event.angle in angles) angles - event.angle else angles + event.angle)))
+                it.copy(labAngles = it.labAngles + (event.index to angles + (event.angle to event.file)))
+            }
+            is ProfileEvent.OnLabAngleRemove -> profileRepository.update {
+                if (event.index in it.labSent) return@update it
+                it.copy(labAngles = it.labAngles + (event.index to it.labAngles[event.index].orEmpty() - event.angle))
             }
             is ProfileEvent.OnLabSendClick -> {
                 val s = state.value
@@ -126,10 +130,11 @@ class ProfileViewModel(
             ProfileEvent.OnLabExampleClick -> state.update { it.copy(sheet = ProfileSheet.LabExample) }
 
             is ProfileEvent.OnPreviewToggle -> state.update { it.copy(preview = event.preview) }
-            // Prototype: no camera or file picker yet, so tapping an item marks it as added.
-            is ProfileEvent.OnPortfolioItemClick -> profileRepository.update {
-                it.copy(uploads = if (event.key in it.uploads) it.uploads - event.key else it.uploads + event.key)
-            }
+            // Only the position row is tapped to mark it; the rest open the picker.
+            is ProfileEvent.OnPortfolioItemClick -> profileRepository.update { it.copy(positionAdded = !it.positionAdded) }
+            // Prototype: the picked file stays on the device; nothing is uploaded yet.
+            is ProfileEvent.OnPortfolioFilePicked -> profileRepository.update { it.copy(uploads = it.uploads + (event.key to event.file)) }
+            is ProfileEvent.OnPortfolioFileRemove -> profileRepository.update { it.copy(uploads = it.uploads - event.key) }
             is ProfileEvent.OnVisibilityClick -> profileRepository.update { it.copy(visibility = event.visibility) }
         }
     }

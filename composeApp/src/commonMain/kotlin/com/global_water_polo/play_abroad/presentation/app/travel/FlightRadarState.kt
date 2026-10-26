@@ -2,6 +2,7 @@ package com.global_water_polo.play_abroad.presentation.app.travel
 
 import com.global_water_polo.play_abroad.domain.model.City
 import com.global_water_polo.play_abroad.domain.model.Profile
+import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
 import com.global_water_polo.play_abroad.presentation.base.BaseError
 import com.global_water_polo.play_abroad.presentation.base.BaseViewState
@@ -12,7 +13,11 @@ data class FlightRadarState(
     val profile: Profile = Profile()
 ) : BaseViewState(isLoading, error) {
 
-    val trips: List<City> get() = profile.trips.mapNotNull { WaterPoloMap.city(it) }
+    val sent: List<Trip> get() = profile.trips.filter { it.sent }
+    val drafts: List<Trip> get() = profile.trips.filterNot { it.sent }
+
+    /** The cities to fly to, one card each, in trip order. */
+    val trips: List<City> get() = profile.trips.map { it.cityId }.distinct().mapNotNull { WaterPoloMap.city(it) }
 
     /** The route on the radar: the next trip, or a sample route to Herceg Novi before there is one. */
     val destination: City get() = trips.firstOrNull() ?: WaterPoloMap.city("herceg-novi")!!

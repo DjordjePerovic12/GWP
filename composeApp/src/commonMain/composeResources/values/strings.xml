@@ -911,7 +911,6 @@
     <string name="lab_above">Above water</string>
     <string name="lab_under">Underwater</string>
     <string name="lab_add_video">Add video</string>
-    <string name="lab_added">Added</string>
     <string name="lab_feedback">Coach feedback</string>
     <string name="lab_feedback_sent">Sent. A GWP coach watches both angles and writes your notes here.</string>
     <string name="lab_feedback_empty">After you send this test, a GWP coach's notes appear here.</string>
@@ -950,6 +949,7 @@
     <string name="port_transcript">Transcript</string>
     <string name="port_letters">Recommendation letters</string>
     <string name="port_add">Add</string>
+    <string name="port_remove">Remove</string>
     <string name="port_photo_sub">A clear, recent shot. Cap on or off.</string>
     <string name="port_video_sub">60 to 90 seconds. Best clips first.</string>
     <string name="port_position_sub">Goalkeeper, center, driver...</string>
@@ -1012,8 +1012,8 @@
     <string name="city_no_clubs">Clubs in %1$s aren't listed yet. Tell GWP what you're looking for and we'll propose one.</string>
     <string name="city_founded">Founded %1$s</string>
     <string name="city_founded_verify">Founding date to verify</string>
-    <string name="city_ask">Ask GWP about %1$s</string>
-    <string name="city_asked">In your trips</string>
+    <string name="city_build">Build my experience +</string>
+    <string name="city_sent">Inquiry sent</string>
     <string name="club_concept">Concept image</string>
     <string name="club_not_verified">Not verified</string>
     <string name="club_verify_note">Staff and photos appear once the club verifies its profile. Not a GWP partner.</string>
@@ -1039,22 +1039,170 @@
     <string name="club_ask_gwp">Ask GWP</string>
     <string name="club_training_fine">Availability depends on club acceptance. GWP confirms before anything is bookable.</string>
 
+    <!-- Globe+ booking: build your experience -->
+    <string name="globe_trips">Your trips</string>
+    <string name="bk_kicker">Play abroad / Custom experience</string>
+    <string name="bk_title">Build your world.</string>
+    <string name="bk_sub">%1$s. %2$s. An experience built around you.</string>
+    <string name="bk_club">Your club</string>
+    <string name="bk_match">Let GWP match me</string>
+    <string name="bk_dates">Your dates</string>
+    <string name="bk_arrive">Arrive</string>
+    <string name="bk_leave">Leave</string>
+    <string name="bk_dates_fine">One month minimum. Dates are requested, not reserved.</string>
+    <string name="bk_home">Find your home</string>
+    <string name="bk_tour">Apartment tour</string>
+    <string name="bk_tour_sub">Walkthrough, floor plan, amenities</string>
+    <string name="bk_concept">Concept images</string>
+    <string name="bk_apt_requested">You asked for a place like the one in the tour.</string>
+    <string name="home_room">Private room in a furnished apartment</string>
+    <string name="home_studio">Furnished studio apartment</string>
+    <string name="home_one">Private one-bedroom apartment</string>
+    <string name="bk_extras">Training and extras</string>
+    <string name="bk_club_m">Club membership and registration</string>
+    <string name="bk_club_m_sub">Training and competition with the club</string>
+    <string name="bk_gym">Gym and pool fees</string>
+    <string name="bk_gym_sub">Strength room and pool access</string>
+    <string name="bk_meals">3 meals a day</string>
+    <string name="bk_activities">Cultural activities and excursions</string>
+    <string name="bk_optional">Optional</string>
+    <string name="bk_lessons">Private lessons with coaches</string>
+    <string name="bk_lessons_week">%1$d a week</string>
+    <string name="bk_none">None</string>
+    <string name="bk_addons">Add-ons</string>
+    <string name="addon_pickup">Airport pickup</string>
+    <string name="addon_sim">Local SIM card</string>
+    <string name="addon_bike">Bike rental</string>
+    <string name="addon_language">Language classes</string>
+    <string name="addon_gear">Gear pack</string>
+    <string name="addon_laundry">Laundry service</string>
+    <string name="bk_on_inquiry">On inquiry</string>
+    <string name="bk_items">%1$d items, %2$s</string>
+    <string name="bk_review">Review</string>
+
+    <!-- Globe+ booking: dates -->
+    <string name="dp_title">Your dates</string>
+    <string name="dp_select">Select</string>
+    <string name="dp_pick_leave">Now pick your leave date</string>
+    <string name="dp_range_note">One month minimum, twelve maximum</string>
+    <string name="dp_in">%1$s in %2$s</string>
+    <string name="dp_apply">Apply</string>
+    <string-array name="dp_weekdays">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>T</item>
+        <item>F</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+
+    <!-- Globe+ booking: apartment tour -->
+    <string name="tour_concept">Concept images. Not a real listing.</string>
+    <string name="tour_walk">Walkthrough</string>
+    <string name="tour_living">Living space</string>
+    <string name="tour_living_sub">Bright, furnished, room to recover</string>
+    <string name="tour_bed">Bedroom</string>
+    <string name="tour_bed_sub">Quiet, blackout shutters, a desk for study</string>
+    <string name="tour_kitchen">Kitchen</string>
+    <string name="tour_kitchen_sub">Cook your own meals, or add the meal plan</string>
+    <string name="tour_plan">Floor plan</string>
+    <string name="tour_sample">Sample layout</string>
+    <string name="tour_plan_living">Living</string>
+    <string name="tour_plan_bed">Bedroom</string>
+    <string name="tour_plan_kitchen">Kitchen</string>
+    <string name="tour_plan_bath">Bath</string>
+    <string name="tour_amenities">Amenities</string>
+    <string name="tour_am_wifi">Wi-Fi</string>
+    <string name="tour_am_washer">Washing machine</string>
+    <string name="tour_am_ac">Air conditioning</string>
+    <string name="tour_am_desk">Study desk</string>
+    <string name="tour_am_linens">Linens and towels</string>
+    <string name="tour_am_balcony">Balcony</string>
+    <string name="tour_distance">Distance to the club</string>
+    <string name="tour_distance_sub">Confirmed by GWP for the exact property in %1$s.</string>
+    <string name="tour_request">Request this apartment +</string>
+    <string name="tour_fine">In the production app this shows the property's verified video or 360° tour.</string>
+
+    <!-- Globe+ booking: review and availability -->
+    <string name="rv_edit">‹ Edit experience</string>
+    <string name="rv_title">Your experience</string>
+    <string name="rv_dates">%1$s to %2$s, %3$s</string>
+    <string name="rv_match">GWP matches your club</string>
+    <string name="rv_breakdown">Breakdown</string>
+    <string name="rv_program">Program fees</string>
+    <string name="rv_housing">Housing</string>
+    <string name="rv_optional">Optional extras</string>
+    <string name="rv_lessons">Private lessons, %1$d a week (%2$d)</string>
+    <string name="rv_activities">Activities and excursions</string>
+    <string name="rv_fee">GWP service fee</string>
+    <string name="rv_fee_sub">Set by GWP, shown in your quote</string>
+    <string name="rv_total">Estimated total</string>
+    <string name="rv_not_included">Not included</string>
+    <string name="rv_not_included_sub">Flights (plan them in Flight Radar). Your GWP membership is separate from program fees.</string>
+    <string name="rv_avail">Availability check</string>
+    <string name="av_club">Club registration</string>
+    <string name="av_club_sub">Club acceptance, squad placement and training schedule</string>
+    <string name="av_home">Furnished accommodation</string>
+    <string name="av_home_sub">Exact property, lease dates, apartment tour and terms</string>
+    <string name="av_price">Complete package pricing</string>
+    <string name="av_price_sub">Club and housing costs, deposits, fees and payment conditions</string>
+    <string name="av_pending">Pending</string>
+    <string name="av_checking">Checking</string>
+    <string name="rv_nopay">No payment required yet</string>
+    <string name="rv_nopay_sub">This is a custom placement inquiry. GWP must verify availability and send a complete written quote before you can book.</string>
+    <string name="rv_notes">Additional preferences or questions</string>
+    <string name="rv_notes_hint">Preferred accommodation, training level, anything GWP should know</string>
+    <string name="rv_send">Send availability inquiry</string>
+    <string name="rv_sent">Inquiry sent</string>
+    <string name="rv_fine">A proposed itinerary requiring GWP review. Sending creates an inquiry, not a confirmed booking or guaranteed placement. Prototype: nothing is sent.</string>
+
+    <!-- Globe+ booking: the trips cart -->
+    <string name="cart_title">Your trips</string>
+    <string name="cart_empty">Nothing yet. Tap a city or a club on the globe to build your experience.</string>
+    <string name="cart_draft">Draft</string>
+    <string name="cart_track">Track</string>
+    <string name="cart_review">Review and send</string>
+    <string name="cart_remove">Remove</string>
+
     <!-- Travel tab -->
     <string name="fly_title">Flight Radar</string>
     <string name="fly_sub">Schedule your travel with GWP.</string>
     <string name="fly_next_trip">Next trip</string>
     <string name="fly_sample">Sample route</string>
     <string name="fly_home">Home airport</string>
-    <string name="fly_trips">Your trips</string>
+    <string name="fly_trips">Flights</string>
     <string name="fly_depart">Depart</string>
     <string name="fly_status">Status</string>
     <string name="fly_requested">Requested</string>
     <string name="fly_not_booked">Not booked</string>
     <string name="fly_request">Request flights</string>
     <string name="fly_empty">No trips yet.</string>
-    <string name="fly_empty_sub">Ask GWP about a city on the globe and your trip shows up here.</string>
+    <string name="fly_empty_sub">Build an experience on the globe and your trip shows up here.</string>
     <string name="fly_open_globe">Open the globe</string>
     <string name="fly_before">Before you fly</string>
+    <string name="fly_my_trips">My trips</string>
+    <string name="fly_in_progress">%1$d in progress</string>
+    <string name="fly_drafts">Drafts</string>
+    <string name="tk_club">Club</string>
+    <string name="tk_club_v">Pending partner confirmation</string>
+    <string name="tk_apartment">Apartment</string>
+    <string name="tk_apt_requested">Requested, pending</string>
+    <string name="tk_pending">Pending</string>
+    <string name="tk_registration">Registration</string>
+    <string name="tk_after_offer">After your offer</string>
+    <string name="tk_travel">Travel</string>
+    <string name="tk_planning">GWP is planning flights</string>
+    <string name="tk_step_build">Build your experience</string>
+    <string name="tk_step_build_sub">Club, dates and home</string>
+    <string name="tk_step_verify">Request verification</string>
+    <string name="tk_step_verify_sub">Pending partner confirmation</string>
+    <string name="tk_step_offer">Review your offer</string>
+    <string name="tk_step_offer_sub">GWP-approved quote</string>
+    <string name="tk_step_book">Confirm and book</string>
+    <string name="tk_step_book_sub">After verification</string>
+    <string name="tk_step_manage">Manage your trip</string>
+    <string name="tk_step_manage_sub">Bookings, contacts, schedule, flights</string>
     <string name="fly_chk_pass">Passport valid 6 months past your return</string>
     <string name="fly_chk_visa">Visa or residence check. GWP reviews every placement</string>
     <string name="fly_chk_ins">Travel and health insurance</string>

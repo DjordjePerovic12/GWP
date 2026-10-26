@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad.presentation.app.profile
 
+import io.github.vinceglb.filekit.PlatformFile
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
 import com.global_water_polo.play_abroad.domain.model.Program
@@ -31,11 +32,14 @@ sealed class ProfileEvent : BaseEvent {
     data class OnClinicClick(val index: Int) : ProfileEvent()
 
     data class OnLabTestClick(val index: Int) : ProfileEvent()
-    data class OnLabAngleClick(val index: Int, val angle: String) : ProfileEvent()
+    data class OnLabAnglePicked(val index: Int, val angle: String, val file: PlatformFile) : ProfileEvent()
+    data class OnLabAngleRemove(val index: Int, val angle: String) : ProfileEvent()
     data class OnLabSendClick(val index: Int) : ProfileEvent()
     data object OnLabExampleClick : ProfileEvent()
 
     data class OnPreviewToggle(val preview: Boolean) : ProfileEvent()
     data class OnPortfolioItemClick(val key: String) : ProfileEvent()
+    data class OnPortfolioFilePicked(val key: String, val file: PlatformFile) : ProfileEvent()
+    data class OnPortfolioFileRemove(val key: String) : ProfileEvent()
     data class OnVisibilityClick(val visibility: ProfileVisibility) : ProfileEvent()
 }

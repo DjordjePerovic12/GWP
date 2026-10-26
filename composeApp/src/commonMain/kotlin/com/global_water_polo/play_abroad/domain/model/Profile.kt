@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad.domain.model
 
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.datetime.LocalDate
 
 /** What the user tells us during onboarding. Kept in memory only; nothing is saved or sent yet. */
@@ -34,18 +35,21 @@ data class Profile(
     val leftHanded: Boolean = false,
     val visibility: ProfileVisibility = ProfileVisibility.COACHES,
     val finished: Set<String> = emptySet(),
-    val uploads: Set<String> = emptySet(),
+    /** Portfolio files picked on the device, by item ("photo", "video", "personal", ...). Not uploaded yet. */
+    val uploads: Map<String, PlatformFile> = emptyMap(),
+    /** The position row has no file; tapping it marks it as done until positions can be edited. */
+    val positionAdded: Boolean = false,
     val reviewSubmitted: Boolean = false,
     val pathway: Pathway? = null,
     val inquiries: Set<String> = emptySet(),
     val clinicRequests: Set<Int> = emptySet(),
-    /** GWP LAB: filmed angles ("above", "under") per test, and the tests sent for coach review. */
-    val labAngles: Map<Int, Set<String>> = emptyMap(),
+    /** GWP LAB: the video picked for each angle ("above", "under") per test, and the tests sent for coach review. */
+    val labAngles: Map<Int, Map<String, PlatformFile>> = emptyMap(),
     val labSent: Set<Int> = emptySet(),
     val saved: Set<String> = emptySet(),
     val likes: Set<String> = emptySet(),
-    /** Cities the athlete asked GWP about from Globe+; the first one is the next trip on Travel. */
-    val trips: List<String> = emptyList(),
+    /** Experiences built on Globe+, drafts and sent inquiries; the first one is the next trip on Travel. */
+    val trips: List<Trip> = emptyList(),
     val flightRequests: Set<String> = emptySet(),
     val homeAirport: String = "LAX",
     val travelChecks: Set<String> = emptySet(),

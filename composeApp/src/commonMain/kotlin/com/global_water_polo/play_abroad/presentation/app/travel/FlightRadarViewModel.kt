@@ -12,7 +12,10 @@ import com.global_water_polo.play_abroad.core.navigation.utils.openTab
 import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.presentation.base.BaseViewModel
 
-/** Travel tab (Flight Radar): the route from the home airport, the trips asked about on Globe+, and a checklist. */
+/**
+ * Travel tab (Flight Radar): the route from the home airport, the experiences sent from Globe+ with their
+ * tracking, drafts to finish, flights per trip, and a checklist.
+ */
 class FlightRadarViewModel(
     private val profileRepository: ProfileRepository,
     private val navigator: Navigator
@@ -52,6 +55,7 @@ class FlightRadarViewModel(
                 it.copy(travelChecks = if (event.key in it.travelChecks) it.travelChecks - event.key else it.travelChecks + event.key)
             }
             FlightRadarEvent.OnOpenGlobeClick -> viewModelScope.launch { navigator.openTab(Screen.GlobeScreen()) }
+            is FlightRadarEvent.OnDraftClick -> viewModelScope.launch { navigator.openTab(Screen.GlobeScreen(trip = event.tripId)) }
         }
     }
 }

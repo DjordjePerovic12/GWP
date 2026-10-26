@@ -3,14 +3,23 @@ package com.global_water_polo.play_abroad.presentation.app.globe
 import com.global_water_polo.play_abroad.domain.model.City
 import com.global_water_polo.play_abroad.domain.model.Club
 import com.global_water_polo.play_abroad.domain.model.Profile
+import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
 import com.global_water_polo.play_abroad.presentation.base.BaseError
 import com.global_water_polo.play_abroad.presentation.base.BaseViewState
 
-/** The page open over Globe+: a city with its clubs, or one club. */
+/**
+ * The page open over Globe+: a city with its clubs, one club, the experience builder with its date
+ * picker and apartment tour, a trip's review, or the trips cart.
+ */
 sealed interface GlobeSheet {
     data class CityPage(val cityId: String) : GlobeSheet
     data class ClubPage(val clubId: String) : GlobeSheet
+    data object Build : GlobeSheet
+    data object Dates : GlobeSheet
+    data object Tour : GlobeSheet
+    data class Review(val tripId: Long) : GlobeSheet
+    data object Trips : GlobeSheet
 }
 
 data class GlobeState(
@@ -22,7 +31,9 @@ data class GlobeState(
     val region: String = "eu",
     val sheet: GlobeSheet? = null,
     /** The city the globe should turn to; changes every time a city or club is picked. */
-    val focus: City? = null
+    val focus: City? = null,
+    /** The experience being built; saved to the profile's trips on Review. */
+    val draft: Trip? = null
 ) : BaseViewState(isLoading, error) {
 
     /**
@@ -49,4 +60,9 @@ data class GlobeState(
                 } == true)
             }
         }
+
+    /** The trip already in the cart for [cityId] (a draft wins over a sent one), for the "In your trips" chip. */
+    fun tripIn(cityId: String): Trip? = profile.trips.filter { it.cityId == cityId }.minByOrNull { it.sent }
+
+    fun trip(id: Long): Trip? = profile.trips.find { it.id == id }
 }

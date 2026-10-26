@@ -1,6 +1,14 @@
 package com.global_water_polo.play_abroad.presentation.app.globe
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -82,9 +90,12 @@ fun GlobeScreenContent(
                         )
                     }
             ) {
-                Column(Modifier.padding(top = statusTop + 14.dp, start = 22.dp, end = 22.dp)) {
-                    Text(stringResource(Res.string.globe_kicker).uppercase(), style = GWPPATheme.typography.archivoBold12, color = colors.eliteGold)
-                    Text(stringResource(Res.string.globe_title), style = GWPPATheme.typography.archivoExpandedBold27, color = colors.colorWhite)
+                Row(Modifier.padding(top = statusTop + 14.dp, start = 22.dp, end = 16.dp), verticalAlignment = Alignment.Top) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(Res.string.globe_kicker).uppercase(), style = GWPPATheme.typography.archivoBold12, color = colors.eliteGold)
+                        Text(stringResource(Res.string.globe_title), style = GWPPATheme.typography.archivoExpandedBold27, color = colors.colorWhite)
+                    }
+                    TripsButton(count = state.profile.trips.size, onClick = { onEvent(GlobeEvent.OnTripsClick) })
                 }
             }
             Column(
@@ -110,7 +121,7 @@ fun GlobeScreenContent(
                             val clubs = state.clubs.count { it.cityId == city.id }
                             Pill(
                                 text = "${city.flag} ${city.name}" + if (clubs > 0) "  $clubs" else "",
-                                selected = city.id in state.profile.trips || city.id == state.focus?.id,
+                                selected = state.tripIn(city.id) != null || city.id == state.focus?.id,
                                 onClick = { onEvent(GlobeEvent.OnCityClick(city.id)) }
                             )
                         }
@@ -143,6 +154,46 @@ fun GlobeScreenContent(
                 )
             }
             AppTabBar(current = AppTab.GLOBE, onSelect = { onEvent(GlobeEvent.OnTabClick(it)) }, dark = true)
+        }
+    }
+}
+
+/** The bag in the header (`.g-cart`): opens Your trips, with the count on it. */
+@Composable
+private fun TripsButton(count: Int, onClick: () -> Unit) {
+    val colors = GWPPATheme.colors
+    Box {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.12f))
+                .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                .clickable(onClickLabel = stringResource(Res.string.globe_trips), onClick = onClick)
+        ) {
+            Canvas(Modifier.size(20.dp)) {
+                val w = size.width
+                val stroke = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                val bag = Path().apply {
+                    moveTo(w * 0.2f, w * 0.33f)
+                    lineTo(w * 0.8f, w * 0.33f)
+                    lineTo(w * 0.75f, w * 0.88f)
+                    lineTo(w * 0.25f, w * 0.88f)
+                    close()
+                }
+                drawPath(bag, colors.colorWhite, style = stroke)
+                drawArc(colors.colorWhite, 180f, 180f, false, topLeft = Offset(w * 0.37f, w * 0.12f), size = Size(w * 0.26f, w * 0.42f), style = stroke)
+            }
+        }
+        if (count > 0) {
+            Text(
+                count.toString(),
+                style = GWPPATheme.typography.archivoBold11,
+                color = colors.inkBlack,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.TopEnd).size(18.dp).clip(CircleShape).background(colors.ballYellow)
+            )
         }
     }
 }

@@ -9,4 +9,5 @@ sealed class FlightRadarEvent : BaseEvent {
     data class OnRequestFlightsClick(val cityId: String) : FlightRadarEvent()
     data class OnCheckClick(val key: String) : FlightRadarEvent()
     data object OnOpenGlobeClick : FlightRadarEvent()
+    data class OnDraftClick(val tripId: Long) : FlightRadarEvent()
 }

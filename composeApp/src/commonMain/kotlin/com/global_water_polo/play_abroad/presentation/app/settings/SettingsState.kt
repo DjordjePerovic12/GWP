@@ -19,7 +19,7 @@ data class SettingsState(
     val portfolioPercent: Int
         get() {
             val done = listOf("photo", "video", "personal", "transcript", "letters").count { it in profile.uploads } +
-                (if (profile.position.isNotEmpty() || "position" in profile.uploads) 1 else 0)
+                (if (profile.position.isNotEmpty() || profile.positionAdded) 1 else 0)
             return (done + 1) * 100 / 7
         }
 }

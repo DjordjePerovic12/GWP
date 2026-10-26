@@ -27,17 +27,18 @@ import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.core.components.cityImage
 import com.global_water_polo.play_abroad.domain.model.City
+import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
-/** A city's page (the prototype's cityPage): its photo, the clubs there, and ask GWP about a stay. */
+/** A city's page (the prototype's cityPage): its photo, the clubs there, and Build my experience. */
 @Composable
 fun CitySheet(
     city: City,
-    asked: Boolean,
+    trip: Trip?,
     onClubClick: (String) -> Unit,
-    onAskClick: () -> Unit,
+    onBuildClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val colors = GWPPATheme.colors
@@ -81,11 +82,13 @@ fun CitySheet(
             }
             SmallText(text = stringResource(Res.string.city_clubs_fine))
         }
+        // The prototype's `.bk-foot solo`: the trip's state when there is one, then Build my experience.
+        if (trip != null) TripChip(trip.sent)
         PrimaryButton(
-            text = if (asked) stringResource(Res.string.city_asked) else stringResource(Res.string.city_ask, city.name),
-            onClick = onAskClick,
-            style = if (asked) ButtonStyle.GHOST else ButtonStyle.BALL,
-            modifier = Modifier.padding(top = 8.dp)
+            text = stringResource(Res.string.city_build),
+            onClick = onBuildClick,
+            style = ButtonStyle.BALL,
+            modifier = Modifier.padding(top = 4.dp)
         )
     }
 }

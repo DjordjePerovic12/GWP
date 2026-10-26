@@ -38,10 +38,13 @@ import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.domain.model.City
 import com.global_water_polo.play_abroad.presentation.app.profile.components.SectionHeader
 import com.global_water_polo.play_abroad.presentation.app.travel.components.RouteMap
+import com.global_water_polo.play_abroad.presentation.app.travel.components.DraftRow
+import com.global_water_polo.play_abroad.presentation.app.travel.components.TripTracker
+import com.global_water_polo.play_abroad.core.components.shortDate
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
-/** Travel tab (the prototype's flyTab): the radar, the home airport, the trips and "before you fly". */
+/** Travel tab (the prototype's flyTab): the radar, the home airport, my trips with tracking, flights and "before you fly". */
 @Composable
 fun FlightRadarScreenContent(
     modifier: Modifier = Modifier,
@@ -78,6 +81,16 @@ fun FlightRadarScreenContent(
                     ChoiceChip(text = code, selected = code == home, onClick = { onEvent(FlightRadarEvent.OnHomeAirportClick(code)) })
                 }
             }
+            if (state.profile.trips.isNotEmpty()) {
+                SectionHeader(
+                    title = stringResource(Res.string.fly_my_trips),
+                    note = if (state.sent.isNotEmpty()) stringResource(Res.string.fly_in_progress, state.sent.size) else stringResource(Res.string.fly_drafts)
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    state.sent.forEach { trip -> TripTracker(trip = trip, flightsRequested = trip.cityId in state.profile.flightRequests) }
+                    state.drafts.forEach { trip -> DraftRow(trip = trip, onClick = { onEvent(FlightRadarEvent.OnDraftClick(trip.id)) }) }
+                }
+            }
             SectionHeader(title = stringResource(Res.string.fly_trips), note = if (state.trips.isEmpty()) "" else state.trips.size.toString())
             if (state.trips.isEmpty()) {
                 Column(
@@ -98,6 +111,7 @@ fun FlightRadarScreenContent(
                     state.trips.forEach { city ->
                         TripCard(
                             city = city,
+                            depart = state.profile.trips.firstOrNull { it.cityId == city.id }?.let { shortDate(it.arrive) },
                             home = home,
                             requested = city.id in state.profile.flightRequests,
                             onRequestClick = { onEvent(FlightRadarEvent.OnRequestFlightsClick(city.id)) }
@@ -143,7 +157,7 @@ private fun checkLabel(key: String) = when (key) {
 }
 
 @Composable
-private fun TripCard(city: City, home: String, requested: Boolean, onRequestClick: () -> Unit) {
+private fun TripCard(city: City, depart: String?, home: String, requested: Boolean, onRequestClick: () -> Unit) {
     val colors = GWPPATheme.colors
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -163,7 +177,7 @@ private fun TripCard(city: City, home: String, requested: Boolean, onRequestClic
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Column {
                 Text(stringResource(Res.string.fly_depart), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
-                Text(stringResource(Res.string.fly_dates_tbc), style = GWPPATheme.typography.archivoBold13, color = colors.inkBlack)
+                Text(depart ?: stringResource(Res.string.fly_dates_tbc), style = GWPPATheme.typography.archivoBold13, color = colors.inkBlack)
             }
             Column {
                 Text(stringResource(Res.string.fly_status), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)

@@ -79,7 +79,8 @@ private fun ProfileSheetContent(sheet: ProfileSheet, state: ProfileState, viewMo
         is ProfileSheet.LabTest -> LabTestSheet(
             index = sheet.index,
             state = state,
-            onAngleClick = { viewModel.onEvent(ProfileEvent.OnLabAngleClick(sheet.index, it)) },
+            onAnglePicked = { angle, file -> viewModel.onEvent(ProfileEvent.OnLabAnglePicked(sheet.index, angle, file)) },
+            onAngleRemove = { viewModel.onEvent(ProfileEvent.OnLabAngleRemove(sheet.index, it)) },
             onSendClick = { viewModel.onEvent(ProfileEvent.OnLabSendClick(sheet.index)) },
             onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
         )

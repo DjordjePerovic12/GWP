@@ -165,9 +165,9 @@ sealed interface Screen {
     @Serializable
     data object FeedScreen : Screen
 
-    /** [city] flies the globe to that city and opens its page. */
+    /** [city] flies the globe to that city and opens its page; [trip] opens that trip's review instead. */
     @Serializable
-    data class GlobeScreen(val city: String = "") : Screen
+    data class GlobeScreen(val city: String = "", val trip: Long = 0L) : Screen
 
     @Serializable
     data object FlightRadarScreen : Screen

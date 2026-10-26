@@ -34,6 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.stringArrayResource
+import kotlinx.datetime.LocalDate
+import com.global_water_polo.play_abroad.resources.months_short
 import com.global_water_polo.play_abroad.resources.Res
 import com.global_water_polo.play_abroad.resources.brand_long
 import com.global_water_polo.play_abroad.resources.brand_short
@@ -102,6 +105,13 @@ fun OfferCard(
     }
 }
 
+/** "Mar 15, 2027", or "Mar 15" without the year (the prototype's fmtS). */
+@Composable
+fun shortDate(date: LocalDate, withYear: Boolean = true): String {
+    val month = stringArrayResource(Res.array.months_short)[date.month.ordinal]
+    return if (withYear) "$month ${date.day}, ${date.year}" else "$month ${date.day}"
+}
+
 /** A drawable by its file name ("c_kotor", "pool_3"), for images chosen from data; null when there is none. */
 fun drawableNamed(name: String): DrawableResource? = Res.allDrawableResources[name]
 
@@ -150,25 +160,40 @@ fun PhotoHero(
     }
 }
 
-/** The app's bottom sheet (the prototype's `.sheet`): bone background, scrolling content, padded. */
+/**
+ * The app's bottom sheet (the prototype's `.sheet`): bone background, scrolling content, padded.
+ * A [footer] stays pinned under the scrolling content (the prototype's `.bk-foot`).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSheet(
     onDismiss: () -> Unit,
+    footer: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val colors = GWPPATheme.colors
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = GWPPATheme.colors.boneWhite
+        containerColor = colors.boneWhite
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
+                .weight(1f, fill = false)
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, bottom = 32.dp),
+                .padding(start = 20.dp, end = 20.dp, bottom = if (footer == null) 32.dp else 20.dp),
             content = content
         )
+        if (footer != null) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .background(colors.colorWhite)
+                    .border(1.dp, colors.lineGrey)
+                    .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 28.dp)
+            ) { footer() }
+        }
     }
 }
 

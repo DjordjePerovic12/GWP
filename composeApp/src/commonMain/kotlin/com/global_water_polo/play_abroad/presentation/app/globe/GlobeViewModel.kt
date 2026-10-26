@@ -11,13 +11,17 @@ import kotlinx.coroutines.launch
 import com.global_water_polo.play_abroad.core.navigation.Screen
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.navigation.utils.openTab
+import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
+import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
+import kotlin.time.Clock
 import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.presentation.base.BaseViewModel
 
 /**
- * Globe+: every club city on one globe. Search or pick a region, open a city and its clubs, and ask GWP
- * about a stay there (the trip then shows up on Travel). Booking a full experience comes later.
+ * Globe+: every club city on one globe. Search or pick a region, open a city and its clubs, then build an
+ * experience there (club, dates, home, extras), review it and send GWP an availability inquiry. Sent
+ * trips are tracked on Travel. Prototype: nothing is sent or charged.
  */
 class GlobeViewModel(
     savedStateHandle: SavedStateHandle,
@@ -25,11 +29,18 @@ class GlobeViewModel(
     private val navigator: Navigator
 ) : BaseViewModel<GlobeState, GlobeEvent>() {
 
-    private val startCity = savedStateHandle.toRoute<Screen.GlobeScreen>().city
+    private val route = savedStateHandle.toRoute<Screen.GlobeScreen>()
 
-    override val initialViewState = WaterPoloMap.city(startCity)?.let {
-        GlobeState(region = it.region, sheet = GlobeSheet.CityPage(it.id), focus = it)
-    } ?: GlobeState()
+    override val initialViewState = run {
+        // Travel opens a draft's review straight away; otherwise a city page when one is given.
+        val trip = profileRepository.profile.value.trips.find { it.id == route.trip }
+        val city = WaterPoloMap.city(trip?.cityId ?: route.city)
+        when {
+            trip != null && city != null -> GlobeState(region = city.region, sheet = GlobeSheet.Review(trip.id), focus = city)
+            city != null -> GlobeState(region = city.region, sheet = GlobeSheet.CityPage(city.id), focus = city)
+            else -> GlobeState()
+        }
+    }
     private var hasLoadedInitialData = false
 
     override fun dismissError() {
@@ -63,11 +74,62 @@ class GlobeViewModel(
                 val city = WaterPoloMap.club(event.clubId)?.let { club -> WaterPoloMap.city(club.cityId) }
                 it.copy(sheet = GlobeSheet.ClubPage(event.clubId), focus = city ?: it.focus)
             }
-            // Prototype: asking GWP only adds the city to the athlete's trips; nothing is sent.
-            is GlobeEvent.OnAskClick -> profileRepository.update {
-                it.copy(trips = if (event.cityId in it.trips) it.trips - event.cityId else it.trips + event.cityId)
-            }
             GlobeEvent.OnSheetDismiss -> state.update { it.copy(sheet = null) }
+
+            is GlobeEvent.OnBuildClick -> state.update {
+                // Like the prototype's startBuild: an unsent trip to the city is edited, not duplicated.
+                val existing = it.profile.trips.find { trip -> trip.cityId == event.cityId && !trip.sent }
+                val draft = existing ?: Trip.draft(
+                    id = Clock.System.now().toEpochMilliseconds(),
+                    cityId = event.cityId,
+                    clubId = event.clubId,
+                    today = NcaaClockCalculator.today(),
+                    startOffset = it.profile.travelStartOffset ?: 1
+                )
+                it.copy(draft = if (event.clubId.isNotEmpty()) draft.copy(clubId = event.clubId) else draft, sheet = GlobeSheet.Build)
+            }
+            is GlobeEvent.OnDraftChanged -> state.update { it.copy(draft = event.draft) }
+            GlobeEvent.OnDatesClick -> state.update { it.copy(sheet = GlobeSheet.Dates) }
+            is GlobeEvent.OnDatesApplied -> state.update {
+                it.copy(draft = it.draft?.copy(arrive = event.arrive, leave = event.leave), sheet = GlobeSheet.Build)
+            }
+            GlobeEvent.OnTourClick -> state.update { it.copy(sheet = GlobeSheet.Tour) }
+            GlobeEvent.OnApartmentRequestClick -> state.update { it.copy(draft = it.draft?.copy(apartmentRequested = true), sheet = GlobeSheet.Build) }
+            GlobeEvent.OnBackToBuild -> state.update { it.copy(sheet = GlobeSheet.Build) }
+            GlobeEvent.OnReviewClick -> {
+                val draft = state.value.draft ?: return
+                profileRepository.update { p ->
+                    p.copy(trips = if (p.trips.any { it.id == draft.id }) p.trips.map { if (it.id == draft.id) draft else it } else p.trips + draft)
+                }
+                state.update { it.copy(sheet = GlobeSheet.Review(draft.id)) }
+            }
+
+            is GlobeEvent.OnEditTripClick -> state.update {
+                val trip = it.trip(event.tripId)
+                if (trip == null || trip.sent) it.copy(sheet = null) else it.copy(draft = trip, sheet = GlobeSheet.Build)
+            }
+            is GlobeEvent.OnNotesChanged -> updateTrip(event.tripId) { it.copy(notes = event.notes) }
+            // Prototype: sending only marks the trip as an inquiry; GWP would verify club and housing first.
+            is GlobeEvent.OnSendInquiryClick -> {
+                updateTrip(event.tripId) { it.copy(sent = true) }
+                state.update { it.copy(sheet = null, draft = null) }
+                viewModelScope.launch { navigator.openTab(Screen.FlightRadarScreen) }
+            }
+            GlobeEvent.OnTripsClick -> state.update { it.copy(sheet = GlobeSheet.Trips) }
+            is GlobeEvent.OnTripOpenClick -> {
+                val trip = state.value.trip(event.tripId) ?: return
+                if (trip.sent) {
+                    state.update { it.copy(sheet = null) }
+                    viewModelScope.launch { navigator.openTab(Screen.FlightRadarScreen) }
+                } else {
+                    state.update { it.copy(sheet = GlobeSheet.Review(trip.id)) }
+                }
+            }
+            is GlobeEvent.OnTripRemoveClick -> profileRepository.update { p -> p.copy(trips = p.trips.filterNot { it.id == event.tripId }) }
         }
+    }
+
+    private fun updateTrip(id: Long, transform: (Trip) -> Trip) = profileRepository.update { p ->
+        p.copy(trips = p.trips.map { if (it.id == id) transform(it) else it })
     }
 }

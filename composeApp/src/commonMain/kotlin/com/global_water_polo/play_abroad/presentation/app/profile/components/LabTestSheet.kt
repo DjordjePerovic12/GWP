@@ -22,6 +22,12 @@ import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.core.components.SheetHeading
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.presentation.app.profile.ProfileState
+import com.global_water_polo.play_abroad.core.components.MediaKind
+import com.global_water_polo.play_abroad.core.components.rememberMediaPicker
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.name
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.shape.CircleShape
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
@@ -33,7 +39,8 @@ import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 fun LabTestSheet(
     index: Int,
     state: ProfileState,
-    onAngleClick: (String) -> Unit,
+    onAnglePicked: (String, PlatformFile) -> Unit,
+    onAngleRemove: (String) -> Unit,
     onSendClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -42,13 +49,22 @@ fun LabTestSheet(
     val angles = state.profile.labAngles[index].orEmpty()
     val labState = state.labState(index)
     val sent = labState == "wait"
+    val picker = rememberMediaPicker(onAnglePicked)
     AppSheet(onDismiss = onDismiss) {
         Text(if (index < 4) "\"PART I\"" else "\"PART II\"", style = GWPPATheme.typography.archivoBold12, color = colors.eliteGold)
         Text(name, style = GWPPATheme.typography.archivoExpandedBold27, color = colors.inkBlack)
         Text(how, style = GWPPATheme.typography.archivoRegular15, color = colors.slateGrey)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 6.dp)) {
-            AngleSlot(stringResource(Res.string.lab_above), "above" in angles, enabled = !sent, onClick = { onAngleClick("above") }, modifier = Modifier.weight(1f))
-            AngleSlot(stringResource(Res.string.lab_under), "under" in angles, enabled = !sent, onClick = { onAngleClick("under") }, modifier = Modifier.weight(1f))
+            listOf("above" to Res.string.lab_above, "under" to Res.string.lab_under).forEach { (angle, label) ->
+                AngleSlot(
+                    label = stringResource(label),
+                    file = angles[angle],
+                    enabled = !sent,
+                    onClick = { picker.open(angle, MediaKind.VIDEO) },
+                    onRemove = { onAngleRemove(angle) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
         SheetHeading(stringResource(Res.string.lab_feedback))
         SmallText(text = stringResource(if (sent) Res.string.lab_feedback_sent else Res.string.lab_feedback_empty))
@@ -74,16 +90,17 @@ fun LabTestSheet(
     }
 }
 
-/** One camera angle: "Add video" until it is filmed. */
+/** One camera angle: "Add video" opens the video picker; once picked it shows the file, tap to replace. */
 @Composable
-private fun AngleSlot(label: String, filmed: Boolean, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun AngleSlot(label: String, file: PlatformFile?, enabled: Boolean, onClick: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val colors = GWPPATheme.colors
     val shape = RoundedCornerShape(16.dp)
+    val filmed = file != null
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         modifier = modifier
-            .height(120.dp)
+            .height(132.dp)
             .clip(shape)
             .background(if (filmed) colors.nightNavy else colors.colorWhite)
             .border(1.5.dp, if (filmed) colors.chlorineBlue else colors.lineGrey, shape)
@@ -93,9 +110,19 @@ private fun AngleSlot(label: String, filmed: Boolean, enabled: Boolean, onClick:
         Text(if (filmed) "▶" else "＋", style = GWPPATheme.typography.archivoExpandedBold21, color = if (filmed) colors.colorWhite else colors.chlorineBlue)
         Text(label, style = GWPPATheme.typography.archivoBold13, color = if (filmed) colors.colorWhite else colors.inkBlack)
         Text(
-            stringResource(if (filmed) Res.string.lab_added else Res.string.lab_add_video),
+            file?.name ?: stringResource(Res.string.lab_add_video),
             style = GWPPATheme.typography.archivoRegular13,
-            color = if (filmed) colors.colorWhite.copy(alpha = 0.7f) else colors.slateGrey
+            color = if (filmed) colors.colorWhite.copy(alpha = 0.7f) else colors.slateGrey,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
+        if (filmed && enabled) {
+            Text(
+                stringResource(Res.string.port_remove),
+                style = GWPPATheme.typography.archivoBold12,
+                color = colors.ballYellow,
+                modifier = Modifier.clip(CircleShape).clickable(onClick = onRemove).padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
     }
 }

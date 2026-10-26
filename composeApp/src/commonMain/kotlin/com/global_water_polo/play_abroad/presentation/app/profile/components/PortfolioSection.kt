@@ -24,21 +24,27 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.InfoPanel
+import com.global_water_polo.play_abroad.core.components.MediaKind
+import com.global_water_polo.play_abroad.core.components.PickedImage
+import com.global_water_polo.play_abroad.core.components.rememberMediaPicker
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.name
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.domain.model.ProfileVisibility
 import com.global_water_polo.play_abroad.presentation.app.profile.ProfileState
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
-private data class PortfolioItem(val key: String, val title: StringResource, val sub: StringResource)
+/** A portfolio row; [kind] is what the picker opens, null for the position row, which has no file. */
+private data class PortfolioItem(val key: String, val title: StringResource, val sub: StringResource, val kind: MediaKind?)
 
 private val ITEMS = listOf(
-    PortfolioItem("photo", Res.string.port_photo, Res.string.port_photo_sub),
-    PortfolioItem("video", Res.string.port_video, Res.string.port_video_sub),
-    PortfolioItem("position", Res.string.port_position, Res.string.port_position_sub),
-    PortfolioItem("personal", Res.string.port_personal, Res.string.port_personal_sub),
-    PortfolioItem("transcript", Res.string.port_transcript, Res.string.port_transcript_sub),
-    PortfolioItem("letters", Res.string.port_letters, Res.string.port_letters_sub)
+    PortfolioItem("photo", Res.string.port_photo, Res.string.port_photo_sub, MediaKind.PHOTO),
+    PortfolioItem("video", Res.string.port_video, Res.string.port_video_sub, MediaKind.VIDEO),
+    PortfolioItem("position", Res.string.port_position, Res.string.port_position_sub, null),
+    PortfolioItem("personal", Res.string.port_personal, Res.string.port_personal_sub, MediaKind.DOCUMENT),
+    PortfolioItem("transcript", Res.string.port_transcript, Res.string.port_transcript_sub, MediaKind.DOCUMENT),
+    PortfolioItem("letters", Res.string.port_letters, Res.string.port_letters_sub, MediaKind.DOCUMENT)
 )
 
 /**
@@ -50,10 +56,13 @@ fun PortfolioSection(
     state: ProfileState,
     onPreviewToggle: (Boolean) -> Unit,
     onItemClick: (String) -> Unit,
+    onFilePicked: (String, PlatformFile) -> Unit,
+    onFileRemove: (String) -> Unit,
     onVisibilityClick: (ProfileVisibility) -> Unit
 ) {
     val colors = GWPPATheme.colors
     val done = state.portfolioItems.toMap()
+    val picker = rememberMediaPicker(onFilePicked)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Toggle(
             options = listOf(stringResource(Res.string.port_edit), stringResource(Res.string.port_preview)),
@@ -80,14 +89,19 @@ fun PortfolioSection(
             shown.forEachIndexed { i, item ->
                 if (i > 0) HorizontalDivider(color = colors.lineGrey)
                 val added = done[item.key] == true
+                val file = state.profile.uploads[item.key]
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable(enabled = !state.preview) { onItemClick(item.key) }
+                        .clickable(enabled = !state.preview) {
+                            if (item.kind == null) onItemClick(item.key) else picker.open(item.key, item.kind)
+                        }
                         .padding(vertical = 12.dp)
                 ) {
-                    Box(
+                    if (item.kind == MediaKind.PHOTO && file != null) {
+                        PickedImage(file, Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(colors.lineGrey))
+                    } else Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .size(22.dp)
@@ -99,10 +113,22 @@ fun PortfolioSection(
                     }
                     Column(Modifier.weight(1f).padding(start = 12.dp)) {
                         Text(stringResource(item.title), style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack)
-                        val sub = if (item.key == "position" && state.profile.position.isNotEmpty()) state.profile.position else stringResource(item.sub)
+                        val sub = when {
+                            file != null -> file.name
+                            item.key == "position" && state.profile.position.isNotEmpty() -> state.profile.position
+                            else -> stringResource(item.sub)
+                        }
                         Text(sub, style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
                     }
                     if (!state.preview && !added) Text(stringResource(Res.string.port_add), style = GWPPATheme.typography.archivoBold13, color = colors.chlorineBlue)
+                    if (!state.preview && file != null) {
+                        Text(
+                            stringResource(Res.string.port_remove),
+                            style = GWPPATheme.typography.archivoBold13,
+                            color = colors.slateGrey,
+                            modifier = Modifier.clip(CircleShape).clickable { onFileRemove(item.key) }.padding(6.dp)
+                        )
+                    }
                 }
             }
         }

@@ -38,6 +38,7 @@ import com.global_water_polo.play_abroad.core.components.TextLink
 import com.global_water_polo.play_abroad.core.components.cityImage
 import com.global_water_polo.play_abroad.core.components.drawableNamed
 import com.global_water_polo.play_abroad.domain.model.Club
+import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
@@ -68,9 +69,9 @@ fun Crest(club: Club, size: Dp = 40.dp) {
 @Composable
 fun ClubSheet(
     club: Club,
-    asked: Boolean,
+    trip: Trip?,
     onCityClick: () -> Unit,
-    onAskClick: () -> Unit,
+    onBuildClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val colors = GWPPATheme.colors
@@ -160,11 +161,13 @@ fun ClubSheet(
             }
         }
         SmallText(text = stringResource(Res.string.club_training_fine))
+        // The prototype's `.bk-foot solo`: the trip's state when there is one, then Build my experience.
+        if (trip != null) TripChip(trip.sent)
         PrimaryButton(
-            text = if (asked) stringResource(Res.string.city_asked) else stringResource(Res.string.city_ask, city.name),
-            onClick = onAskClick,
-            style = if (asked) ButtonStyle.GHOST else ButtonStyle.BALL,
-            modifier = Modifier.padding(top = 8.dp)
+            text = stringResource(Res.string.city_build),
+            onClick = onBuildClick,
+            style = ButtonStyle.BALL,
+            modifier = Modifier.padding(top = 4.dp)
         )
     }
 }
