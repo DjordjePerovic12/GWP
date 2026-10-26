@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.number
+import kotlinx.datetime.plus
 import com.global_water_polo.play_abroad.core.navigation.Screen
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
@@ -257,7 +259,7 @@ class OnboardingViewModel(
     private fun finish() {
         saveProfile()
         when (state.value.lane) {
-            Lane.ATHLETE -> goHome(Screen.AthleteHomeScreen)
+            Lane.ATHLETE -> goHome(Screen.ProfileScreen())
             Lane.PARENT -> go(Screen.InviteScreen)
             Lane.COACH -> goHome(Screen.CoachHomeScreen)
             // The club profile is the club lane's last step; it ends with "Back to start".
@@ -339,6 +341,7 @@ class OnboardingViewModel(
                 heardFrom = s.heardFrom,
                 relation = s.relation,
                 plan = s.plan,
+                trialEnds = if (s.plan == null) null else it.trialEnds ?: NcaaClockCalculator.today().plus(DatePeriod(days = 7)),
                 appliedProgram = if (s.applied) s.program else it.appliedProgram,
                 kidName = s.kidName.trim(),
                 kidContact = s.kidContact.trim(),

@@ -150,8 +150,6 @@ sealed interface Screen {
 
 
     // App screens after onboarding
-    @Serializable
-    data object AthleteHomeScreen : Screen
 
     @Serializable
     data object ParentHomeScreen : Screen
@@ -159,9 +157,21 @@ sealed interface Screen {
     @Serializable
     data object CoachHomeScreen : Screen
 
+    // Athlete app: one route per tab
+    /** [segment] opens a section ("path", "lab", "port"); [preview] opens the portfolio as coaches see it. */
     @Serializable
-    data object ApplyReviewScreen : Screen
+    data class ProfileScreen(val segment: String = "", val preview: Boolean = false) : Screen
 
     @Serializable
-    data object ReviewStatusScreen : Screen
+    data object FeedScreen : Screen
+
+    /** [city] flies the globe to that city and opens its page. */
+    @Serializable
+    data class GlobeScreen(val city: String = "") : Screen
+
+    @Serializable
+    data object FlightRadarScreen : Screen
+
+    @Serializable
+    data object SettingsScreen : Screen
 }

@@ -19,6 +19,7 @@ enum class GlobeMode {
     BADGE,
     CLOCK,
     REVEAL,
+    EXPLORE,
     HIDDEN
 }
 
@@ -60,8 +61,8 @@ class GlobeController {
 
     fun setMode(mode: GlobeMode) {
         // On the intro the globe rests on the device's own time zone until someone spins it.
-        idleSpeed = if (mode == GlobeMode.INTRO || mode == GlobeMode.REVEAL) 0f else 0.006f
-        if (mode != GlobeMode.REVEAL) {
+        idleSpeed = if (mode == GlobeMode.INTRO || mode == GlobeMode.REVEAL || mode == GlobeMode.EXPLORE) 0f else 0.006f
+        if (mode != GlobeMode.REVEAL && mode != GlobeMode.EXPLORE) {
             aim = null
             tiltTarget = BASE_TILT
             pins = emptyList()

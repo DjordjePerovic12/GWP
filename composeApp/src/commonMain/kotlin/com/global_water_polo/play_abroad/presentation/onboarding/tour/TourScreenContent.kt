@@ -81,19 +81,22 @@ fun TourScreenContent(
                 style = GWPPATheme.typography.archivoBold13,
                 color = colors.ballYellow
             )
+            // City and country change together, so the name never sits over the previous city's country.
             AnimatedContent(
-                targetState = title,
+                targetState = title to sub,
                 transitionSpec = { (fadeIn(tween(220)) + scaleIn(tween(260), initialScale = 0.92f)) togetherWith fadeOut(tween(120)) }
-            ) { text ->
-                Text(
-                    text = text,
-                    style = GWPPATheme.typography.archivoExpandedExtraBold30,
-                    color = colors.colorWhite,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 18.dp)
-                )
+            ) { (name, country) ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = name,
+                        style = GWPPATheme.typography.archivoExpandedExtraBold30,
+                        color = colors.colorWhite,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 18.dp)
+                    )
+                    Text(text = country, style = GWPPATheme.typography.archivoRegular16, color = colors.colorWhite.copy(alpha = 0.8f))
+                }
             }
-            Text(text = sub, style = GWPPATheme.typography.archivoRegular16, color = colors.colorWhite.copy(alpha = 0.8f))
             Box(
                 Modifier
                     .padding(top = 8.dp)

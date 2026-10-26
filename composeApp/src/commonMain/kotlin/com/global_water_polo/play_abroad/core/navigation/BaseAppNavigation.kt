@@ -13,8 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.navigation
 import co.touchlab.kermit.Logger
 import com.global_water_polo.play_abroad.core.navigation.destinations.accountScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.applyReviewScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.athleteHomeScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.askScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.gradScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.freeYearScreenComposable
@@ -29,6 +27,11 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.clubPlaceS
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubStaffScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubProfileScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.coachHomeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.profileScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.feedScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.globeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.flightRadarScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.settingsScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.birthdayScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.clockScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.emailScreenComposable
@@ -37,7 +40,6 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.inviteScre
 import com.global_water_polo.play_abroad.core.navigation.destinations.lookScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.nameScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.parentHomeScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.reviewStatusScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.travelScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.whoScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.utils.NavType
@@ -115,10 +117,12 @@ fun BaseAppNavigation(
             clubStaffScreenComposable(navController = navController, showSnackBar = showSnackBar)
             clubProfileScreenComposable(navController = navController, showSnackBar = showSnackBar)
         }
-        athleteHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         parentHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         coachHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
-        applyReviewScreenComposable(navController = navController, showSnackBar = showSnackBar)
-        reviewStatusScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        profileScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        feedScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        globeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        flightRadarScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        settingsScreenComposable(navController = navController, showSnackBar = showSnackBar)
     }
 }

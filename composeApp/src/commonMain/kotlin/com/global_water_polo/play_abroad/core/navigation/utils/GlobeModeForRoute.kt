@@ -10,8 +10,9 @@ fun NavDestination?.globeMode(): GlobeMode = when {
     this == null || hasRoute<Screen.IntroScreen>() -> GlobeMode.INTRO
     hasRoute<Screen.ClockScreen>() -> GlobeMode.CLOCK
     hasRoute<Screen.TourScreen>() || hasRoute<Screen.WorldScreen>() -> GlobeMode.REVEAL
-    hasRoute<Screen.AthleteHomeScreen>() || hasRoute<Screen.ParentHomeScreen>() ||
-        hasRoute<Screen.ApplyReviewScreen>() || hasRoute<Screen.ReviewStatusScreen>() ||
+    hasRoute<Screen.GlobeScreen>() -> GlobeMode.EXPLORE
+    hasRoute<Screen.ParentHomeScreen>() || hasRoute<Screen.ProfileScreen>() || hasRoute<Screen.FeedScreen>() ||
+        hasRoute<Screen.FlightRadarScreen>() || hasRoute<Screen.SettingsScreen>() ||
         hasRoute<Screen.CoachHomeScreen>() -> GlobeMode.HIDDEN
     else -> GlobeMode.BADGE
 }

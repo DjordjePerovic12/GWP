@@ -4,6 +4,9 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
+import com.global_water_polo.play_abroad.domain.model.PathwayStep
+import com.global_water_polo.play_abroad.domain.model.PathwayTiming
+import com.global_water_polo.play_abroad.domain.model.PathwayWhy
 import com.global_water_polo.play_abroad.domain.model.Program
 import kotlin.math.max
 
@@ -88,6 +91,50 @@ object PathwayCalculator {
             }
         }
         return Program.EXPLORE
+    }
+
+    /**
+     * "Build my pathway" (the prototype's computePath): one step per length picked, in date order.
+     * [education] is "hs", "grad" or "college"; [timing] holds "weeks", "summer", "semester", "year" or "unsure".
+     */
+    fun buildPathway(
+        education: String,
+        timing: Set<String>,
+        gradMonth: Int?,
+        gradYear: Int?,
+        club: String,
+        freeYear: FreeYear?,
+        today: LocalDate = NcaaClockCalculator.today()
+    ): List<PathwayStep> {
+        val y = today.year
+        val m = today.month.number
+        val gy = gradYear ?: (y + 1)
+        val summerYear = if (m <= 5) y else y + 1
+        val after = if (education == "hs") gy else if (m >= 8) y + 1 else y
+        val want = timing.ifEmpty { setOf("unsure") }
+        val steps = mutableListOf<PathwayStep>()
+        if ("weeks" in want || "unsure" in want) {
+            val next = LocalDate(y, m, 1).plus(DatePeriod(months = 2))
+            steps += PathwayStep(
+                Program.EXPLORE, next.year, next.month.number, PathwayTiming.NEXT_BREAK,
+                if (education == "college") PathwayWhy.BREAK_COLLEGE else PathwayWhy.BREAK
+            )
+        }
+        if ("summer" in want) {
+            steps += PathwayStep(Program.SUMMER, summerYear, 6, PathwayTiming.SUMMER, if (club == "jo") PathwayWhy.AFTER_JO else PathwayWhy.BETWEEN_YEARS)
+        }
+        if ("semester" in want) {
+            steps += if (education == "college") {
+                PathwayStep(Program.SPRING, y + 1, 1, PathwayTiming.SPRING, PathwayWhy.CHECK_CREDITS)
+            } else {
+                PathwayStep(Program.FALL, after, 8, PathwayTiming.FALL, if (education == "hs") PathwayWhy.AFTER_GRADUATION else PathwayWhy.CLUB_BLOCK)
+            }
+        }
+        if ("year" in want) {
+            val fits = freeYear != null && !freeYear.running && freeYear.free >= 1
+            steps += PathwayStep(Program.GAP_YEAR, after, 8, PathwayTiming.SEASON, if (fits) PathwayWhy.FITS_BEFORE_CLOCK else PathwayWhy.CONFIRM_NCAA)
+        }
+        return steps.sortedWith(compareBy({ it.year }, { it.month }, { it.program.ordinal }))
     }
 
     /** Year a seasonal program would run for a given start, null for flexible programs. */

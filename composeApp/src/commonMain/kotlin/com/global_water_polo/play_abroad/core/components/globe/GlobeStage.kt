@@ -65,7 +65,7 @@ fun GlobeStage(
     val texture by produceState<ImageBitmap?>(null) {
         value = withContext(Dispatchers.Default) { runCatching { loadGlobeTexture() }.getOrNull() }
     }
-    val night by animateFloatAsState(if (mode == GlobeMode.CLOCK || mode == GlobeMode.REVEAL) 1f else 0f, tween(500))
+    val night by animateFloatAsState(if (mode == GlobeMode.CLOCK || mode == GlobeMode.REVEAL || mode == GlobeMode.EXPLORE) 1f else 0f, tween(500))
     val stageAlpha by animateFloatAsState(if (mode == GlobeMode.HIDDEN) 0f else 1f, tween(500))
     val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
 
@@ -79,7 +79,7 @@ fun GlobeStage(
         LaunchedEffect(target) {
             val duration = when {
                 mode == GlobeMode.CLOCK -> 1000
-                mode == GlobeMode.REVEAL || lastMode == GlobeMode.REVEAL -> 1200
+                mode == GlobeMode.REVEAL || lastMode == GlobeMode.REVEAL || mode == GlobeMode.EXPLORE -> 1200
                 lastMode == GlobeMode.CLOCK -> 800
                 lastMode == GlobeMode.INTRO -> 1100
                 else -> 900
@@ -100,7 +100,7 @@ fun GlobeStage(
                     texture = tex,
                     angle = controller.angle,
                     tilt = controller.tilt,
-                    pins = if (mode == GlobeMode.REVEAL) controller.pins else emptyList(),
+                    pins = if (mode == GlobeMode.REVEAL || mode == GlobeMode.EXPLORE) controller.pins else emptyList(),
                     centerY = cy.value.dp,
                     diameter = (d.value * (1f + controller.punch * 0.18f)).dp
                 )
@@ -126,11 +126,13 @@ private fun layoutFor(mode: GlobeMode, w: Float, h: Float, top: Float): GlobeLay
     GlobeMode.CLOCK -> min(min(w * 0.36f, h * 0.17f), 150f).let { GlobeLayout(cy = top + 14f + it / 2f, d = it) }
     // The tour and the world reveal: a big ball rising from the top of the screen, like the prototype's tweenBall.
     GlobeMode.REVEAL -> min(w * 0.9f, h * 0.46f).let { GlobeLayout(cy = top + 24f + it / 2f, d = it) }
+    // Globe+: a big ball under the tab's header, the city and club list below it.
+    GlobeMode.EXPLORE -> min(w * 0.86f, h * 0.38f).let { GlobeLayout(cy = top + 96f + it / 2f, d = it) }
     GlobeMode.BADGE, GlobeMode.HIDDEN -> min(min(w * 0.24f, h * 0.12f), 104f).let { GlobeLayout(cy = top + 16f + it / 2f, d = it) }
 }
 
 private fun insetFor(mode: GlobeMode, w: Float, h: Float, top: Float): Float = when (mode) {
-    GlobeMode.INTRO, GlobeMode.HIDDEN, GlobeMode.REVEAL -> top
+    GlobeMode.INTRO, GlobeMode.HIDDEN, GlobeMode.REVEAL, GlobeMode.EXPLORE -> top
     GlobeMode.CLOCK -> layoutFor(mode, w, h, top).let { it.cy + it.d / 2f + 6f }
     GlobeMode.BADGE -> layoutFor(mode, w, h, top).let { it.cy + it.d / 2f + 10f }
 }

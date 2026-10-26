@@ -27,3 +27,11 @@ interface Navigator {
 
     suspend fun navigateUp()
 }
+
+/**
+ * Switches the athlete app's tab: Profile is the root of the tabs, so every other tab sits right on top
+ * of it and Back from any tab lands on Profile.
+ */
+suspend fun Navigator.openTab(route: Screen) = navigateTo(route) {
+    popUpTo<Screen.ProfileScreen> { inclusive = route is Screen.ProfileScreen }
+}

@@ -1,15 +1,17 @@
 package com.global_water_polo.play_abroad.di
 
 import org.koin.core.module.dsl.viewModelOf
+import com.global_water_polo.play_abroad.presentation.app.profile.ProfileViewModel
+import com.global_water_polo.play_abroad.presentation.app.feed.FeedViewModel
+import com.global_water_polo.play_abroad.presentation.app.globe.GlobeViewModel
+import com.global_water_polo.play_abroad.presentation.app.travel.FlightRadarViewModel
+import com.global_water_polo.play_abroad.presentation.app.settings.SettingsViewModel
 import org.koin.dsl.module
 import com.global_water_polo.play_abroad.MainViewModel
-import com.global_water_polo.play_abroad.presentation.home.athlete.AthleteHomeViewModel
 import com.global_water_polo.play_abroad.presentation.home.parent.ParentHomeViewModel
 import com.global_water_polo.play_abroad.presentation.home.coach.CoachHomeViewModel
 import com.global_water_polo.play_abroad.presentation.intro.IntroViewModel
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingViewModel
-import com.global_water_polo.play_abroad.presentation.review.apply.ApplyReviewViewModel
-import com.global_water_polo.play_abroad.presentation.review.status.ReviewStatusViewModel
 
 /**
  * Every ViewModel is registered here (the Koin equivalent of @HiltViewModel).
@@ -20,9 +22,11 @@ val viewModelModule = module {
     viewModelOf(::MainViewModel)
     viewModelOf(::IntroViewModel)
     viewModelOf(::OnboardingViewModel)
-    viewModelOf(::AthleteHomeViewModel)
     viewModelOf(::ParentHomeViewModel)
     viewModelOf(::CoachHomeViewModel)
-    viewModelOf(::ApplyReviewViewModel)
-    viewModelOf(::ReviewStatusViewModel)
+    viewModelOf(::ProfileViewModel)
+    viewModelOf(::FeedViewModel)
+    viewModelOf(::GlobeViewModel)
+    viewModelOf(::FlightRadarViewModel)
+    viewModelOf(::SettingsViewModel)
 }
