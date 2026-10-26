@@ -8,7 +8,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheetHost
 import com.global_water_polo.play_abroad.core.utils.observeWithLifecycle
 import com.global_water_polo.play_abroad.presentation.app.profile.components.BuildPathwaySheet
+import com.global_water_polo.play_abroad.presentation.app.profile.components.GalleryItemSheet
+import com.global_water_polo.play_abroad.presentation.app.profile.components.InfoEditorSheet
 import com.global_water_polo.play_abroad.presentation.app.profile.components.InquirySheet
+import com.global_water_polo.play_abroad.presentation.app.profile.components.LetterRequestSheet
 import com.global_water_polo.play_abroad.presentation.app.profile.components.LabExampleSheet
 import com.global_water_polo.play_abroad.presentation.app.profile.components.LabTestSheet
 import com.global_water_polo.play_abroad.presentation.app.profile.components.ProgramDetailSheet
@@ -88,5 +91,26 @@ private fun ProfileSheetContent(sheet: ProfileSheet, state: ProfileState, viewMo
             onFilmClick = { viewModel.onEvent(ProfileEvent.OnLabTestClick(1)) },
             onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
         )
+        is ProfileSheet.Editor -> InfoEditorSheet(
+            group = sheet.group,
+            profile = state.profile,
+            onSaveInfo = { viewModel.onEvent(ProfileEvent.OnInfoSaved(it)) },
+            onSavePositions = { positions, leftHanded -> viewModel.onEvent(ProfileEvent.OnPositionsSaved(positions, leftHanded)) },
+            onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
+        )
+        ProfileSheet.LetterRequest -> LetterRequestSheet(
+            onRequest = { from, club -> viewModel.onEvent(ProfileEvent.OnLetterRequested(from, club)) },
+            onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
+        )
+        is ProfileSheet.GalleryItem -> state.profile.portfolio.gallery.find { it.id == sheet.id }?.let { item ->
+            val portfolio = state.profile.portfolio
+            GalleryItemSheet(
+                item = item,
+                inUse = item.id == portfolio.photoId || item.id == portfolio.highlightId,
+                onUseClick = { viewModel.onEvent(ProfileEvent.OnUseOnProfile(item.id)) },
+                onRemoveClick = { viewModel.onEvent(ProfileEvent.OnGalleryRemove(item.id)) },
+                onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
+            )
+        }
     }
 }

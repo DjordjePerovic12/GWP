@@ -76,14 +76,7 @@ fun ProfileScreenContent(
                     onTestClick = { onEvent(ProfileEvent.OnLabTestClick(it)) },
                     onExampleClick = { onEvent(ProfileEvent.OnLabExampleClick) }
                 )
-                ProfileSegment.PORTFOLIO -> PortfolioSection(
-                    state = state,
-                    onPreviewToggle = { onEvent(ProfileEvent.OnPreviewToggle(it)) },
-                    onItemClick = { onEvent(ProfileEvent.OnPortfolioItemClick(it)) },
-                    onFilePicked = { key, file -> onEvent(ProfileEvent.OnPortfolioFilePicked(key, file)) },
-                    onFileRemove = { onEvent(ProfileEvent.OnPortfolioFileRemove(it)) },
-                    onVisibilityClick = { onEvent(ProfileEvent.OnVisibilityClick(it)) }
-                )
+                ProfileSegment.PORTFOLIO -> PortfolioSection(state = state, onEvent = onEvent)
             }
         }
         AppTabBar(current = AppTab.PROFILE, onSelect = { onEvent(ProfileEvent.OnTabClick(it)) })

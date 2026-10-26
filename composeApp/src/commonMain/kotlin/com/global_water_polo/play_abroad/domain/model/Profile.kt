@@ -31,14 +31,12 @@ data class Profile(
     val looking: Set<String> = emptySet(),
     val travelStartOffset: Int? = null,
     val travelMonths: Int = 0,
-    val position: String = "",
+    /** Positions played; the first is the main one. */
+    val positions: List<String> = emptyList(),
     val leftHanded: Boolean = false,
     val visibility: ProfileVisibility = ProfileVisibility.COACHES,
     val finished: Set<String> = emptySet(),
-    /** Portfolio files picked on the device, by item ("photo", "video", "personal", ...). Not uploaded yet. */
-    val uploads: Map<String, PlatformFile> = emptyMap(),
-    /** The position row has no file; tapping it marks it as done until positions can be edited. */
-    val positionAdded: Boolean = false,
+    val portfolio: Portfolio = Portfolio(),
     val reviewSubmitted: Boolean = false,
     val pathway: Pathway? = null,
     val inquiries: Set<String> = emptySet(),
@@ -54,7 +52,10 @@ data class Profile(
     val homeAirport: String = "LAX",
     val travelChecks: Set<String> = emptySet(),
     val notifications: Boolean = true
-)
+) {
+    /** The main position, or empty. */
+    val position: String get() = positions.firstOrNull().orEmpty()
+}
 
 enum class ProfileVisibility {
     ALL,

@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad.presentation.app.settings
 
+import com.global_water_polo.play_abroad.domain.model.portfolioPercent
 import com.global_water_polo.play_abroad.core.components.membership.Membership
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
 import com.global_water_polo.play_abroad.core.components.membership.membershipOf
@@ -15,11 +16,6 @@ data class SettingsState(
 ) : BaseViewState(isLoading, error) {
     val membership: Membership get() = membershipOf(profile)
 
-    /** Same count as the Portfolio: six items plus one for having a profile. */
-    val portfolioPercent: Int
-        get() {
-            val done = listOf("photo", "video", "personal", "transcript", "letters").count { it in profile.uploads } +
-                (if (profile.position.isNotEmpty() || profile.positionAdded) 1 else 0)
-            return (done + 1) * 100 / 7
-        }
+    /** Same count as the Portfolio. */
+    val portfolioPercent: Int get() = profile.portfolioPercent
 }

@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad.core.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -9,19 +10,24 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.extension
+import io.github.vinceglb.filekit.mimeType
 import io.github.vinceglb.filekit.dialogs.compose.PickerResultLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.util.toImageBitmap
 
-/** What the system picker shows: the photo library, videos, or documents (PDF and Word). */
+/** What the system picker shows: the photo library, videos, or documents (PDF, Word or a photo of one). */
 enum class MediaKind(val type: FileKitType) {
     PHOTO(FileKitType.Image),
     VIDEO(FileKitType.Video),
-    DOCUMENT(FileKitType.File("pdf", "doc", "docx"))
+    DOCUMENT(FileKitType.File("pdf", "doc", "docx", "jpg", "jpeg", "png", "heic"))
 }
 
 /** Opens the system picker for one slot ([key]) and hands back the file picked for it. */
@@ -56,11 +62,45 @@ fun rememberMediaPicker(onPicked: (key: String, file: PlatformFile) -> Unit): Me
     }
 }
 
+/** Photos and videos for the gallery, several at once (up to 20); hands back what was picked. */
+@Composable
+fun rememberGalleryPicker(onPicked: (List<PlatformFile>) -> Unit): () -> Unit {
+    val report by rememberUpdatedState(onPicked)
+    val launcher = rememberFilePickerLauncher(
+        type = FileKitType.ImageAndVideo,
+        mode = FileKitMode.Multiple(maxItems = 20),
+        onResult = { files: List<PlatformFile>? -> if (!files.isNullOrEmpty()) report(files) }
+    )
+    return remember(launcher) { { launcher.launch() } }
+}
+
+/** Whether a picked file is a video, by its type or, failing that, its extension. */
+fun PlatformFile.isVideo(): Boolean =
+    mimeType()?.primaryType == "video" || extension.lowercase() in setOf("mp4", "mov", "m4v", "3gp", "webm")
+
+/** A solid play triangle, drawn rather than typed, so iOS never swaps it for the ▶️ emoji. */
+@Composable
+fun PlayIcon(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        drawPath(
+            Path().apply {
+                moveTo(w * 0.22f, h * 0.12f)
+                lineTo(w * 0.9f, h * 0.5f)
+                lineTo(w * 0.22f, h * 0.88f)
+                close()
+            },
+            color
+        )
+    }
+}
+
 /** A picked photo, decoded off the main thread; nothing is drawn until it is ready. */
 @Composable
-fun PickedImage(file: PlatformFile, modifier: Modifier = Modifier) {
+fun PickedImage(file: PlatformFile, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop) {
     val bitmap by produceState<ImageBitmap?>(null, file) {
         value = runCatching { file.toImageBitmap() }.getOrNull()
     }
-    bitmap?.let { Image(bitmap = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier) }
+    bitmap?.let { Image(bitmap = it, contentDescription = null, contentScale = contentScale, modifier = modifier) }
 }

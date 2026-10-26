@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.global_water_polo.play_abroad.core.components.PlayIcon
 import com.global_water_polo.play_abroad.core.components.drawableNamed
 import com.global_water_polo.play_abroad.presentation.app.feed.Story
 import com.global_water_polo.play_abroad.resources.*
@@ -71,7 +72,7 @@ fun ReelCard(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.align(Alignment.Center).size(64.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.25f))
             ) {
-                Text("▶", style = GWPPATheme.typography.archivoExpandedBold27, color = colors.colorWhite)
+                PlayIcon(colors.colorWhite, Modifier.size(26.dp))
             }
         }
         Column(

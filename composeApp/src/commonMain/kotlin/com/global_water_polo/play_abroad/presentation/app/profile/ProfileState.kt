@@ -6,7 +6,9 @@ import com.global_water_polo.play_abroad.core.components.membership.membershipOf
 import com.global_water_polo.play_abroad.core.utils.FreeYear
 import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
 import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
+import com.global_water_polo.play_abroad.domain.model.InfoGroup
 import com.global_water_polo.play_abroad.domain.model.Profile
+import com.global_water_polo.play_abroad.domain.model.portfolioPercent
 import com.global_water_polo.play_abroad.domain.model.Program
 import com.global_water_polo.play_abroad.presentation.base.BaseError
 import com.global_water_polo.play_abroad.presentation.base.BaseViewState
@@ -21,6 +23,13 @@ enum class ProfileSegment(val key: String) {
     }
 }
 
+/** Which gallery items show on the Portfolio: everything, photos only or videos only. */
+enum class GalleryFilter {
+    ALL,
+    PHOTOS,
+    VIDEOS
+}
+
 /** The bottom sheet open on the Profile tab. */
 sealed interface ProfileSheet {
     data object BuildPathway : ProfileSheet
@@ -28,6 +37,9 @@ sealed interface ProfileSheet {
     data class Inquiry(val program: Program, val sent: Boolean = false) : ProfileSheet
     data class LabTest(val index: Int) : ProfileSheet
     data object LabExample : ProfileSheet
+    data class Editor(val group: InfoGroup) : ProfileSheet
+    data object LetterRequest : ProfileSheet
+    data class GalleryItem(val id: Long) : ProfileSheet
 }
 
 /** A sample clinic listing: name, date, city, format and photo key. */
@@ -39,6 +51,7 @@ data class ProfileState(
     val profile: Profile = Profile(),
     val segment: ProfileSegment = ProfileSegment.PATH,
     val preview: Boolean = false,
+    val galleryFilter: GalleryFilter = GalleryFilter.ALL,
     val sheet: ProfileSheet? = null,
     val membershipSheet: MembershipSheet? = null
 ) : BaseViewState(isLoading, error) {
@@ -74,18 +87,7 @@ data class ProfileState(
 
     val labFilmed: Int get() = LAB_TESTS.indices.count { profile.labAngles[it].orEmpty().size >= 2 }
 
-    /** Portfolio items done, out of the prototype's six, plus one for having a profile at all. */
-    val portfolioItems: List<Pair<String, Boolean>>
-        get() = listOf(
-            "photo" to ("photo" in profile.uploads),
-            "video" to ("video" in profile.uploads),
-            "position" to (profile.position.isNotEmpty() || profile.positionAdded),
-            "personal" to ("personal" in profile.uploads),
-            "transcript" to ("transcript" in profile.uploads),
-            "letters" to ("letters" in profile.uploads)
-        )
-
-    val portfolioPercent: Int get() = (portfolioItems.count { it.second } + 1) * 100 / (portfolioItems.size + 1)
+    val portfolioPercent: Int get() = profile.portfolioPercent
 
     companion object {
         /** GWP LAB's eight in-water tests: name and what the coach looks at. TODO: Sample copy until GWP LAB ships. */

@@ -3,6 +3,8 @@ package com.global_water_polo.play_abroad.presentation.app.profile
 import io.github.vinceglb.filekit.PlatformFile
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
+import com.global_water_polo.play_abroad.domain.model.InfoGroup
+import com.global_water_polo.play_abroad.domain.model.PersonalInfo
 import com.global_water_polo.play_abroad.domain.model.Program
 import com.global_water_polo.play_abroad.domain.model.ProfileVisibility
 import com.global_water_polo.play_abroad.presentation.base.BaseEvent
@@ -38,8 +40,20 @@ sealed class ProfileEvent : BaseEvent {
     data object OnLabExampleClick : ProfileEvent()
 
     data class OnPreviewToggle(val preview: Boolean) : ProfileEvent()
-    data class OnPortfolioItemClick(val key: String) : ProfileEvent()
-    data class OnPortfolioFilePicked(val key: String, val file: PlatformFile) : ProfileEvent()
-    data class OnPortfolioFileRemove(val key: String) : ProfileEvent()
+    data class OnEditInfo(val group: InfoGroup) : ProfileEvent()
+    data class OnInfoSaved(val info: PersonalInfo) : ProfileEvent()
+    data class OnPositionsSaved(val positions: List<String>, val leftHanded: Boolean) : ProfileEvent()
+    data class OnPhotoPicked(val file: PlatformFile) : ProfileEvent()
+    data class OnHighlightPicked(val file: PlatformFile) : ProfileEvent()
+    data class OnTranscriptPicked(val file: PlatformFile) : ProfileEvent()
+    data object OnLetterRequestClick : ProfileEvent()
+    data class OnLetterRequested(val from: String, val club: String) : ProfileEvent()
+    data class OnLetterUploaded(val from: String, val file: PlatformFile) : ProfileEvent()
+    data class OnLetterRemove(val id: Long) : ProfileEvent()
+    data class OnGalleryAdd(val files: List<PlatformFile>) : ProfileEvent()
+    data class OnGalleryFilter(val filter: GalleryFilter) : ProfileEvent()
+    data class OnGalleryItemClick(val id: Long) : ProfileEvent()
+    data class OnUseOnProfile(val id: Long) : ProfileEvent()
+    data class OnGalleryRemove(val id: Long) : ProfileEvent()
     data class OnVisibilityClick(val visibility: ProfileVisibility) : ProfileEvent()
 }

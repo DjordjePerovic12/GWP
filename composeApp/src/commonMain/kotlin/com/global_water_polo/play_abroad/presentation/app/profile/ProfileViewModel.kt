@@ -14,7 +14,12 @@ import com.global_water_polo.play_abroad.core.navigation.Screen
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.navigation.utils.openTab
 import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
+import com.global_water_polo.play_abroad.core.components.isVideo
+import com.global_water_polo.play_abroad.domain.model.GalleryItem
+import com.global_water_polo.play_abroad.domain.model.Letter
 import com.global_water_polo.play_abroad.domain.model.Pathway
+import com.global_water_polo.play_abroad.domain.model.Portfolio
+import kotlin.time.Clock
 import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.domain.repository.cancelPlan
 import com.global_water_polo.play_abroad.domain.repository.startPlan
@@ -130,13 +135,69 @@ class ProfileViewModel(
             ProfileEvent.OnLabExampleClick -> state.update { it.copy(sheet = ProfileSheet.LabExample) }
 
             is ProfileEvent.OnPreviewToggle -> state.update { it.copy(preview = event.preview) }
-            // Only the position row is tapped to mark it; the rest open the picker.
-            is ProfileEvent.OnPortfolioItemClick -> profileRepository.update { it.copy(positionAdded = !it.positionAdded) }
-            // Prototype: the picked file stays on the device; nothing is uploaded yet.
-            is ProfileEvent.OnPortfolioFilePicked -> profileRepository.update { it.copy(uploads = it.uploads + (event.key to event.file)) }
-            is ProfileEvent.OnPortfolioFileRemove -> profileRepository.update { it.copy(uploads = it.uploads - event.key) }
+            is ProfileEvent.OnEditInfo -> state.update { it.copy(sheet = ProfileSheet.Editor(event.group)) }
+            is ProfileEvent.OnInfoSaved -> {
+                updatePortfolio { it.copy(info = event.info) }
+                state.update { it.copy(sheet = null) }
+            }
+            is ProfileEvent.OnPositionsSaved -> {
+                profileRepository.update { it.copy(positions = event.positions, leftHanded = event.leftHanded) }
+                state.update { it.copy(sheet = null) }
+            }
+            // Prototype: picked files stay on the device; nothing is uploaded yet. A picked photo or highlight
+            // also lands in the gallery, like the prototype.
+            is ProfileEvent.OnPhotoPicked -> updatePortfolio {
+                val item = GalleryItem(newId(), event.file, video = false)
+                it.copy(gallery = listOf(item) + it.gallery, photoId = item.id)
+            }
+            is ProfileEvent.OnHighlightPicked -> updatePortfolio {
+                val item = GalleryItem(newId(), event.file, video = true)
+                it.copy(gallery = listOf(item) + it.gallery, highlightId = item.id)
+            }
+            is ProfileEvent.OnTranscriptPicked -> updatePortfolio { it.copy(transcript = event.file) }
+            ProfileEvent.OnLetterRequestClick -> state.update { it.copy(sheet = ProfileSheet.LetterRequest) }
+            // Prototype: no email goes to the coach.
+            is ProfileEvent.OnLetterRequested -> {
+                updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, event.club)) }
+                state.update { it.copy(sheet = null) }
+            }
+            is ProfileEvent.OnLetterUploaded -> updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, file = event.file)) }
+            is ProfileEvent.OnLetterRemove -> updatePortfolio { p -> p.copy(letters = p.letters.filterNot { it.id == event.id }) }
+            is ProfileEvent.OnGalleryAdd -> updatePortfolio { p ->
+                val base = newId()
+                p.copy(gallery = event.files.mapIndexed { i, f -> GalleryItem(base + i, f, f.isVideo()) } + p.gallery)
+            }
+            is ProfileEvent.OnGalleryFilter -> state.update { it.copy(galleryFilter = event.filter) }
+            is ProfileEvent.OnGalleryItemClick -> state.update { it.copy(sheet = ProfileSheet.GalleryItem(event.id)) }
+            is ProfileEvent.OnUseOnProfile -> {
+                updatePortfolio { p ->
+                    val item = p.gallery.find { it.id == event.id } ?: return@updatePortfolio p
+                    if (item.video) p.copy(highlightId = item.id) else p.copy(photoId = item.id)
+                }
+                state.update { it.copy(sheet = null) }
+            }
+            is ProfileEvent.OnGalleryRemove -> {
+                updatePortfolio { p ->
+                    p.copy(
+                        gallery = p.gallery.filterNot { it.id == event.id },
+                        photoId = p.photoId.takeIf { it != event.id },
+                        highlightId = p.highlightId.takeIf { it != event.id }
+                    )
+                }
+                state.update { it.copy(sheet = null) }
+            }
             is ProfileEvent.OnVisibilityClick -> profileRepository.update { it.copy(visibility = event.visibility) }
         }
+    }
+
+    private fun updatePortfolio(transform: (Portfolio) -> Portfolio) = profileRepository.update { it.copy(portfolio = transform(it.portfolio)) }
+
+    private var lastId = 0L
+
+    /** A new id for a letter or gallery item: the clock in milliseconds, never repeated. */
+    private fun newId(): Long {
+        lastId = maxOf(lastId + 1000, Clock.System.now().toEpochMilliseconds() * 1000)
+        return lastId
     }
 
     private fun openTab(route: Screen) = viewModelScope.launch { navigator.openTab(route) }

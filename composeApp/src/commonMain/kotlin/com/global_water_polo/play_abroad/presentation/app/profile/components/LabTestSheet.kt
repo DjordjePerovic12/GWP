@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import com.global_water_polo.play_abroad.core.components.SheetHeading
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.presentation.app.profile.ProfileState
 import com.global_water_polo.play_abroad.core.components.MediaKind
+import com.global_water_polo.play_abroad.core.components.PlayIcon
 import com.global_water_polo.play_abroad.core.components.rememberMediaPicker
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
@@ -107,7 +109,8 @@ private fun AngleSlot(label: String, file: PlatformFile?, enabled: Boolean, onCl
             .clickable(enabled = enabled, onClick = onClick)
             .padding(10.dp)
     ) {
-        Text(if (filmed) "▶" else "＋", style = GWPPATheme.typography.archivoExpandedBold21, color = if (filmed) colors.colorWhite else colors.chlorineBlue)
+        if (filmed) PlayIcon(colors.colorWhite, Modifier.size(22.dp))
+        else Text("＋", style = GWPPATheme.typography.archivoExpandedBold21, color = colors.chlorineBlue)
         Text(label, style = GWPPATheme.typography.archivoBold13, color = if (filmed) colors.colorWhite else colors.inkBlack)
         Text(
             file?.name ?: stringResource(Res.string.lab_add_video),

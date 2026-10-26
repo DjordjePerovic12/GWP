@@ -40,6 +40,7 @@ import com.global_water_polo.play_abroad.core.components.AppSheet
 import com.global_water_polo.play_abroad.core.components.ButtonStyle
 import com.global_water_polo.play_abroad.core.components.ChoiceChip
 import com.global_water_polo.play_abroad.core.components.InfoPanel
+import com.global_water_polo.play_abroad.core.components.PlayIcon
 import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.core.components.cityImage
@@ -184,7 +185,7 @@ fun ExperienceSheet(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(14.dp).size(44.dp).clip(CircleShape).background(colors.ballYellow)
             ) {
-                Text("▶\uFE0E", style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack)
+                PlayIcon(colors.inkBlack, Modifier.size(18.dp))
             }
         }
         InfoPanel {
