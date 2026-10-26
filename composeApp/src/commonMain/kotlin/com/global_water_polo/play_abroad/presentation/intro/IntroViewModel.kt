@@ -10,12 +10,13 @@ import com.global_water_polo.play_abroad.core.navigation.Screen
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.presentation.base.BaseViewModel
 import kotlin.math.floor
-import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Spin the world through all 24 time zones (one full turn to the right), then tap the ball to enter.
- * Turning left takes progress back until the turn is complete; skipping enters straight away.
+ * "Wind it up": turning the ball to the right winds a spring through the time zones, getting heavier as
+ * it loads. Twelve zones in, the spring lets go and the ball runs through the other twelve on its own
+ * (IntroScreen drives that run). Turning left slips and takes nothing back. With all 24 zones spun the
+ * ball waits for a tap; skipping enters straight away.
  */
 class IntroViewModel(
     private val navigator: Navigator
@@ -44,16 +45,19 @@ class IntroViewModel(
     }
 
     private fun spin(delta: Float) {
-        if (state.value.finished || state.value.spunAll) return
-        val progress = max(0f, state.value.progressDegrees + delta)
+        val s = state.value
+        if (s.finished || s.spunAll || delta <= 0f) return
+        // The spring tightens as it loads by hand; once released it runs freely.
+        val load = min(1f, s.progressDegrees / IntroState.BY_HAND)
+        val turn = if (s.running) delta else delta * (1f - 0.32f * load)
+        val progress = min(IntroState.FULL_TURN, s.progressDegrees + turn)
         state.update {
             it.copy(
                 progressDegrees = progress,
-                zonesCrossed = min(IntroState.ZONES, floor(progress / 15f).toInt())
+                zonesCrossed = min(IntroState.ZONES, floor(progress / 15f).toInt()),
+                running = it.running || progress >= IntroState.BY_HAND,
+                spunAll = progress >= IntroState.FULL_TURN
             )
-        }
-        if (progress >= IntroState.FULL_TURN) {
-            state.update { it.copy(progressDegrees = IntroState.FULL_TURN, zonesCrossed = IntroState.ZONES, spunAll = true) }
         }
     }
 

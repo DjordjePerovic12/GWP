@@ -16,6 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
+import org.jetbrains.compose.resources.stringArrayResource
+import org.jetbrains.compose.resources.pluralStringResource
+import kotlinx.datetime.number
 import com.global_water_polo.play_abroad.core.components.BrandBar
 import com.global_water_polo.play_abroad.core.components.ClockChip
 import com.global_water_polo.play_abroad.core.components.OfferCard
@@ -45,7 +49,7 @@ fun ParentHomeScreenContent(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp)
         ) {
-            BrandBar()
+            BrandBar(short = true)
             ClockChip(countdown = state.countdown, clockYear = w?.clock?.year, compact = true)
         }
         Text(
@@ -62,8 +66,13 @@ fun ParentHomeScreenContent(
                     color = Color.White.copy(alpha = 0.7f)
                 )
             },
-            stats = listOf(
-                stringResource(Res.string.home_stat_clock) to (w?.let { stringResource(Res.string.window_fall, it.clock.year) } ?: "Fall ----"),
+            // A team-trip parent never gave a birthday: the card shows the trip they asked about instead of a clock.
+            stats = if (w == null && state.tripStartOffset != null) listOf(
+                stringResource(Res.string.parent_trip_card) to stringResource(Res.string.parent_trip_sent),
+                stringResource(Res.string.match_earliest) to tripStartLabel(state.tripStartOffset),
+                stringResource(Res.string.tripplan_length) to tripLengthLabel(state.tripMonths)
+            ) else listOf(
+                stringResource(Res.string.home_stat_clock) to (w?.let { stringResource(Res.string.window_fall, it.clock.year) } ?: "-"),
                 stringResource(Res.string.parent_straight) to (w?.let { stringResource(Res.string.home_of_five, it.seasonsStraight) } ?: "-"),
                 stringResource(Res.string.parent_abroad_first) to (w?.let { stringResource(Res.string.home_of_five, it.seasonsAbroad) } ?: "-")
             )
@@ -93,6 +102,19 @@ fun ParentHomeScreenContent(
             )
         }
     }
+}
+
+@Composable
+private fun tripStartLabel(offset: Int): String {
+    val start = PathwayCalculator.monthAt(offset)
+    return "${stringArrayResource(Res.array.months_short)[start.month.number - 1]} ${start.year}"
+}
+
+@Composable
+private fun tripLengthLabel(months: Int): String = when {
+    months <= 0 -> "-"
+    months >= 10 -> stringResource(Res.string.tripplan_full_season)
+    else -> pluralStringResource(Res.plurals.travel_months, months, months)
 }
 
 @Preview(showBackground = true)

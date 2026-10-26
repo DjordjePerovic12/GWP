@@ -131,7 +131,7 @@ fun OffersScreenContent(
             meta = { Text(stringResource(Res.string.offers_profile_ready), style = GWPPATheme.typography.archivoRegular14, color = Color.White.copy(alpha = 0.7f)) },
             stats = listOf(
                 stringResource(Res.string.offers_stat_clock) to (state.freeYear?.let { stringResource(Res.string.match_fall, it.clockYear) } ?: "-"),
-                stringResource(Res.string.offers_stat_seasons) to stringResource(Res.string.home_of_five, 5),
+                stringResource(Res.string.offers_stat_seasons) to (state.freeYear?.let { stringResource(Res.string.home_of_five, it.straight) } ?: "-"),
                 stringResource(Res.string.offers_stat_plan) to stringResource(
                     when {
                         state.isElite -> Res.string.trial_elite
@@ -155,7 +155,16 @@ fun OffersScreenContent(
                 color = colors.slateGrey
             )
         }
-        HelpText(text = stringResource(if (parent) Res.string.offers_help_parent else Res.string.offers_help_athlete))
+        // "Your full window is intact" is only true for the full-window athletes this screen is a step for;
+        // opened from "See all programs" it just lists every program.
+        HelpText(
+            text = stringResource(
+                when {
+                    state.fullWindow -> if (parent) Res.string.offers_help_parent else Res.string.offers_help_athlete
+                    else -> if (parent) Res.string.offers_help_all_parent else Res.string.offers_help_all_athlete
+                }
+            )
+        )
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 14.dp)) {
             OFFER_PROGRAMS.forEach { program ->
                 val locked = program.needsElite && !state.isElite
@@ -236,7 +245,8 @@ private fun OfferTile(program: Program, locked: Boolean, selected: Boolean, foot
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 )
             }
-            Column(Modifier.weight(1f).padding(14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            // Locked tiles leave room for the padlock in the top corner, so it never covers the name.
+            Column(Modifier.weight(1f).padding(start = 14.dp, top = 14.dp, bottom = 14.dp, end = if (locked) 44.dp else 14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(stringResource(program.verb).uppercase(), style = GWPPATheme.typography.archivoBold11, color = colors.mistGrey)
                     if (program.flagship) {

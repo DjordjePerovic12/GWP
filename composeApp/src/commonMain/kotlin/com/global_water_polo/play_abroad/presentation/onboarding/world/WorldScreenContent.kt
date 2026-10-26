@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,15 +51,21 @@ fun WorldScreenContent(
     val colors = GWPPATheme.colors
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val top = maxHeight * 0.3f
+        // The list scrolls under the globe's night panel; Enter stays pinned at the bottom, always in reach.
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = maxHeight)
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
                 .padding(top = top)
                 .background(Brush.verticalGradient(0f to Color.Transparent, 0.12f to colors.nightNavy.copy(alpha = 0.9f), 1f to colors.nightNavy))
                 .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(start = 24.dp, end = 24.dp, top = 56.dp, bottom = 24.dp)
+        ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .clipToBounds()
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, top = 56.dp, bottom = 8.dp)
         ) {
             Text(
                 text = stringResource(Res.string.world_kicker).uppercase(),
@@ -99,11 +106,12 @@ fun WorldScreenContent(
                 }
                 Box(Modifier.fillMaxWidth().height(1.dp).background(colors.colorWhite.copy(alpha = 0.1f)))
             }
+        }
             PrimaryButton(
                 text = stringResource(Res.string.world_enter).uppercase(),
                 onClick = onEnterClick,
                 style = ButtonStyle.PAPER,
-                modifier = Modifier.padding(top = 24.dp)
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 20.dp)
             )
         }
     }

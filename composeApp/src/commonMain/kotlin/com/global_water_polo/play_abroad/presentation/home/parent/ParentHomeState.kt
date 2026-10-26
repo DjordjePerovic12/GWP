@@ -12,5 +12,8 @@ data class ParentHomeState(
     val kidName: String = "",
     val invited: Boolean = false,
     val window: NcaaWindow? = null,
-    val countdown: ClockCountdown? = null
+    val countdown: ClockCountdown? = null,
+    /** Set when the parent asked about a team trip instead of their athlete's clock. */
+    val tripStartOffset: Int? = null,
+    val tripMonths: Int = 0
 ) : BaseViewState(isLoading, error)

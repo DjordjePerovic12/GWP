@@ -63,11 +63,16 @@ class OnboardingViewModel(
             OnboardingEvent.OnBackToGlobeClick -> go(Screen.IntroScreen) {
                 popUpTo(Screen.IntroScreen) { inclusive = true }
             }
-            OnboardingEvent.OnBackToStartClick -> go(Screen.WhoScreen) {
-                popUpTo(Screen.WhoScreen) { inclusive = true }
+            // Starting over clears every answer, so one person's details never carry into another role.
+            OnboardingEvent.OnBackToStartClick -> {
+                state.update { OnboardingState() }
+                go(Screen.WhoScreen) {
+                    popUpTo(Screen.WhoScreen) { inclusive = true }
+                }
             }
             is OnboardingEvent.OnRoleClick -> {
-                state.update { it.copy(lane = event.lane, looking = emptySet()) }
+                // A different role starts clean; picking the same role again keeps what was typed.
+                state.update { if (it.lane == event.lane) it.copy(looking = emptySet()) else OnboardingState(lane = event.lane) }
                 go(state.value.flow().first().route(event.lane))
             }
             // Skip and the tour's own timer can both fire; the one-time steps move on only once.
@@ -122,7 +127,10 @@ class OnboardingViewModel(
                 it.copy(looking = if (event.key in it.looking) it.looking - event.key else it.looking + event.key)
             }
             OnboardingEvent.OnLookContinueClick -> if (state.value.looking.isNotEmpty()) next(FlowStep.LOOK)
-            is OnboardingEvent.OnTravelStartClick -> state.update { it.copy(travelStartOffset = event.offset) }
+            // The length slider shows 3 months until it is touched; picking a start keeps that as the length.
+            is OnboardingEvent.OnTravelStartClick -> state.update {
+                it.copy(travelStartOffset = event.offset, travelMonths = if (it.travelMonths > 0) it.travelMonths else 3)
+            }
             is OnboardingEvent.OnTravelLengthChanged -> state.update { it.copy(travelMonths = event.months) }
             OnboardingEvent.OnTravelContinueClick -> if (state.value.canTravelContinue) next(FlowStep.TRAVEL)
 
@@ -138,6 +146,7 @@ class OnboardingViewModel(
             is OnboardingEvent.OnClubCityChanged -> state.update { it.copy(clubCity = event.value) }
             is OnboardingEvent.OnClubCountryClick -> state.update { it.copy(clubCountry = toggleSingle(it.clubCountry, event.value)) }
             OnboardingEvent.OnPlaceClubClick -> if (state.value.canPlaceClub) state.update { it.copy(clubPlaced = true) }
+            OnboardingEvent.OnClubPlacedBackClick -> state.update { it.copy(clubPlaced = false) }
             OnboardingEvent.OnClubPlacedContinueClick -> {
                 state.update { it.copy(clubPlaced = false) }
                 next(FlowStep.PLACE)

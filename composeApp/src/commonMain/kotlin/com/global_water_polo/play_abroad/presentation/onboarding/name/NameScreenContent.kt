@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,7 +44,7 @@ fun NameScreenContent(
         HelpText(text = stringResource(if (athlete) Res.string.name_help_clock else Res.string.name_help_parent))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 24.dp)) {
             FormField(label = stringResource(Res.string.name_first), value = state.firstName, onValueChange = onFirstNameChanged, capitalization = KeyboardCapitalization.Words)
-            FormField(label = stringResource(Res.string.name_last), value = state.lastName, onValueChange = onLastNameChanged, capitalization = KeyboardCapitalization.Words)
+            FormField(label = stringResource(Res.string.name_last), value = state.lastName, onValueChange = onLastNameChanged, capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done)
         }
     }
 }

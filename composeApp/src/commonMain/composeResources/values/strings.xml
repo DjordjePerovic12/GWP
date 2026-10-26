@@ -22,13 +22,18 @@
     <string name="haptics_on">Haptics on</string>
     <string name="haptics_off">Haptics off</string>
     <string name="common_continue">Continue</string>
-    <string name="intro_global">Global</string>
-    <string name="intro_water_polo">Water Polo</string>
-    <string name="intro_swipe_right">Swipe right</string>
-    <string name="intro_zones_suffix"> of %1$d time zones. Spin the world to enter.</string>
     <string name="intro_skip">Skip intro</string>
     <string name="intro_tap_ball">Tap the ball</string>
-    <string name="intro_all_zones">All %1$d time zones. Tap the ball to enter.</string>
+    <string name="intro_wind_it_up">Wind it up</string>
+    <string name="intro_zones_of"> / %1$d time zones</string>
+    <string name="intro_line_1">Beyond</string>
+    <string name="intro_line_2">the pool.</string>
+    <string name="intro_line_3">Around</string>
+    <string name="intro_line_4">the world.</string>
+    <string name="intro_role_athletes">Athletes</string>
+    <string name="intro_role_parents">Parents</string>
+    <string name="intro_role_coaches">Coaches</string>
+    <string name="intro_role_clubs">Clubs</string>
     <string name="who_title">Your NCAA clock is already running.</string>
     <string name="who_help">See when your five-year college window opens and what a year abroad does to it. Who's here?</string>
     <string name="who_athlete">I'm an athlete</string>
@@ -158,6 +163,7 @@
     <string name="invite_send">Send invite</string>
     <string name="invite_later">Do it later</string>
     <string name="invite_ready">Invite ready for %1$s. In the real app this sends a text.</string>
+    <string name="invite_ready_email">Invite ready for %1$s. In the real app this sends an email.</string>
     <string name="account_title_coach">Create your coach account.</string>
     <string name="account_title_club">Your club.</string>
     <string name="account_full_name">Full name</string>
@@ -434,7 +440,7 @@
     <string name="welcome_help_athlete">Your profile is ready. Where should we send it? No password yet.</string>
     <string name="welcome_help_parent">Their profile is ready. Where should we send it? No password yet.</string>
     <string name="trip_email_title">Where do we send the plan?</string>
-    <string name="trip_email_help">Your athlete's clock and plan in one email.</string>
+    <string name="trip_email_help">Your team trip plan in one email.</string>
     <string name="trip_email_cta">Send the plan</string>
 
     <!-- Check your inbox -->
@@ -630,6 +636,8 @@
     <string name="scout_trip_note">A GWP trip lead will contact you about dates, level and budget.</string>
 
     <!-- Team trip inquiry -->
+    <string name="parent_trip_card">Team trip inquiry</string>
+    <string name="parent_trip_sent">Sent. A GWP trip lead will be in touch.</string>
     <string name="tripplan_title">Your team trip inquiry.</string>
     <string name="tripplan_length">Length</string>
     <string name="tripplan_full_season">Full season</string>
@@ -653,6 +661,8 @@
     <string name="offers_note_next">Elite unlocks the rest</string>
     <string name="offers_note_none">Membership unlocks them</string>
     <string name="offers_help_athlete">Your full 5-year NCAA window is intact, so every GWP program can fit before your clock starts.</string>
+    <string name="offers_help_all_athlete">Every GWP program, side by side. Pick one to apply.</string>
+    <string name="offers_help_all_parent">Every GWP program, side by side. Pick one for them to apply.</string>
     <string name="offers_help_parent">Their full 5-year NCAA window is intact, so every GWP program can fit before their clock starts.</string>
     <string name="offers_flagship">Flagship</string>
     <string name="offers_unlock_elite">Unlock with GWP Elite</string>

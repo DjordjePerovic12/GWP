@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ fun ClubStaffScreenContent(
             value = state.staffCoach,
             onValueChange = onCoachChanged,
             capitalization = KeyboardCapitalization.Words,
+            imeAction = ImeAction.Done,
             modifier = Modifier.padding(top = 24.dp)
         )
         ChipGroup(

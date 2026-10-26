@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
@@ -17,12 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
+import com.global_water_polo.play_abroad.core.components.BackButton
 import com.global_water_polo.play_abroad.core.components.BarStart
 import com.global_water_polo.play_abroad.core.components.ButtonStyle
 import com.global_water_polo.play_abroad.core.components.ChoiceChip
@@ -69,12 +72,19 @@ fun ClubPlaceScreenContent(
     onCountryClick: (String) -> Unit,
     onPlaceClick: () -> Unit,
     onPlacedContinueClick: () -> Unit,
+    onPlacedBackClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     val countries = stringArrayResource(Res.array.club_countries)
     val spot = countryLocation(countries, state.clubCountry)
     if (state.clubPlaced && spot != null) {
-        PlacedOverlay(state = state, coordinates = formatCoordinates(spot.first, spot.second), onContinueClick = onPlacedContinueClick, modifier = modifier)
+        PlacedOverlay(
+            state = state,
+            coordinates = formatCoordinates(spot.first, spot.second),
+            onContinueClick = onPlacedContinueClick,
+            onBackClick = onPlacedBackClick,
+            modifier = modifier
+        )
         return
     }
     OnboardingLayout(
@@ -93,7 +103,7 @@ fun ClubPlaceScreenContent(
         HelpText(text = stringResource(Res.string.club_place_help))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 24.dp)) {
             FormField(label = stringResource(Res.string.club_name), value = state.organization, onValueChange = onNameChanged, capitalization = KeyboardCapitalization.Words)
-            FormField(label = stringResource(Res.string.club_city), value = state.clubCity, onValueChange = onCityChanged, capitalization = KeyboardCapitalization.Words)
+            FormField(label = stringResource(Res.string.club_city), value = state.clubCity, onValueChange = onCityChanged, capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done)
         }
         Text(
             text = stringResource(Res.string.club_country),
@@ -109,9 +119,20 @@ fun ClubPlaceScreenContent(
 
 /** The night panel under the globe once the club is pinned: name, place, coordinates, Continue. */
 @Composable
-private fun PlacedOverlay(state: OnboardingState, coordinates: String, onContinueClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun PlacedOverlay(
+    state: OnboardingState,
+    coordinates: String,
+    onContinueClick: () -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val colors = GWPPATheme.colors
     Box(modifier = modifier.fillMaxSize()) {
+        BackButton(
+            onClick = onBackClick,
+            dark = true,
+            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(start = 24.dp, top = 12.dp)
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -163,6 +184,7 @@ private fun ClubPlaceScreenContentPreview() {
             onCountryClick = {},
             onPlaceClick = {},
             onPlacedContinueClick = {},
+            onPlacedBackClick = {},
             onBackClick = {}
         )
     }

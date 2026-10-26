@@ -64,6 +64,7 @@ sealed class OnboardingEvent : BaseEvent {
     data class OnClubCountryClick(val value: String) : OnboardingEvent()
     data object OnPlaceClubClick : OnboardingEvent()
     data object OnClubPlacedContinueClick : OnboardingEvent()
+    data object OnClubPlacedBackClick : OnboardingEvent()
     data class OnStaffCoachChanged(val value: String) : OnboardingEvent()
     data class OnStaffSizeClick(val value: String) : OnboardingEvent()
     data class OnLanguageToggle(val value: String) : OnboardingEvent()

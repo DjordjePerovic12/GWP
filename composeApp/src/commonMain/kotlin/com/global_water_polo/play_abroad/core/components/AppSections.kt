@@ -23,15 +23,16 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.resources.Res
 import com.global_water_polo.play_abroad.resources.brand_long
+import com.global_water_polo.play_abroad.resources.brand_short
 import com.global_water_polo.play_abroad.resources.gwp_logo
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
-/** Logo + GLOBAL WATER POLO, the left side of the app screens' bar. */
+/** Logo + GLOBAL WATER POLO, the left side of the app screens' bar; [short] says GWP where a chip shares the row. */
 @Composable
-fun BrandBar(modifier: Modifier = Modifier) {
+fun BrandBar(modifier: Modifier = Modifier, short: Boolean = false) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier) {
         Image(painter = painterResource(Res.drawable.gwp_logo), contentDescription = null, modifier = Modifier.size(26.dp))
-        Text(text = stringResource(Res.string.brand_long), style = GWPPATheme.typography.archivoExpandedBold12, color = GWPPATheme.colors.inkBlack)
+        Text(text = stringResource(if (short) Res.string.brand_short else Res.string.brand_long), style = GWPPATheme.typography.archivoExpandedBold12, color = GWPPATheme.colors.inkBlack)
     }
 }
 

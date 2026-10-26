@@ -39,6 +39,8 @@ class ParentHomeViewModel(
                                 firstName = p.firstName,
                                 kidName = p.kidName,
                                 invited = p.invited,
+                                tripStartOffset = if ("trip" in p.now) p.travelStartOffset else null,
+                                tripMonths = p.travelMonths,
                                 window = window,
                                 countdown = window?.let { w -> NcaaClockCalculator.countdown(w.clock) }
                             )

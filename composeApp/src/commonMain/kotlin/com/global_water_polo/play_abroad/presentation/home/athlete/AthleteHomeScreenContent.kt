@@ -72,7 +72,7 @@ fun AthleteHomeScreenContent(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp)
         ) {
-            BrandBar()
+            BrandBar(short = true)
             ClockChip(countdown = state.countdown, clockYear = state.window?.clock?.year, compact = true)
         }
         Text(text = stringResource(Res.string.home_hello, state.firstName), style = typography.archivoExpandedBold27, color = colors.inkBlack)

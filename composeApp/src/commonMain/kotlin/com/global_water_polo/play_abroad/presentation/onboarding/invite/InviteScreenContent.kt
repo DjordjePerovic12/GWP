@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
@@ -51,11 +53,11 @@ fun InviteScreenContent(
         HelpText(text = stringResource(Res.string.invite_help))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 24.dp)) {
             FormField(label = stringResource(Res.string.invite_kid_name), value = state.kidName, onValueChange = onKidNameChanged, capitalization = KeyboardCapitalization.Words)
-            FormField(label = stringResource(Res.string.invite_kid_contact), value = state.kidContact, onValueChange = onKidContactChanged)
+            FormField(label = stringResource(Res.string.invite_kid_contact), value = state.kidContact, onValueChange = onKidContactChanged, keyboardType = KeyboardType.Email, imeAction = ImeAction.Done)
         }
         if (state.invited) {
             Text(
-                text = stringResource(Res.string.invite_ready, state.kidName.trim()),
+                text = stringResource(if (state.inviteByEmail) Res.string.invite_ready_email else Res.string.invite_ready, state.kidName.trim()),
                 style = GWPPATheme.typography.archivoBold13,
                 color = GWPPATheme.colors.chlorineBlue,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp)

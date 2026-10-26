@@ -110,7 +110,8 @@ data class OnboardingState(
 
     val isNameValid: Boolean get() = firstName.isNotBlank() && lastName.isNotBlank()
     val isEmailValid: Boolean get() = EMAIL.matches(email.trim())
-    val canInvite: Boolean get() = kidName.isNotBlank() && kidContact.isNotBlank()
+    val canInvite: Boolean get() = kidName.isNotBlank() && (inviteByEmail || kidContact.count { it.isDigit() } >= 7)
+    val inviteByEmail: Boolean get() = EMAIL.matches(kidContact.trim())
     val canCreateAccount: Boolean get() = firstName.isNotBlank() && organization.isNotBlank() && isEmailValid
     val canTravelContinue: Boolean get() = travelStartOffset != null && travelMonths > 0
     val isGradSet: Boolean get() = gradMonth != null && gradYear != null

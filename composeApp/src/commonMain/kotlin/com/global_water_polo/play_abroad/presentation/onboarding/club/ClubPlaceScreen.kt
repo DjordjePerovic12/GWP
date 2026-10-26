@@ -43,8 +43,12 @@ fun ClubPlaceScreen(
             if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
         }
     }
+    // Leaving the screen (an edge swipe back, say) also takes the reveal down, so coming back shows the form.
     DisposableEffect(globe) {
-        onDispose { globe.revealOverride = false }
+        onDispose {
+            globe.revealOverride = false
+            viewModel.onEvent(OnboardingEvent.OnClubPlacedBackClick)
+        }
     }
 
     BaseContentView(
@@ -59,6 +63,7 @@ fun ClubPlaceScreen(
             onCountryClick = { viewModel.onEvent(OnboardingEvent.OnClubCountryClick(it)) },
             onPlaceClick = { viewModel.onEvent(OnboardingEvent.OnPlaceClubClick) },
             onPlacedContinueClick = { viewModel.onEvent(OnboardingEvent.OnClubPlacedContinueClick) },
+            onPlacedBackClick = { viewModel.onEvent(OnboardingEvent.OnClubPlacedBackClick) },
             onBackClick = { viewModel.onEvent(OnboardingEvent.NavigateBack) }
         )
     }

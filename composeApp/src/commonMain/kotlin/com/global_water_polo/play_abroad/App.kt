@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -44,9 +45,12 @@ fun App() {
             }
 
             GlobeStage(controller = globe, routeMode = entry?.destination.globeMode()) {
+                // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
+                // consume the system bars (that left screens running under the status bar and home indicator).
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,
+                    contentWindowInsets = WindowInsets(0),
                     snackbarHost = { CustomModifiers.snackBarHost(appState.scaffoldState) }
                 ) {
                     BaseAppNavigation(
