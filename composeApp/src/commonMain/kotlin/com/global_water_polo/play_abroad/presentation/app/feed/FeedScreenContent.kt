@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import com.global_water_polo.play_abroad.core.components.LocalStatusBarOverride
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,6 +57,12 @@ fun FeedScreenContent(
 ) {
     val colors = GWPPATheme.colors
     val dark = state.tab == FeedTab.FOR_YOU
+    // For you is dark from the top; Library and Saved are light.
+    val statusOverride = LocalStatusBarOverride.current
+    DisposableEffect(dark) {
+        statusOverride.value = dark
+        onDispose { statusOverride.value = null }
+    }
     Column(modifier = modifier.fillMaxSize().background(if (dark) colors.nightNavy else colors.boneWhite)) {
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
             // One reel fills what is visible under the status bar and the For you / Library / Saved row.

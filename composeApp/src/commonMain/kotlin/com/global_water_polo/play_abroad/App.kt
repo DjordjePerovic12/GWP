@@ -1,5 +1,10 @@
 package com.global_water_polo.play_abroad
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import com.global_water_polo.play_abroad.core.components.LocalStatusBarOverride
+import com.global_water_polo.play_abroad.core.components.StatusBarStyle
+import com.global_water_polo.play_abroad.core.components.globe.GlobeMode
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -44,23 +49,31 @@ fun App() {
                 appState.showSnackBar(message)
             }
 
-            GlobeStage(controller = globe, routeMode = entry?.destination.globeMode()) {
-                // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
-                // consume the system bars (that left screens running under the status bar and home indicator).
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = Color.Transparent,
-                    contentWindowInsets = WindowInsets(0),
-                    snackbarHost = { CustomModifiers.snackBarHost(appState.scaffoldState) }
-                ) {
-                    BaseAppNavigation(
-                        navigator = navigator,
-                        navController = appState.navController,
-                        showSnackBar = { message ->
-                            appState.showSnackBar(message)
-                        },
-                        density = LocalDensity.current
-                    )
+            val routeMode = entry?.destination.globeMode()
+            val statusOverride = remember { mutableStateOf<Boolean?>(null) }
+            // White icons while the globe is at night (clock, tour, world, Globe+), unless a screen asks otherwise.
+            val night = routeMode == GlobeMode.CLOCK || routeMode == GlobeMode.REVEAL || routeMode == GlobeMode.EXPLORE
+            StatusBarStyle(lightIcons = statusOverride.value ?: night)
+
+            CompositionLocalProvider(LocalStatusBarOverride provides statusOverride) {
+                GlobeStage(controller = globe, routeMode = routeMode) {
+                    // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
+                    // consume the system bars (that left screens running under the status bar and home indicator).
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = Color.Transparent,
+                        contentWindowInsets = WindowInsets(0),
+                        snackbarHost = { CustomModifiers.snackBarHost(appState.scaffoldState) }
+                    ) {
+                        BaseAppNavigation(
+                            navigator = navigator,
+                            navController = appState.navController,
+                            showSnackBar = { message ->
+                                appState.showSnackBar(message)
+                            },
+                            density = LocalDensity.current
+                        )
+                    }
                 }
             }
         }
