@@ -45,6 +45,12 @@ suspend fun loadGlobeTexture(): ImageBitmap {
  * own axis. The texture is attached to the ball (fixed UVs), only vertex positions change per frame,
  * so a frame costs a few thousand multiplications whatever the ball's size on screen.
  */
+/** The ball's resting forward tilt (three.js rotation.x = 0.18). */
+const val BASE_TILT = 0.18f
+
+/** A place marked on the ball (the tour's club cities); [active] is drawn bigger with a ring. */
+data class GlobePin(val latitude: Float, val longitude: Float, val active: Boolean = false)
+
 class GlobeMesh(private val textureWidth: Int, private val textureHeight: Int) {
 
     private val lonSegments = 72
@@ -59,7 +65,7 @@ class GlobeMesh(private val textureWidth: Int, private val textureHeight: Int) {
     private val uv: List<Offset>
     private val white = List(count) { Color.White }
 
-    private val tiltX = 0.18f
+    private val tiltX = BASE_TILT
     private val tiltZ = -0.32f
 
     init {
@@ -78,15 +84,35 @@ class GlobeMesh(private val textureWidth: Int, private val textureHeight: Int) {
         uv = coords
     }
 
+    /**
+     * Screen position of [latitude], [longitude] on the ball, or null when it is on the far side.
+     * Same rotations as [vertices]; the texture's left edge is longitude -180.
+     */
+    fun project(latitude: Float, longitude: Float, angleDegrees: Float, tilt: Float, cx: Float, cy: Float, radius: Float): Offset? {
+        val phi = (longitude + 180f) / 360f * 2f * PI.toFloat()
+        val theta = (90f - latitude) * PI.toFloat() / 180f
+        val x0 = -cos(phi) * sin(theta)
+        val y0 = cos(theta)
+        val z0 = sin(phi) * sin(theta)
+        val a = angleDegrees * PI.toFloat() / 180f
+        val x1 = x0 * cos(a) + z0 * sin(a)
+        val z1 = -x0 * sin(a) + z0 * cos(a)
+        val x2 = x1 * cos(tiltZ) - y0 * sin(tiltZ)
+        val y2 = x1 * sin(tiltZ) + y0 * cos(tiltZ)
+        val y3 = y2 * cos(tilt) - z1 * sin(tilt)
+        val z3 = y2 * sin(tilt) + z1 * cos(tilt)
+        return if (z3 < 0.08f) null else Offset(cx + x2 * radius, cy - y3 * radius)
+    }
+
     /** Triangles of the half of the ball facing the viewer, centred at ([cx], [cy]) with [radius] in px. */
-    fun vertices(angleDegrees: Float, cx: Float, cy: Float, radius: Float): Vertices {
+    fun vertices(angleDegrees: Float, cx: Float, cy: Float, radius: Float, tilt: Float = tiltX): Vertices {
         val a = angleDegrees * PI.toFloat() / 180f
         val ca = cos(a)
         val sa = sin(a)
         val cz = cos(tiltZ)
         val sz = sin(tiltZ)
-        val cxr = cos(tiltX)
-        val sxr = sin(tiltX)
+        val cxr = cos(tilt)
+        val sxr = sin(tilt)
         val positions = ArrayList<Offset>(count)
         val depth = FloatArray(count)
         for (i in 0 until count) {

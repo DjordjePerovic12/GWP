@@ -53,6 +53,10 @@ fun IntroScreen(
         onDispose { globe.onUserTurn = null }
     }
 
+    LaunchedEffect(state.spunAll) {
+        if (state.spunAll && !state.finished && globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+    }
+
     LaunchedEffect(state.finished) {
         if (state.finished) {
             globe.kick(velocityDegreesPerMs = 1.6f, withBurst = true)
@@ -70,6 +74,7 @@ fun IntroScreen(
         onDragStart = { globe.dragStart() },
         onDrag = { degrees -> globe.drag(degrees) },
         onDragEnd = { velocity -> globe.dragEnd(velocity) },
-        onSkipClick = { viewModel.onEvent(IntroEvent.OnSkipClick) }
+        onSkipClick = { viewModel.onEvent(IntroEvent.OnSkipClick) },
+        onBallClick = { viewModel.onEvent(IntroEvent.OnBallClick) }
     )
 }

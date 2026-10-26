@@ -43,7 +43,7 @@ fun App() {
                 appState.showSnackBar(message)
             }
 
-            GlobeStage(controller = globe, mode = entry?.destination.globeMode()) {
+            GlobeStage(controller = globe, routeMode = entry?.destination.globeMode()) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Transparent,

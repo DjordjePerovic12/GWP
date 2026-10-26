@@ -22,6 +22,94 @@ sealed interface Screen {
     @Serializable
     data object WhoScreen : Screen
 
+    // One-tap questions, all drawn by the shared ask screen. Each has its own route: with one route for all of
+    // them, launchSingleTop would swap one question for the next instead of stacking them (no Back, no animation).
+    @Serializable
+    data class NowScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class LevelScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class GoalScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class ClubScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class ProbeScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class StopScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class GradScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class FreeYearScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class TourScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class LinkScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class WorldScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class TrialScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class MatchScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data class OffersScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
+    data object TripPlanScreen : Screen
+
+    // Club lane
+    @Serializable
+    data object ClubPlaceScreen : Screen
+
+    @Serializable
+    data object FacilitiesScreen : Screen
+
+    @Serializable
+    data object ClubStaffScreen : Screen
+
+    @Serializable
+    data object ClubProfileScreen : Screen
+
     @Serializable
     data class BirthdayScreen(val lane: String) : Screen {
         constructor(lane: Lane) : this(lane.name)
@@ -43,27 +131,12 @@ sealed interface Screen {
     }
 
     @Serializable
-    data class WindowScreen(val lane: String) : Screen {
-        constructor(lane: Lane) : this(lane.name)
-    }
-
-    @Serializable
     data class LookScreen(val lane: String) : Screen {
         constructor(lane: Lane) : this(lane.name)
     }
 
     @Serializable
     data class TravelScreen(val lane: String) : Screen {
-        constructor(lane: Lane) : this(lane.name)
-    }
-
-    @Serializable
-    data class PositionScreen(val lane: String) : Screen {
-        constructor(lane: Lane) : this(lane.name)
-    }
-
-    @Serializable
-    data class SaveScreen(val lane: String) : Screen {
         constructor(lane: Lane) : this(lane.name)
     }
 
@@ -75,8 +148,6 @@ sealed interface Screen {
         constructor(lane: Lane) : this(lane.name)
     }
 
-    @Serializable
-    data object PendingScreen : Screen
 
     // App screens after onboarding
     @Serializable
@@ -84,6 +155,9 @@ sealed interface Screen {
 
     @Serializable
     data object ParentHomeScreen : Screen
+
+    @Serializable
+    data object CoachHomeScreen : Screen
 
     @Serializable
     data object ApplyReviewScreen : Screen

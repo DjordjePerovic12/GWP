@@ -8,6 +8,8 @@ data class IntroState(
     override val error: BaseError? = null,
     val progressDegrees: Float = 0f,
     val zonesCrossed: Int = 0,
+    /** All 24 zones spun: the ball waits for a tap to enter. */
+    val spunAll: Boolean = false,
     val finished: Boolean = false
 ) : BaseViewState(isLoading, error) {
     val progress: Float get() = (progressDegrees / FULL_TURN).coerceIn(0f, 1f)

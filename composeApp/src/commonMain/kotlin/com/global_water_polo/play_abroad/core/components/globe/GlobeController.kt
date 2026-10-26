@@ -18,6 +18,7 @@ enum class GlobeMode {
     INTRO,
     BADGE,
     CLOCK,
+    REVEAL,
     HIDDEN
 }
 
@@ -36,6 +37,16 @@ class GlobeController {
         private set
     var hapticsOn by mutableStateOf(true)
 
+    /** Forward tilt in radians; the tour leans it so the city's latitude faces the viewer. */
+    var tilt by mutableFloatStateOf(BASE_TILT)
+        private set
+
+    /** A screen can raise the big night globe in place (the club's "on the map" moment) without its own route. */
+    var revealOverride by mutableStateOf(false)
+
+    /** Places marked on the ball while the tour runs. */
+    var pins by mutableStateOf<List<GlobePin>>(emptyList())
+
     /** Called with every turn the user caused (drag or its fling), in degrees. */
     var onUserTurn: ((Float) -> Unit)? = null
 
@@ -44,17 +55,44 @@ class GlobeController {
     private var userSpin = false
     private var kicked = false
     private var idleSpeed = 0f
+    private var aim: Float? = null
+    private var tiltTarget = BASE_TILT
 
     fun setMode(mode: GlobeMode) {
         // On the intro the globe rests on the device's own time zone until someone spins it.
-        idleSpeed = if (mode == GlobeMode.INTRO) 0f else 0.006f
+        idleSpeed = if (mode == GlobeMode.INTRO || mode == GlobeMode.REVEAL) 0f else 0.006f
+        if (mode != GlobeMode.REVEAL) {
+            aim = null
+            tiltTarget = BASE_TILT
+            pins = emptyList()
+        }
         if (mode == GlobeMode.INTRO) {
             kicked = false
             userSpin = false
         }
     }
 
+    /**
+     * Turns the ball the short way round until [longitude] faces the viewer, and leans it so [latitude]
+     * does too (the globe tour).
+     */
+    fun aimAt(longitude: Float, latitude: Float? = null) {
+        tiltTarget = latitude?.let { it * kotlin.math.PI.toFloat() / 180f } ?: BASE_TILT
+        val target = -90f - longitude
+        aim = angle + (((target - angle) % 360f + 540f) % 360f - 180f)
+        velocity = 0f
+        userSpin = false
+    }
+
+    /** Drops the tour's pins and aim (a tour can still tick once while its screen animates out). */
+    fun clearTour() {
+        pins = emptyList()
+        aim = null
+        tiltTarget = BASE_TILT
+    }
+
     fun dragStart() {
+        aim = null
         dragging = true
         userSpin = true
         velocity = 0f
@@ -86,7 +124,11 @@ class GlobeController {
             val now = withFrameMillis { it }
             val dt = (now - last).coerceIn(0L, 50L).toFloat()
             last = now
-            if (!dragging) {
+            tilt += (tiltTarget - tilt) * (1f - kotlin.math.exp(-dt / 380f))
+            val target = aim
+            if (!dragging && target != null) {
+                angle += (target - angle) * (1f - kotlin.math.exp(-dt / 380f))
+            } else if (!dragging) {
                 if (kotlin.math.abs(velocity) > 0.0015f) {
                     val d = velocity * dt
                     angle += d

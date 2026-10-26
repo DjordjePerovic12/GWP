@@ -70,18 +70,17 @@ fun OnboardingLayout(
     }
 }
 
-/** Back button + optional step dots, the left side of the onboarding bar. */
+/** Back button + the flow's progress bar, the left side of the onboarding bar. */
 @Composable
 fun BarStart(
     onBackClick: () -> Unit,
-    step: Int = 0,
-    of: Int = 0
+    progress: Float? = null
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         BackButton(onClick = onBackClick)
-        if (of > 0) {
-            Spacer(Modifier.padding(start = 12.dp))
-            StepsIndicator(step = step, of = of)
+        if (progress != null) {
+            Spacer(Modifier.padding(start = 14.dp))
+            FlowBar(progress = progress)
         }
     }
 }

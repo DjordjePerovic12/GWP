@@ -30,7 +30,8 @@ enum class ButtonStyle {
     INK,
     BALL,
     BLUE,
-    GHOST
+    GHOST,
+    PAPER
 }
 
 /** The prototype's `.cta`: a 58dp pill, ink by default, ball-yellow for the big moments. */
@@ -50,6 +51,7 @@ fun PrimaryButton(
         ButtonStyle.BALL -> colors.ballYellow to colors.inkBlack
         ButtonStyle.BLUE -> colors.chlorineBlue to colors.colorWhite
         ButtonStyle.GHOST -> Color.Transparent to colors.inkBlack
+        ButtonStyle.PAPER -> colors.boneWhite to colors.inkBlack
     }
     Box(
         contentAlignment = Alignment.Center,

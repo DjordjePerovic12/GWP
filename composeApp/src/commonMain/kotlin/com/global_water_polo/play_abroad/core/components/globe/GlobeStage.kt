@@ -56,15 +56,16 @@ private val easeOut = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 @Composable
 fun GlobeStage(
     controller: GlobeController,
-    mode: GlobeMode,
+    routeMode: GlobeMode,
     content: @Composable () -> Unit
 ) {
+    val mode = if (controller.revealOverride) GlobeMode.REVEAL else routeMode
     LaunchedEffect(controller) { controller.run() }
     LaunchedEffect(mode) { controller.setMode(mode) }
     val texture by produceState<ImageBitmap?>(null) {
         value = withContext(Dispatchers.Default) { runCatching { loadGlobeTexture() }.getOrNull() }
     }
-    val night by animateFloatAsState(if (mode == GlobeMode.CLOCK) 1f else 0f, tween(500))
+    val night by animateFloatAsState(if (mode == GlobeMode.CLOCK || mode == GlobeMode.REVEAL) 1f else 0f, tween(500))
     val stageAlpha by animateFloatAsState(if (mode == GlobeMode.HIDDEN) 0f else 1f, tween(500))
     val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
 
@@ -78,6 +79,7 @@ fun GlobeStage(
         LaunchedEffect(target) {
             val duration = when {
                 mode == GlobeMode.CLOCK -> 1000
+                mode == GlobeMode.REVEAL || lastMode == GlobeMode.REVEAL -> 1200
                 lastMode == GlobeMode.CLOCK -> 800
                 lastMode == GlobeMode.INTRO -> 1100
                 else -> 900
@@ -97,6 +99,8 @@ fun GlobeStage(
                 SpinningGlobe(
                     texture = tex,
                     angle = controller.angle,
+                    tilt = controller.tilt,
+                    pins = if (mode == GlobeMode.REVEAL) controller.pins else emptyList(),
                     centerY = cy.value.dp,
                     diameter = (d.value * (1f + controller.punch * 0.18f)).dp
                 )
@@ -113,14 +117,20 @@ fun GlobeStage(
 
 private data class GlobeLayout(val cy: Float, val d: Float)
 
+/** Centre y and diameter (dp) of the big intro ball on a [w] x [h] dp stage, so the intro can hit-test taps on it. */
+fun introGlobeCircle(w: Float, h: Float): Pair<Float, Float> =
+    layoutFor(GlobeMode.INTRO, w, h, 0f).let { it.cy to it.d }
+
 private fun layoutFor(mode: GlobeMode, w: Float, h: Float, top: Float): GlobeLayout = when (mode) {
     GlobeMode.INTRO -> GlobeLayout(cy = h * 0.485f, d = min(min(w * 0.84f, h * 0.45f), 560f))
     GlobeMode.CLOCK -> min(min(w * 0.36f, h * 0.17f), 150f).let { GlobeLayout(cy = top + 14f + it / 2f, d = it) }
+    // The tour and the world reveal: a big ball rising from the top of the screen, like the prototype's tweenBall.
+    GlobeMode.REVEAL -> min(w * 0.9f, h * 0.46f).let { GlobeLayout(cy = top + 24f + it / 2f, d = it) }
     GlobeMode.BADGE, GlobeMode.HIDDEN -> min(min(w * 0.24f, h * 0.12f), 104f).let { GlobeLayout(cy = top + 16f + it / 2f, d = it) }
 }
 
 private fun insetFor(mode: GlobeMode, w: Float, h: Float, top: Float): Float = when (mode) {
-    GlobeMode.INTRO, GlobeMode.HIDDEN -> top
+    GlobeMode.INTRO, GlobeMode.HIDDEN, GlobeMode.REVEAL -> top
     GlobeMode.CLOCK -> layoutFor(mode, w, h, top).let { it.cy + it.d / 2f + 6f }
     GlobeMode.BADGE -> layoutFor(mode, w, h, top).let { it.cy + it.d / 2f + 10f }
 }
@@ -129,6 +139,8 @@ private fun insetFor(mode: GlobeMode, w: Float, h: Float, top: Float): Float = w
 private fun SpinningGlobe(
     texture: ImageBitmap,
     angle: Float,
+    tilt: Float,
+    pins: List<GlobePin>,
     centerY: Dp,
     diameter: Dp
 ) {
@@ -145,7 +157,7 @@ private fun SpinningGlobe(
         val c = Offset(size.width / 2f, centerY.toPx())
         // The textured ball, drawn by the GPU; a hair larger than the rim so the edge stays round.
         drawIntoCanvas { canvas ->
-            canvas.drawVertices(mesh.vertices(angle, c.x, c.y, r * 1.002f), BlendMode.Modulate, paint)
+            canvas.drawVertices(mesh.vertices(angle, c.x, c.y, r * 1.002f, tilt), BlendMode.Modulate, paint)
         }
         // Lighting is fixed to the camera, so it is painted over the ball: key light from the upper
         // left, shade towards the lower right limb, the clear-coat highlight and a cool rim.
@@ -181,6 +193,14 @@ private fun SpinningGlobe(
             center = c
         )
         drawCircle(Color.Black.copy(alpha = 0.08f), radius = r - 0.5f * density, center = c, style = Stroke(width = 1f * density))
+        // Tour pins: club cities on the ball, the current one bigger with a ring.
+        pins.forEach { pin ->
+            val p = mesh.project(pin.latitude, pin.longitude, angle, tilt, c.x, c.y, r) ?: return@forEach
+            val dot = (if (pin.active) 7f else 4f) * density
+            if (pin.active) drawCircle(Color.White.copy(alpha = 0.85f), radius = dot * 2.2f, center = p, style = Stroke(width = 2f * density))
+            drawCircle(Color(0xFF0B1117), radius = dot + 1.5f * density, center = p)
+            drawCircle(Color(0xFFF5C400), radius = dot, center = p)
+        }
     }
 }
 

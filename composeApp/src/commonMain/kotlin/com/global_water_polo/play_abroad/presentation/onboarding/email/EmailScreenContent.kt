@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad.presentation.onboarding.email
 
+import com.global_water_polo.play_abroad.presentation.onboarding.progress
+import com.global_water_polo.play_abroad.presentation.onboarding.FlowStep
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,14 +19,7 @@ import com.global_water_polo.play_abroad.core.components.OnboardingLayout
 import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingState
-import com.global_water_polo.play_abroad.resources.Res
-import com.global_water_polo.play_abroad.resources.email_cta_athlete
-import com.global_water_polo.play_abroad.resources.email_cta_parent
-import com.global_water_polo.play_abroad.resources.email_help_athlete
-import com.global_water_polo.play_abroad.resources.email_help_parent
-import com.global_water_polo.play_abroad.resources.email_label
-import com.global_water_polo.play_abroad.resources.email_title_athlete
-import com.global_water_polo.play_abroad.resources.email_title_parent
+import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
 @Composable
@@ -38,18 +33,26 @@ fun EmailScreenContent(
     val athlete = state.lane == Lane.ATHLETE
     OnboardingLayout(
         modifier = modifier,
-        barStart = { BarStart(onBackClick = onBackClick, step = 3, of = 3) },
+        barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.EMAIL)) },
         barEnd = { ClockChip(countdown = state.countdown, clockYear = state.window?.clock?.year) },
         bottom = {
             PrimaryButton(
-                text = stringResource(if (athlete) Res.string.email_cta_athlete else Res.string.email_cta_parent),
+                text = stringResource(if (state.isTrip) Res.string.trip_email_cta else Res.string.common_continue),
                 onClick = onContinueClick,
                 enabled = state.isEmailValid
             )
         }
     ) {
-        Headline(text = stringResource(if (athlete) Res.string.email_title_athlete else Res.string.email_title_parent))
-        HelpText(text = stringResource(if (athlete) Res.string.email_help_athlete else Res.string.email_help_parent))
+        Headline(text = stringResource(if (state.isTrip) Res.string.trip_email_title else Res.string.welcome_title))
+        HelpText(
+            text = stringResource(
+                when {
+                    state.isTrip -> Res.string.trip_email_help
+                    athlete -> Res.string.welcome_help_athlete
+                    else -> Res.string.welcome_help_parent
+                }
+            )
+        )
         FormField(
             label = stringResource(Res.string.email_label),
             value = state.email,

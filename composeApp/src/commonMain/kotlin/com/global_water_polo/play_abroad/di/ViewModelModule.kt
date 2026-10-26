@@ -5,6 +5,7 @@ import org.koin.dsl.module
 import com.global_water_polo.play_abroad.MainViewModel
 import com.global_water_polo.play_abroad.presentation.home.athlete.AthleteHomeViewModel
 import com.global_water_polo.play_abroad.presentation.home.parent.ParentHomeViewModel
+import com.global_water_polo.play_abroad.presentation.home.coach.CoachHomeViewModel
 import com.global_water_polo.play_abroad.presentation.intro.IntroViewModel
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingViewModel
 import com.global_water_polo.play_abroad.presentation.review.apply.ApplyReviewViewModel
@@ -21,6 +22,7 @@ val viewModelModule = module {
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::AthleteHomeViewModel)
     viewModelOf(::ParentHomeViewModel)
+    viewModelOf(::CoachHomeViewModel)
     viewModelOf(::ApplyReviewViewModel)
     viewModelOf(::ReviewStatusViewModel)
 }

@@ -11,7 +11,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import com.global_water_polo.play_abroad.core.components.BackButton
+import com.global_water_polo.play_abroad.core.components.BarStart
+import com.global_water_polo.play_abroad.presentation.onboarding.FlowStep
+import com.global_water_polo.play_abroad.presentation.onboarding.progress
 import com.global_water_polo.play_abroad.core.components.FormField
 import com.global_water_polo.play_abroad.core.components.Headline
 import com.global_water_polo.play_abroad.core.components.OnboardingLayout
@@ -34,7 +36,7 @@ fun AccountScreenContent(
     val club = state.lane == Lane.CLUB
     OnboardingLayout(
         modifier = modifier,
-        barStart = { BackButton(onClick = onBackClick) },
+        barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.ACCOUNT)) },
         bottom = { PrimaryButton(text = stringResource(Res.string.account_create), onClick = onCreateClick, enabled = state.canCreateAccount) }
     ) {
         Headline(text = stringResource(if (club) Res.string.account_title_club else Res.string.account_title_coach))

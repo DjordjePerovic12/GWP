@@ -6,4 +6,5 @@ sealed class IntroEvent : BaseEvent {
     data object OnAppear : IntroEvent()
     data class OnSpin(val deltaDegrees: Float) : IntroEvent()
     data object OnSkipClick : IntroEvent()
+    data object OnBallClick : IntroEvent()
 }

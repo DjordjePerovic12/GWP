@@ -9,7 +9,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import com.global_water_polo.play_abroad.core.components.BackButton
+import com.global_water_polo.play_abroad.core.components.BarStart
+import com.global_water_polo.play_abroad.presentation.onboarding.FlowStep
+import com.global_water_polo.play_abroad.presentation.onboarding.progress
 import com.global_water_polo.play_abroad.core.components.ClockChip
 import com.global_water_polo.play_abroad.core.components.Headline
 import com.global_water_polo.play_abroad.core.components.HelpText
@@ -37,11 +39,15 @@ private fun optionsFor(lane: Lane): List<LookOption> = when (lane) {
     Lane.COACH -> listOf(
         LookOption("recruit", Res.string.look_recruit_coach, Res.string.look_recruit_coach_sub),
         LookOption("develop", Res.string.look_develop, Res.string.look_develop_coach_sub),
-        LookOption("trip", Res.string.look_trip, Res.string.look_trip_coach_sub)
+        LookOption("trip", Res.string.look_trip, Res.string.look_trip_coach_sub),
+        LookOption("tournament", Res.string.look_tournament_coach, Res.string.look_tournament_coach_sub)
     )
     Lane.CLUB -> listOf(
-        LookOption("trip", Res.string.look_trip, Res.string.look_trip_club_sub),
-        LookOption("develop", Res.string.look_develop, Res.string.look_develop_club_sub)
+        LookOption("host", Res.string.look_host, Res.string.look_host_sub),
+        LookOption("trip", Res.string.look_trips_club, Res.string.look_trips_club_sub),
+        LookOption("tournament", Res.string.look_tournament_club, Res.string.look_tournament_club_sub),
+        LookOption("partner", Res.string.look_partner, Res.string.look_partner_sub),
+        LookOption("develop", Res.string.look_develop, Res.string.look_develop_club_new_sub)
     )
 }
 
@@ -56,7 +62,7 @@ fun LookScreenContent(
     val lane = state.lane
     OnboardingLayout(
         modifier = modifier,
-        barStart = { BackButton(onClick = onBackClick) },
+        barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.LOOK)) },
         barEnd = { if (lane == Lane.ATHLETE || lane == Lane.PARENT) ClockChip(countdown = state.countdown, clockYear = state.window?.clock?.year) },
         bottom = { PrimaryButton(text = stringResource(Res.string.common_continue), onClick = onContinueClick, enabled = state.looking.isNotEmpty()) }
     ) {
@@ -65,7 +71,8 @@ fun LookScreenContent(
                 when (lane) {
                     Lane.ATHLETE -> Res.string.look_title_athlete
                     Lane.PARENT -> Res.string.look_title_parent
-                    Lane.COACH, Lane.CLUB -> Res.string.look_title_coach
+                    Lane.COACH -> Res.string.look_title_coach
+                    Lane.CLUB -> Res.string.look_title_club
                 }
             )
         )

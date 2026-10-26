@@ -27,6 +27,8 @@
     <string name="intro_swipe_right">Swipe right</string>
     <string name="intro_zones_suffix"> of %1$d time zones. Spin the world to enter.</string>
     <string name="intro_skip">Skip intro</string>
+    <string name="intro_tap_ball">Tap the ball</string>
+    <string name="intro_all_zones">All %1$d time zones. Tap the ball to enter.</string>
     <string name="who_title">Your NCAA clock is already running.</string>
     <string name="who_help">See when your five-year college window opens and what a year abroad does to it. Who's here?</string>
     <string name="who_athlete">I'm an athlete</string>
@@ -249,6 +251,471 @@
     <string name="review_step_public">Profile goes public</string>
     <string name="review_step_public_sub">Visible to the people you choose</string>
     <string name="review_back_to_profile">Back to my profile</string>
+    <!-- Entry: how are you part of the game -->
+    <string name="entry_rule_left">003 / Entry</string>
+    <string name="entry_rule_right">Choose one</string>
+    <string name="entry_title">How are you part of the game?</string>
+    <string name="entry_athlete_action">Build your pathway</string>
+    <string name="entry_parent_action">Explore their future</string>
+    <string name="entry_coach_action">Recruit &amp; develop</string>
+    <string name="entry_athlete_name">Athlete</string>
+    <string name="entry_parent_name">Parent</string>
+    <string name="entry_coach_name">Coach</string>
+    <string name="entry_club_name">Club admin</string>
+    <string name="entry_club_action">Team trips / tournament access</string>
+
+    <!-- Where are you now -->
+    <string name="now_title_athlete">Where are you right now?</string>
+    <string name="now_title_parent">Where is your athlete right now?</string>
+    <string name="pick_all_that_fit">Pick all that fit.</string>
+    <string name="now_committed">Committed to a college program</string>
+    <string name="now_ready_athlete">Committed, but I want to be more ready</string>
+    <string name="now_ready_parent">Committed, but wants to be more ready</string>
+    <string name="now_ready_sub">Arrive as a starter, not a project</string>
+    <string name="now_looking">Still looking for the right program</string>
+    <string name="now_beyond_athlete">I want more than college</string>
+    <string name="now_beyond_parent">Wants more than college</string>
+    <string name="now_beyond_sub">Pro in Europe, the national team</string>
+    <string name="now_college">Already in college</string>
+    <string name="now_unsure">Not sure yet</string>
+    <string name="now_trip">A team trip for their club</string>
+    <string name="now_trip_sub">Their club or team trains and plays in Europe</string>
+
+    <!-- Level -->
+    <string name="level_title_athlete">What level are you playing at right now?</string>
+    <string name="level_title_parent">What level are they playing at right now?</string>
+    <string name="pick_all_that_apply">Pick all that apply.</string>
+    <string name="level_hs">High school team</string>
+    <string name="level_club">Club team</string>
+    <string name="level_odp">Olympic Development Program or junior national team</string>
+    <string name="level_college">College</string>
+    <string name="level_senior">Senior or pro team</string>
+
+    <!-- Name after the clock -->
+    <string name="name_title_clock">Whose clock is this?</string>
+    <string name="name_help_clock">Your name goes on your clock and, later, your profile.</string>
+
+    <!-- Graduation -->
+    <string name="grad_title_athlete">When do you finish high school?</string>
+    <string name="grad_title_parent">When do they finish high school?</string>
+    <string name="grad_title_college">When does your semester end?</string>
+    <string name="grad_help_athlete">This sets your earliest start.</string>
+    <string name="grad_help_parent">This sets their earliest start.</string>
+    <string name="grad_help_college">That's the earliest you could leave.</string>
+    <string name="grad_month">Month</string>
+    <string name="grad_year">Year</string>
+
+    <!-- The free year -->
+    <string name="free_running_athlete">Your clock is running.</string>
+    <string name="free_running_parent">Their clock is running.</string>
+    <string name="free_running_line">Every season from here counts.</string>
+    <string name="free_running_sub_athlete">Let's make the next one your best.</string>
+    <string name="free_running_sub_parent">Let's make the next one their best.</string>
+    <string name="free_one_athlete">You have a free year.</string>
+    <string name="free_one_parent">They have a free year.</string>
+    <string name="free_many_athlete">You have %1$d free years.</string>
+    <string name="free_many_parent">They have %1$d free years.</string>
+    <string name="free_line_athlete">You turn 19 on %1$s. You finish school in %2$s. Your clock doesn't start until Fall %3$d.</string>
+    <string name="free_line_parent">They turn 19 on %1$s. They finish school in %2$s. Their clock doesn't start until Fall %3$d.</string>
+    <string name="free_sub">Train anywhere in the world in that time. It doesn't cost a college season.</string>
+    <string name="free_none_athlete">Your clock starts the fall you arrive.</string>
+    <string name="free_none_parent">Their clock starts the fall they arrive.</string>
+    <string name="free_none_line_athlete">You turn 19 on %1$s. The clock starts Fall %2$d, the same fall college would.</string>
+    <string name="free_none_line_parent">They turn 19 on %1$s. The clock starts Fall %2$d, the same fall college would.</string>
+    <string name="free_none_sub_athlete">The question is how ready you are when it does.</string>
+    <string name="free_none_sub_parent">The question is how ready they are when it does.</string>
+    <string name="free_seg_graduate">Graduate</string>
+    <string name="free_seg_free_one">Free year</string>
+    <string name="free_seg_free_many">Free years</string>
+    <string name="free_seg_clock">Clock starts</string>
+    <string name="free_note_free_athlete">As long as you don't enroll full-time in college that year. </string>
+    <string name="free_note_free_parent">As long as they don't enroll full-time in college that year. </string>
+    <string name="ncaa_estimate">Estimate under the NCAA Division I and II age rule. Confirm with your school's compliance office.</string>
+
+    <!-- Goal at 25 -->
+    <string name="goal_title_athlete">Where do you want to be playing at 25?</string>
+    <string name="goal_title_parent">Where do they want to be playing at 25?</string>
+    <string name="goal_college">College</string>
+    <string name="goal_pro">Pro in Europe</string>
+    <string name="goal_nt">The national team</string>
+    <string name="goal_oly">The Olympics</string>
+    <string name="goal_say_college_athlete">Then show up ready, not hoping.</string>
+    <string name="goal_say_college_parent">Then they should arrive ready, not hoping.</string>
+    <string name="goal_say_pro_athlete">Then learn how Europe trains before Europe needs you.</string>
+    <string name="goal_say_pro_parent">Then they should learn how Europe trains before Europe needs them.</string>
+    <string name="goal_say_nt_athlete">National team players train against the best every day. Start building that habit now.</string>
+    <string name="goal_say_nt_parent">National team players train against the best every day. That habit starts now.</string>
+    <string name="goal_say_oly">Brisbane 2032 and beyond. Every season from here counts.</string>
+
+    <!-- Club season -->
+    <string name="club_title_athlete">When does your season end?</string>
+    <string name="club_title_parent">When does their season end?</string>
+    <string name="club_help_athlete">With graduation, this sets your earliest start.</string>
+    <string name="club_help_parent">With graduation, this sets their earliest start.</string>
+    <string name="club_jo">After Junior Olympics</string>
+    <string name="club_jo_sub">Late July</string>
+    <string name="club_summer">After summer league</string>
+    <string name="club_summer_sub">Late summer</string>
+    <string name="club_school_athlete">I only play the school season</string>
+    <string name="club_school_parent">They only play the school season</string>
+    <string name="club_any_athlete">I can leave anytime</string>
+    <string name="club_any_parent">They can leave anytime</string>
+    <string name="club_none_athlete">I'm not on a club right now</string>
+    <string name="club_none_parent">They're not on a club right now</string>
+    <string name="club_say_start">Earliest start: %1$s</string>
+
+    <!-- The probe question -->
+    <string name="probe_parent_title">How involved will you be in this decision?</string>
+    <string name="probe_together">We decide together</string>
+    <string name="probe_theirs">It's their call, I support it</string>
+    <string name="probe_mine">I'll make the final call</string>
+    <string name="probe_exploring">I'm exploring for them</string>
+    <string name="probe_say_together">Good. The plan goes to both of you.</string>
+    <string name="probe_say_theirs">Then they get the plan, and you see everything GWP proposes.</string>
+    <string name="probe_say_mine">Then the plan is written for you: cost, school and living, in one place.</string>
+    <string name="probe_say_exploring">Start here. Bring them in when you're ready.</string>
+    <string name="probe_committed_title">Freshman year: fighting for minutes, or for the starting spot?</string>
+    <string name="probe_minutes">Fighting for minutes</string>
+    <string name="probe_starting">Fighting for the starting spot</string>
+    <string name="probe_say_minutes">A year of training at a higher level is the difference between the two.</string>
+    <string name="probe_say_starting">Then arrive with a season of senior-level training behind you.</string>
+    <string name="probe_looking_title">What would make a coach say yes tomorrow?</string>
+    <string name="probe_film">Better film</string>
+    <string name="probe_level">A higher level</string>
+    <string name="probe_strength">More strength</string>
+    <string name="probe_unknown">I don't know</string>
+    <string name="probe_say_film">Film from a European season is film no coach has seen from you yet.</string>
+    <string name="probe_say_level">Level rises fastest where everyone around you is better.</string>
+    <string name="probe_say_strength">Two sessions a day, every day, builds it.</string>
+    <string name="probe_say_unknown">That's what GWP review is for. Coaches tell you where you stand.</string>
+    <string name="probe_beyond_title">Who's the best player you train against every day?</string>
+    <string name="probe_better">Someone better than me</string>
+    <string name="probe_same">Someone at my level</string>
+    <string name="probe_best">I'm the best on my team</string>
+    <string name="probe_say_best">Nobody gets better being the best in the room.</string>
+
+    <!-- What's stopping you -->
+    <string name="stop_title_athlete">What's actually stopping you?</string>
+    <string name="stop_title_parent">What worries you most?</string>
+    <string name="stop_help_athlete">Pick any. Be honest, it shapes your plan.</string>
+    <string name="stop_help_parent">Pick any. It shapes the plan and our first call.</string>
+    <string name="stop_cost">Cost</string>
+    <string name="stop_parents">My parents</string>
+    <string name="stop_home">Being far from home</string>
+    <string name="stop_language">Language</string>
+    <string name="stop_where_athlete">I don't know where to go</string>
+    <string name="stop_where_parent">Not knowing where to go</string>
+    <string name="stop_nothing_athlete">Nothing, I'm ready</string>
+    <string name="stop_nothing_parent">Nothing, we're ready</string>
+    <string name="stop_safety">Safety</string>
+    <string name="stop_school">Academics</string>
+    <string name="stop_care">Supervision</string>
+    <string name="stop_say_cost">You'll see real costs before anything is decided.</string>
+    <string name="stop_say_parents">GWP talks to parents directly and answers their questions.</string>
+    <string name="stop_say_home">You'd be part of a club and a team from day one.</string>
+    <string name="stop_say_language">The pool speaks one language. You'll pick up the rest.</string>
+    <string name="stop_say_where">That's GWP's job: proposing clubs that fit the level and the goals.</string>
+    <string name="stop_say_safety">GWP's first call covers where they'd live and who's responsible for them.</string>
+    <string name="stop_say_school">GWP's first call covers how school fits around training.</string>
+    <string name="stop_say_care">GWP's first call covers day-to-day supervision and how you stay in touch.</string>
+    <string name="stop_say_nothing">Then let's build the plan.</string>
+
+    <!-- Globe tour -->
+    <string name="tour_building_athlete">Building your pathway</string>
+    <string name="tour_building_parent">Building their pathway</string>
+    <string name="tour_world">The world</string>
+    <string name="tour_exploring">Exploring water polo cities</string>
+    <string name="tour_ready_athlete">Your profile is ready.</string>
+    <string name="tour_ready_parent">Their profile is ready.</string>
+    <string name="tour_skip">Skip</string>
+
+    <!-- Welcome email -->
+    <string name="welcome_title">Welcome to Global Water Polo.</string>
+    <string name="welcome_help_athlete">Your profile is ready. Where should we send it? No password yet.</string>
+    <string name="welcome_help_parent">Their profile is ready. Where should we send it? No password yet.</string>
+    <string name="trip_email_title">Where do we send the plan?</string>
+    <string name="trip_email_help">Your athlete's clock and plan in one email.</string>
+    <string name="trip_email_cta">Send the plan</string>
+
+    <!-- Check your inbox -->
+    <string name="link_title">Check your inbox.</string>
+    <string name="link_help_athlete">We sent a verification link to %1$s. Keep going now and verify whenever you like. Your profile is waiting.</string>
+    <string name="link_help_parent">We sent a verification link to %1$s. Keep going now and verify whenever you like. You can invite your athlete next.</string>
+    <string name="link_relation">You are their</string>
+    <string name="link_heard">How did you hear about GWP?</string>
+    <string name="link_resend">Resend the link</string>
+    <string name="link_resent">Link sent again. Prototype: no email is sent.</string>
+    <string name="link_proto">Prototype. No email is sent.</string>
+
+    <!-- Your world of water polo -->
+    <string name="world_kicker">Welcome to Global Water Polo</string>
+    <string name="world_title">Your world\nof water polo.</string>
+    <string name="world_sub">Beyond the pool. Around the world. Five tools, one pathway to the top of the game.</string>
+    <string name="world_profile">Profile</string>
+    <string name="world_profile_sub">Your athlete identity. Pathway, GWP LAB and the portfolio coaches see.</string>
+    <string name="world_feed">Feed</string>
+    <string name="world_feed_sub">Film, technique and stories from the international game.</string>
+    <string name="world_globe">Globe +</string>
+    <string name="world_globe_sub">Every club city on one globe. Build your season abroad.</string>
+    <string name="world_radar">Flight Radar</string>
+    <string name="world_radar_sub">Your trips, tracked from first request to arrival.</string>
+    <string name="world_settings">Settings</string>
+    <string name="world_settings_sub">Membership, privacy and Studio.</string>
+    <string name="world_enter">Enter →</string>
+
+    <!-- 7 days free: Elite vs Next -->
+    <string name="trial_kicker">Membership</string>
+    <string name="trial_title_athlete">Start at the top.</string>
+    <string name="trial_title_parent">Give them the full program.</string>
+    <string name="trial_sub_athlete">Seven days of GWP Elite, free. Every program, GWP LAB and your daily plan.</string>
+    <string name="trial_sub_parent">Seven days of GWP Elite, free. Every program, GWP LAB and a daily plan for your athlete.</string>
+    <string name="trial_recommended">Recommended</string>
+    <string name="trial_elite">GWP Elite</string>
+    <string name="trial_next">GWP Next</string>
+    <string name="trial_free">7 days free</string>
+    <string name="trial_elite_then">then $199 a year</string>
+    <string name="trial_next_then">then $19.99 a month or $150 a year</string>
+    <string name="trial_elite_sum">Every program. Every perk.</string>
+    <string name="trial_next_sum">Profile, Explore and the library</string>
+    <string name="trial_col_next">Next</string>
+    <string name="trial_col_elite">Elite</string>
+    <string name="trial_row_1">Recruiting profile, shared on your terms</string>
+    <string name="trial_row_2">GWP Explore, 4–6 weeks abroad</string>
+    <string name="trial_row_3">The feed and the coaching library</string>
+    <string name="trial_row_4">Transcripts, letters and showcase film</string>
+    <string name="trial_row_5">Fall, Spring, Summer and the Elite Gap Year</string>
+    <string name="trial_row_6">Your daily training plan</string>
+    <string name="trial_row_7">GWP LAB Underwater Insight</string>
+    <string name="trial_row_8">Strength, nutrition and mental performance</string>
+    <string name="trial_row_9">Film review with professionals</string>
+    <string name="trial_row_10">Priority access to clinics with Olympians</string>
+    <string name="trial_fine">Cancel anytime before day 7 and you won't be charged. Program fees, travel and private sessions are separate. Prototype: nothing is charged.</string>
+    <string name="trial_start_elite">Start my 7 days of Elite</string>
+    <string name="trial_start_next">Start my 7 days of Next</string>
+    <string name="trial_not_now">Not now</string>
+    <string name="trial_on_elite">GWP Elite is on.</string>
+    <string name="trial_on_next">GWP Next is on.</string>
+    <string name="trial_on_help">Free for 7 days. Manage it anytime from your profile.</string>
+
+    <!-- Your pathway -->
+    <string name="match_title_athlete">Your pathway.</string>
+    <string name="match_title_parent">Their pathway.</string>
+    <string name="match_recommends">GWP recommends</string>
+    <string name="match_elite_lock">GWP Elite</string>
+    <string name="match_your_pick">Your pick</string>
+    <string name="match_your_pick_parent">Your pick for them</string>
+    <string name="match_when_starting">%1$s, starting %2$s</string>
+    <string name="match_why_athlete">Why it fits you</string>
+    <string name="match_why_parent">Why it fits them</string>
+    <string name="match_why_free_athlete">You have %1$s before your NCAA clock starts in Fall %2$d.</string>
+    <string name="match_why_free_parent">They have %1$s before their NCAA clock starts in Fall %2$d.</string>
+    <string name="match_a_free_year">a free year</string>
+    <string name="match_n_free_years">%1$d free years</string>
+    <string name="match_why_running_athlete">Your clock is running, so this fits around college seasons.</string>
+    <string name="match_why_running_parent">Their clock is running, so this fits around college seasons.</string>
+    <string name="match_why_clock_athlete">Your NCAA clock starts Fall %1$d, so timing matters.</string>
+    <string name="match_why_clock_parent">Their NCAA clock starts Fall %1$d, so timing matters.</string>
+    <string name="match_why_start_athlete">You could start %1$s.</string>
+    <string name="match_why_start_parent">They could start %1$s.</string>
+    <string name="match_why_goal_athlete">You want to be playing %1$s at 25.</string>
+    <string name="match_why_goal_parent">They want to be playing %1$s at 25.</string>
+    <string name="match_goal_college">in college</string>
+    <string name="match_goal_pro">pro in Europe</string>
+    <string name="match_goal_nt">on the national team</string>
+    <string name="match_goal_oly">at the Olympics</string>
+    <string name="match_why_cost">Cost matters. GWP shows projected costs before anything is decided.</string>
+    <string name="match_why_where_athlete">You don't know where to go yet. GWP's proposal covers that.</string>
+    <string name="match_why_where_parent">They don't know where to go yet. GWP's proposal covers that.</string>
+    <string name="match_why_safety">Safety comes first. GWP's first call covers where they'd live and who's responsible for them.</string>
+    <string name="match_clock_starts">Clock starts</string>
+    <string name="match_earliest">Earliest start</string>
+    <string name="match_goal">Goal at 25</string>
+    <string name="match_not_set">Not set</string>
+    <string name="match_fall">Fall %1$d</string>
+    <string name="match_also">Also a fit</string>
+    <string name="match_apply">Apply or inquire</string>
+    <string name="match_unlock_apply">Unlock and apply</string>
+    <string name="match_note">Applying creates an inquiry, not a booking. GWP replies with dates, clubs and projected costs.</string>
+    <string name="match_later">Maybe later</string>
+
+    <!-- Programs -->
+    <string name="prog_explore">GWP Explore</string>
+    <string name="prog_explore_when">4–6 weeks</string>
+    <string name="prog_explore_text">A shorter international experience introducing you to European training, competition and culture. Flexible dates.</string>
+    <string name="prog_fall">GWP Fall Semester</string>
+    <string name="prog_fall_when">Aug–Dec</string>
+    <string name="prog_fall_text">Train and develop abroad during the fall academic semester.</string>
+    <string name="prog_spring">GWP Spring Semester</string>
+    <string name="prog_spring_when">Jan–May</string>
+    <string name="prog_spring_text">International club training and competitive development during the spring semester.</string>
+    <string name="prog_summer">GWP Summer Abroad</string>
+    <string name="prog_summer_when">Jun–Sep</string>
+    <string name="prog_summer_text">Summer training and cultural immersion, shaped around your availability and club schedules.</string>
+    <string name="prog_gapyear">GWP Elite Gap Year</string>
+    <string name="prog_gapyear_when">10 months</string>
+    <string name="prog_gapyear_text">Comprehensive athlete development with GWP LAB, Underwater Insight, performance tracking, strength programming, nutrition, mental performance and Olympian mentorship.</string>
+
+    <!-- Club and coach intents (newest prototype) -->
+    <string name="look_title_club">What brings your club here?</string>
+    <string name="look_host">Host international athletes</string>
+    <string name="look_host_sub">Welcome players from abroad into your program</string>
+    <string name="look_trips_club">Team trips</string>
+    <string name="look_trips_club_sub">Take your club to train and play abroad</string>
+    <string name="look_tournament_club">Tournament access</string>
+    <string name="look_tournament_club_sub">Enter or host international tournaments</string>
+    <string name="look_partner">Club partnerships</string>
+    <string name="look_partner_sub">Exchanges with clubs in other countries</string>
+    <string name="look_develop_club_new_sub">GWP programs and tracking for your coaches</string>
+    <string name="look_tournament_coach">European tournament</string>
+    <string name="look_tournament_coach_sub">Enter your team in a tournament in Europe</string>
+
+    <!-- Put your club on the map -->
+    <string name="club_place_title">Put your club on the map.</string>
+    <string name="club_place_help">Name, home city and country. Once GWP approves your club, athletes and clubs abroad can find it.</string>
+    <string name="club_name">Club name</string>
+    <string name="club_city">City</string>
+    <string name="club_country">Country</string>
+    <string name="club_place_cta">Place my club on the globe</string>
+    <string name="club_place_kicker">Your club on the map</string>
+    <string name="club_place_approx">Approximate. You can set the exact pool location later.</string>
+
+    <!-- Facilities -->
+    <string name="fac_title">Your facilities.</string>
+    <string name="fac_help">Pick everything your club has.</string>
+    <string name="fac_indoor">Indoor pool</string>
+    <string name="fac_outdoor">Outdoor pool</string>
+    <string name="fac_p50">50 m pool</string>
+    <string name="fac_p33">33 m pool</string>
+    <string name="fac_p25">25 m pool</string>
+    <string name="fac_gym">Gym and strength room</string>
+    <string name="fac_video">Video analysis</string>
+    <string name="fac_housing">Housing partners</string>
+    <string name="fac_school">School or university partners</string>
+
+    <!-- Staff -->
+    <string name="staff_title">Your staff.</string>
+    <string name="staff_help">Who visiting athletes and teams will work with.</string>
+    <string name="staff_coach">Head coach</string>
+    <string name="staff_size">Coaching staff</string>
+    <string name="staff_langs">Languages spoken at the club</string>
+
+    <!-- Club profile -->
+    <string name="club_profile_title">%1$s is on the map.</string>
+    <string name="club_profile_your_club">Your club</string>
+    <string name="club_profile_label">Club profile</string>
+    <string name="club_profile_draft">Draft, in review</string>
+    <string name="club_profile_facilities">Facilities</string>
+    <string name="club_profile_staff">Staff</string>
+    <string name="club_profile_open_to">Open to</string>
+    <string name="club_profile_not_added">Not added yet</string>
+    <string name="club_profile_head_coach">Head coach %1$s</string>
+    <string name="club_profile_no_coach">Head coach not added</string>
+    <string name="club_profile_staff_size">, coaching staff of %1$s</string>
+    <string name="club_profile_help">GWP reviews every club before it appears to athletes or other clubs. A GWP partnerships lead will contact you about hosting, trips and tournaments.</string>
+
+    <!-- Coach scouting board -->
+    <string name="scout_title_named">%1$s, your scouting board.</string>
+    <string name="scout_title">Your scouting board.</string>
+    <string name="scout_help">GWP is reviewing your coach account. Once you're approved, this is where you find athletes who share their profiles with coaches.</string>
+    <string name="scout_all">All</string>
+    <string name="scout_drivers">Drivers</string>
+    <string name="scout_centers">Centers</string>
+    <string name="scout_goalkeepers">Goalkeepers</string>
+    <string name="scout_left_handed">Left-handed</string>
+    <string name="scout_samples">Sample profiles</string>
+    <string name="scout_line">Class of %1$s, %2$s, 50 free %3$s</string>
+    <string name="scout_request">Request profile</string>
+    <string name="scout_requested">Requested</string>
+    <string name="scout_note">Sample data. Real profiles appear only when athletes share them with coaches, and the athlete approves every request.</string>
+    <string name="scout_trip_note">A GWP trip lead will contact you about dates, level and budget.</string>
+
+    <!-- Team trip inquiry -->
+    <string name="tripplan_title">Your team trip inquiry.</string>
+    <string name="tripplan_length">Length</string>
+    <string name="tripplan_full_season">Full season</string>
+    <string name="tripplan_note">This is an inquiry, not a booking. A GWP trip lead will contact you about dates, level and budget.</string>
+
+    <!-- All offers -->
+    <string name="offers_welcome_named">Welcome, %1$s.</string>
+    <string name="offers_welcome">Welcome.</string>
+    <string name="offers_ready_athlete">Your profile is ready.</string>
+    <string name="offers_ready_parent">Their profile is ready.</string>
+    <string name="offers_your_profile">Your profile</string>
+    <string name="offers_your_athlete">Your athlete</string>
+    <string name="offers_profile_ready">Profile ready</string>
+    <string name="offers_stat_clock">Clock starts</string>
+    <string name="offers_stat_seasons">Seasons</string>
+    <string name="offers_stat_plan">Plan</string>
+    <string name="offers_plan_free">Free</string>
+    <string name="offers_trial_chip">Free trial, 7 days left</string>
+    <string name="offers_title">All offers</string>
+    <string name="offers_note_all">All unlocked</string>
+    <string name="offers_note_next">Elite unlocks the rest</string>
+    <string name="offers_note_none">Membership unlocks them</string>
+    <string name="offers_help_athlete">Your full 5-year NCAA window is intact, so every GWP program can fit before your clock starts.</string>
+    <string name="offers_help_parent">Their full 5-year NCAA window is intact, so every GWP program can fit before their clock starts.</string>
+    <string name="offers_flagship">Flagship</string>
+    <string name="offers_unlock_elite">Unlock with GWP Elite</string>
+    <string name="offers_in_next">Included in GWP Next</string>
+    <string name="offers_application">Application-based</string>
+    <string name="offers_fine_athlete">Estimate under the NCAA Division I and II age rule. Confirm with your school's compliance office. Applying creates an inquiry, not a booking. Program fees, travel and private sessions are separate.</string>
+    <string name="offers_fine_parent">Estimate under the NCAA Division I and II age rule. Confirm with their school's compliance office. Applying creates an inquiry, not a booking. Program fees, travel and private sessions are separate.</string>
+    <string name="offers_start_trial">Start 7-day free trial</string>
+    <string name="offers_apply_for">Apply for %1$s</string>
+    <string name="offers_continue_profile">Continue to my profile</string>
+    <string name="offers_unlock_all">Unlock everything with GWP Elite</string>
+    <string name="offers_continue_next">Continue with GWP Next</string>
+    <string name="prog_verb_explore">Discover</string>
+    <string name="prog_verb_fall">Develop</string>
+    <string name="prog_verb_spring">Compete</string>
+    <string name="prog_verb_summer">Immerse</string>
+    <string name="prog_verb_gapyear">Excel</string>
+    <string name="elite_title">Unlock everything.</string>
+    <string name="elite_sub">Every program and every development perk. Includes everything in GWP Next.</string>
+    <string name="elite_perk_1">Immersion, Semester, Residency and Gap Year programs</string>
+    <string name="elite_perk_2">Your GWP Athlete Passport</string>
+    <string name="elite_perk_3">Strength and performance plans</string>
+    <string name="elite_perk_4">Nutrition guidance</string>
+    <string name="elite_perk_5">Mental performance support</string>
+    <string name="elite_perk_6">Scrimmage filming and highlights</string>
+    <string name="elite_perk_7">Film review with pros</string>
+    <string name="elite_perk_8">Priority booking for 1-on-1s and clinics with Olympians</string>
+    <string name="elite_price">$199</string>
+    <string name="elite_per_year">per year</string>
+    <string name="elite_per_month">About $16.58 a month</string>
+    <string name="elite_fine">7 days free, then $199 per year. Cancel anytime before day 7 and you won't be charged. Program fees, travel and private sessions are separate.</string>
+    <string name="elite_proto">Prototype. Nothing is charged.</string>
+    <string name="match_see_all">See all programs</string>
+
+    <string-array name="club_countries">
+        <item>United States</item>
+        <item>Canada</item>
+        <item>Brazil</item>
+        <item>Australia</item>
+        <item>Montenegro</item>
+        <item>Croatia</item>
+        <item>Serbia</item>
+        <item>Hungary</item>
+        <item>Greece</item>
+        <item>Italy</item>
+        <item>Spain</item>
+        <item>France</item>
+        <item>Romania</item>
+        <item>Malta</item>
+        <item>Germany</item>
+        <item>Netherlands</item>
+    </string-array>
+    <string-array name="club_languages">
+        <item>English</item>
+        <item>Serbian, Croatian or Montenegrin</item>
+        <item>Hungarian</item>
+        <item>Greek</item>
+        <item>Italian</item>
+        <item>Spanish</item>
+        <item>French</item>
+        <item>Romanian</item>
+        <item>Other</item>
+    </string-array>
     <string-array name="months">
         <item>January</item>
         <item>February</item>

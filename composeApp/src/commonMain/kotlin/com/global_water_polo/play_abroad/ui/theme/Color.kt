@@ -19,6 +19,7 @@ val liveRed = Color(0xFFE5402C) // --live
 val nightNavy = Color(0xFF04101E) // clock takeover background
 val poolTeal = Color(0xFF0D8F7A) // feed card gradient
 val graphiteGrey = Color(0xFF3B3F46) // feed card gradient
+val eliteGold = Color(0xFFC9A96A) // GWP Elite membership
 
 @Immutable
 data class GWPPAColors(
@@ -36,6 +37,7 @@ data class GWPPAColors(
     val nightNavy: Color,
     val poolTeal: Color,
     val graphiteGrey: Color,
+    val eliteGold: Color,
 )
 
 val LocalGWPPAColors = staticCompositionLocalOf {
@@ -54,6 +56,7 @@ val LocalGWPPAColors = staticCompositionLocalOf {
         nightNavy = Color.Unspecified,
         poolTeal = Color.Unspecified,
         graphiteGrey = Color.Unspecified,
+        eliteGold = Color.Unspecified,
     )
 }
 
@@ -72,4 +75,5 @@ val gwppaColors = GWPPAColors(
     nightNavy = nightNavy,
     poolTeal = poolTeal,
     graphiteGrey = graphiteGrey,
+    eliteGold = eliteGold,
 )

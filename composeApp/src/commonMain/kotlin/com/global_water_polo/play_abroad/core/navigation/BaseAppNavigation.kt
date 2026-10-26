@@ -15,6 +15,20 @@ import co.touchlab.kermit.Logger
 import com.global_water_polo.play_abroad.core.navigation.destinations.accountScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.applyReviewScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.athleteHomeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.askScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.gradScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.freeYearScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.tourScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.linkScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.worldScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.trialScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.matchScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.offersScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.tripPlanScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.clubPlaceScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.clubStaffScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.clubProfileScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachHomeScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.birthdayScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.clockScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.emailScreenComposable
@@ -23,13 +37,9 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.inviteScre
 import com.global_water_polo.play_abroad.core.navigation.destinations.lookScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.nameScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.parentHomeScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.pendingScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.positionScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.reviewStatusScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.saveScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.travelScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.whoScreenComposable
-import com.global_water_polo.play_abroad.core.navigation.destinations.windowScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.utils.NavType
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.navigation.utils.ObserveAsEvents
@@ -83,21 +93,31 @@ fun BaseAppNavigation(
         introScreenComposable(navController = navController, showSnackBar = showSnackBar)
         navigation<Screen.OnboardingGraph>(startDestination = Screen.WhoScreen) {
             whoScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            askScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            gradScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            freeYearScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            tourScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            linkScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            worldScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            trialScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            matchScreenComposable(navController = navController, showSnackBar = showSnackBar)
             birthdayScreenComposable(navController = navController, showSnackBar = showSnackBar)
             clockScreenComposable(navController = navController, showSnackBar = showSnackBar)
             nameScreenComposable(navController = navController, showSnackBar = showSnackBar)
             emailScreenComposable(navController = navController, showSnackBar = showSnackBar)
-            windowScreenComposable(navController = navController, showSnackBar = showSnackBar)
             lookScreenComposable(navController = navController, showSnackBar = showSnackBar)
             travelScreenComposable(navController = navController, showSnackBar = showSnackBar)
-            positionScreenComposable(navController = navController, showSnackBar = showSnackBar)
-            saveScreenComposable(navController = navController, showSnackBar = showSnackBar)
             inviteScreenComposable(navController = navController, showSnackBar = showSnackBar)
             accountScreenComposable(navController = navController, showSnackBar = showSnackBar)
-            pendingScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            offersScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            tripPlanScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            clubPlaceScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            clubStaffScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            clubProfileScreenComposable(navController = navController, showSnackBar = showSnackBar)
         }
         athleteHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         parentHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        coachHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         applyReviewScreenComposable(navController = navController, showSnackBar = showSnackBar)
         reviewStatusScreenComposable(navController = navController, showSnackBar = showSnackBar)
     }

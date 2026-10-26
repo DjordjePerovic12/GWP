@@ -27,7 +27,9 @@ import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
-import com.global_water_polo.play_abroad.core.components.BackButton
+import com.global_water_polo.play_abroad.core.components.BarStart
+import com.global_water_polo.play_abroad.presentation.onboarding.FlowStep
+import com.global_water_polo.play_abroad.presentation.onboarding.progress
 import com.global_water_polo.play_abroad.core.components.ChoiceChip
 import com.global_water_polo.play_abroad.core.components.ClockChip
 import com.global_water_polo.play_abroad.core.components.DotSlider
@@ -72,7 +74,7 @@ fun TravelScreenContent(
     val length = if (state.travelMonths > 0) state.travelMonths else 3
     OnboardingLayout(
         modifier = modifier,
-        barStart = { BackButton(onClick = onBackClick) },
+        barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.TRAVEL)) },
         barEnd = { if (lane == Lane.ATHLETE || lane == Lane.PARENT) ClockChip(countdown = state.countdown, clockYear = state.window?.clock?.year) },
         bottom = { PrimaryButton(text = stringResource(Res.string.common_continue), onClick = onContinueClick, enabled = state.canTravelContinue) }
     ) {

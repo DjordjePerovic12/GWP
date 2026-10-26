@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad.presentation.onboarding.birthday
 
+import com.global_water_polo.play_abroad.presentation.onboarding.progress
+import com.global_water_polo.play_abroad.presentation.onboarding.FlowStep
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -19,7 +21,7 @@ import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
 import com.global_water_polo.play_abroad.domain.model.BirthdayProblem
 import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingState
-import com.global_water_polo.play_abroad.presentation.onboarding.birthday.components.BirthdayWheels
+import com.global_water_polo.play_abroad.core.components.BirthdayWheels
 import com.global_water_polo.play_abroad.resources.Res
 import com.global_water_polo.play_abroad.resources.birthday_day
 import com.global_water_polo.play_abroad.resources.birthday_help_athlete
@@ -48,7 +50,7 @@ fun BirthdayScreenContent(
     val years = remember { NcaaClockCalculator.birthYears() }
     OnboardingLayout(
         modifier = modifier,
-        barStart = { BarStart(onBackClick = onBackClick, step = 1, of = 3) },
+        barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.BIRTHDAY)) },
         bottom = {
             PrimaryButton(text = stringResource(Res.string.common_continue), onClick = onContinueClick, enabled = state.window != null)
         }

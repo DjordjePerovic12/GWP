@@ -14,8 +14,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Spin the world through all 24 time zones (one full turn to the right) to enter.
- * Turning left takes progress back; skipping counts as a full turn.
+ * Spin the world through all 24 time zones (one full turn to the right), then tap the ball to enter.
+ * Turning left takes progress back until the turn is complete; skipping enters straight away.
  */
 class IntroViewModel(
     private val navigator: Navigator
@@ -39,11 +39,12 @@ class IntroViewModel(
             IntroEvent.OnAppear -> state.update { IntroState() }
             is IntroEvent.OnSpin -> spin(event.deltaDegrees)
             IntroEvent.OnSkipClick -> finish()
+            IntroEvent.OnBallClick -> if (state.value.spunAll) finish()
         }
     }
 
     private fun spin(delta: Float) {
-        if (state.value.finished) return
+        if (state.value.finished || state.value.spunAll) return
         val progress = max(0f, state.value.progressDegrees + delta)
         state.update {
             it.copy(
@@ -51,7 +52,9 @@ class IntroViewModel(
                 zonesCrossed = min(IntroState.ZONES, floor(progress / 15f).toInt())
             )
         }
-        if (progress >= IntroState.FULL_TURN) finish()
+        if (progress >= IntroState.FULL_TURN) {
+            state.update { it.copy(progressDegrees = IntroState.FULL_TURN, zonesCrossed = IntroState.ZONES, spunAll = true) }
+        }
     }
 
     private fun finish() {
