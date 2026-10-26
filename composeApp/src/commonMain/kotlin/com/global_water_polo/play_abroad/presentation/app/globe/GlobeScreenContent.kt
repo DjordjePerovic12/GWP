@@ -11,7 +11,21 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
+import com.global_water_polo.play_abroad.presentation.app.globe.components.ClubGroupPopup
+import com.global_water_polo.play_abroad.presentation.app.globe.components.GlobeFilters
+import com.global_water_polo.play_abroad.presentation.app.globe.components.GlobeZoomButtons
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,43 +65,80 @@ import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 import kotlin.math.min
 
 /**
- * Globe+ (the prototype's globeTab): the night globe under the header, then search, regions and two
- * rows to pick from, cities and clubs. Dragging across the globe spins it.
+ * Globe+ (the prototype's globeTab): the night globe under the header, then search, filters, regions and
+ * two rows to pick from, cities and clubs. Drag to turn and lean the globe, pinch or use the buttons to
+ * zoom, tap a country, city or club badge.
  */
 @Composable
 fun GlobeScreenContent(
     modifier: Modifier = Modifier,
     state: GlobeState,
     onEvent: (GlobeEvent) -> Unit,
+    zoom: Float,
     onDragStart: () -> Unit,
-    onDrag: (Float) -> Unit,
-    onDragEnd: (Float) -> Unit
+    onDrag: (degrees: Float, tiltRadians: Float) -> Unit,
+    onDragEnd: (Float) -> Unit,
+    onPinch: (Float) -> Unit,
+    onTap: (Offset) -> Unit,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit
 ) {
     val colors = GWPPATheme.colors
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         // Same ball size as GlobeStage's EXPLORE layout, so the drag area sits exactly over the globe.
         val ball = min(maxWidth.value * 0.86f, maxHeight.value * 0.38f).dp
         val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
+        var boxOrigin by remember { mutableStateOf(Offset.Zero) }
+        val currentZoom = rememberUpdatedState(zoom)
         Column(Modifier.fillMaxSize()) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .height(statusTop + 96.dp + ball)
-                    .pointerInput(Unit) {
-                        val degreesPerPx = 220f / min(size.width / density, 700f) / density
+                    .onGloballyPositioned { boxOrigin = it.positionInRoot() }
+                    .pointerInput(ball) {
+                        // Google Earth style: one finger turns the ball (sideways) and leans it (up and down), two
+                        // fingers pinch to zoom, a quick tap picks what is under the finger.
                         val tracker = VelocityTracker()
-                        detectHorizontalDragGestures(
-                            onDragStart = {
-                                tracker.resetTracking()
-                                onDragStart()
-                            },
-                            onDragEnd = { onDragEnd(tracker.calculateVelocity().x * degreesPerPx / 1000f) },
-                            onDragCancel = { onDragEnd(0f) },
-                            onHorizontalDrag = { change, dx ->
-                                tracker.addPosition(change.uptimeMillis, change.position)
-                                onDrag(dx * degreesPerPx)
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            val start = down.position
+                            var moved = false
+                            var pinched = false
+                            tracker.resetTracking()
+                            tracker.addPosition(down.uptimeMillis, down.position)
+                            do {
+                                val event = awaitPointerEvent()
+                                val pressed = event.changes.filter { it.pressed }
+                                // The finger is on the ball's surface: a radius of travel turns it one radian.
+                                val radiusPx = ball.toPx() * currentZoom.value / 2f
+                                if (pressed.size >= 2) {
+                                    if (!moved) onDragStart()
+                                    moved = true
+                                    pinched = true
+                                    val factor = event.calculateZoom()
+                                    if (factor != 1f) onPinch(factor)
+                                } else if (pressed.size == 1 && !pinched) {
+                                    val change = pressed[0]
+                                    if (!moved && (change.position - start).getDistance() > viewConfiguration.touchSlop) {
+                                        moved = true
+                                        onDragStart()
+                                    }
+                                    if (moved) {
+                                        val d = change.positionChange()
+                                        tracker.addPosition(change.uptimeMillis, change.position)
+                                        onDrag(d.x / radiusPx * 57.3f, d.y / radiusPx)
+                                    }
+                                }
+                                if (moved) event.changes.forEach { if (it.positionChange() != Offset.Zero) it.consume() }
+                            } while (event.changes.any { it.pressed })
+                            val radiusPx = ball.toPx() * currentZoom.value / 2f
+                            when {
+                                !moved -> onTap(boxOrigin + start)
+                                pinched -> onDragEnd(0f)
+                                else -> onDragEnd(tracker.calculateVelocity().x / radiusPx * 57.3f / 1000f)
                             }
-                        )
+                        }
                     }
             ) {
                 Row(Modifier.padding(top = statusTop + 14.dp, start = 22.dp, end = 16.dp), verticalAlignment = Alignment.Top) {
@@ -96,6 +147,15 @@ fun GlobeScreenContent(
                         Text(stringResource(Res.string.globe_title), style = GWPPATheme.typography.archivoExpandedBold27, color = colors.colorWhite)
                     }
                     TripsButton(count = state.profile.trips.size, onClick = { onEvent(GlobeEvent.OnTripsClick) })
+                }
+                GlobeZoomButtons(onZoomIn = onZoomIn, onZoomOut = onZoomOut, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp, top = statusTop + 40.dp))
+                state.popup?.let { WaterPoloMap.clubGroups.getOrNull(it) }?.let { group ->
+                    ClubGroupPopup(
+                        group = group,
+                        onClubClick = { onEvent(GlobeEvent.OnClubClick(it)) },
+                        onDismiss = { onEvent(GlobeEvent.OnPopupDismiss) },
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
                 }
             }
             Column(
@@ -111,6 +171,12 @@ fun GlobeScreenContent(
                     label = stringResource(Res.string.globe_search),
                     value = state.query,
                     onValueChange = { onEvent(GlobeEvent.OnQueryChanged(it)) }
+                )
+                GlobeFilters(
+                    country = state.country,
+                    sex = state.sex,
+                    onCountryClick = { onEvent(GlobeEvent.OnCountryClick(it)) },
+                    onSexClick = { onEvent(GlobeEvent.OnSexClick(it)) }
                 )
                 Regions(current = state.region, onClick = { onEvent(GlobeEvent.OnRegionClick(it)) })
                 if (state.cities.isEmpty()) {
@@ -246,6 +312,17 @@ private fun Pill(text: String, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun GlobeScreenContentPreview() {
     GWPPATheme {
-        GlobeScreenContent(state = GlobeState(), onEvent = {}, onDragStart = {}, onDrag = {}, onDragEnd = {})
+        GlobeScreenContent(
+            state = GlobeState(),
+            onEvent = {},
+            zoom = 1f,
+            onDragStart = {},
+            onDrag = { _, _ -> },
+            onDragEnd = {},
+            onPinch = {},
+            onTap = {},
+            onZoomIn = {},
+            onZoomOut = {}
+        )
     }
 }

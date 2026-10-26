@@ -1071,7 +1071,7 @@
     <string name="globe_am">Americas</string>
     <string name="globe_world">World</string>
     <string name="globe_none">No matches. Try another club, city or country.</string>
-    <string name="globe_hint">Drag the globe to spin it. Tap a city or a club.</string>
+    <string name="globe_hint">Pinch to zoom into a region. Tap a club badge or a city.</string>
     <string name="city_clubs">%1$d clubs to explore</string>
     <string name="city_club_one">1 club to explore</string>
     <string name="city_matches">GWP matches you with a club here</string>
@@ -1109,6 +1109,9 @@
 
     <!-- Globe+ booking: build your experience -->
     <string name="globe_trips">Your trips</string>
+    <string name="globe_all_countries">All countries</string>
+    <string name="globe_mens">Men's</string>
+    <string name="globe_womens">Women's</string>
     <string name="bk_kicker">Play abroad / Custom experience</string>
     <string name="bk_title">Build your world.</string>
     <string name="bk_sub">%1$s. %2$s. An experience built around you.</string>
@@ -1338,6 +1341,10 @@
     <plurals name="clock_days">
         <item quantity="one">day</item>
         <item quantity="other">days</item>
+    </plurals>
+    <plurals name="globe_clubs_count">
+        <item quantity="one">%1$d club</item>
+        <item quantity="other">%1$d clubs</item>
     </plurals>
     <plurals name="travel_months">
         <item quantity="one">%1$d month</item>

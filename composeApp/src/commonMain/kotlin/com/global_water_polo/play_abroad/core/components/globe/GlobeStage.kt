@@ -35,6 +35,9 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -96,13 +99,17 @@ fun GlobeStage(
             if (mode == GlobeMode.INTRO) ContactShadow(cy.value, d.value)
             BurstRings(controller.burst, cy.value)
             texture?.let { tex ->
+                val explore = mode == GlobeMode.EXPLORE
                 SpinningGlobe(
                     texture = tex,
                     angle = controller.angle,
                     tilt = controller.tilt,
-                    pins = if (mode == GlobeMode.REVEAL || mode == GlobeMode.EXPLORE) controller.pins else emptyList(),
+                    pins = if (mode == GlobeMode.REVEAL || explore) controller.pins else emptyList(),
+                    markers = if (explore) controller.markers else null,
+                    zoom = controller.zoom,
                     centerY = cy.value.dp,
-                    diameter = (d.value * (1f + controller.punch * 0.18f)).dp
+                    diameter = (d.value * (1f + controller.punch * 0.18f) * (if (explore) controller.zoom else 1f)).dp,
+                    onMarkersDrawn = { controller.markerHits = it }
                 )
             }
         }
@@ -143,9 +150,14 @@ private fun SpinningGlobe(
     angle: Float,
     tilt: Float,
     pins: List<GlobePin>,
+    markers: GlobeMarkers?,
+    zoom: Float,
     centerY: Dp,
-    diameter: Dp
+    diameter: Dp,
+    onMarkersDrawn: (List<Pair<Offset, GlobeHit>>) -> Unit
 ) {
+    val measurer = rememberTextMeasurer()
+    var origin by remember { mutableStateOf(Offset.Zero) }
     val mesh = remember(texture) { GlobeMesh(texture.width, texture.height) }
     val paint = remember(texture) {
         Paint().apply {
@@ -154,7 +166,7 @@ private fun SpinningGlobe(
             filterQuality = FilterQuality.High
         }
     }
-    Canvas(Modifier.fillMaxSize()) {
+    Canvas(Modifier.fillMaxSize().onGloballyPositioned { origin = it.positionInRoot() }) {
         val r = diameter.toPx() / 2f
         val c = Offset(size.width / 2f, centerY.toPx())
         // The textured ball, drawn by the GPU; a hair larger than the rim so the edge stays round.
@@ -195,6 +207,12 @@ private fun SpinningGlobe(
             center = c
         )
         drawCircle(Color.Black.copy(alpha = 0.08f), radius = r - 0.5f * density, center = c, style = Stroke(width = 1f * density))
+        // Globe+: clusters, pins, club badges and labels by zoom; their spots go back for taps.
+        if (markers != null) {
+            val hits = drawGlobeMarkers(markers, zoom, { lat, lon -> mesh.project(lat, lon, angle, tilt, c.x, c.y, r) }, measurer)
+            onMarkersDrawn(hits.map { (p, hit) -> (p + origin) to hit })
+            return@Canvas
+        }
         // Tour pins: club cities on the ball, the current one bigger with a ring.
         pins.forEach { pin ->
             val p = mesh.project(pin.latitude, pin.longitude, angle, tilt, c.x, c.y, r) ?: return@forEach

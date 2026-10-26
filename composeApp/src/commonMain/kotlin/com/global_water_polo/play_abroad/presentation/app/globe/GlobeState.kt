@@ -5,6 +5,7 @@ import com.global_water_polo.play_abroad.domain.model.Club
 import com.global_water_polo.play_abroad.domain.model.Profile
 import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
+import com.global_water_polo.play_abroad.domain.model.hasWomen
 import com.global_water_polo.play_abroad.presentation.base.BaseError
 import com.global_water_polo.play_abroad.presentation.base.BaseViewState
 
@@ -33,33 +34,37 @@ data class GlobeState(
     /** The city the globe should turn to; changes every time a city or club is picked. */
     val focus: City? = null,
     /** The experience being built; saved to the profile's trips on Review. */
-    val draft: Trip? = null
+    val draft: Trip? = null,
+    /** Country filter; empty = all countries. */
+    val country: String = "",
+    /** "men", "women" or empty for both. */
+    val sex: String = "",
+    /** The club group pop-up open over the globe, by its index in WaterPoloMap.clubGroups. */
+    val popup: Int? = null
 ) : BaseViewState(isLoading, error) {
 
     /**
-     * What the list shows (the prototype's gItems): a search matches city, country or club names anywhere;
-     * without one, the cities of the chosen region.
+     * What the lists show (the prototype's gItems): the chosen country, or the region when nothing narrows it;
+     * a search matches city, country or club names; Men's or Women's keeps only cities with such clubs.
      */
     val cities: List<City>
         get() {
             val q = query.trim().lowercase()
+            val narrowed = q.isNotEmpty() || country.isNotEmpty() || sex.isNotEmpty()
             return WaterPoloMap.cities.filter { city ->
-                if (q.isEmpty()) city.region == region
-                else city.name.lowercase().contains(q) || city.country.lowercase().contains(q) ||
-                    WaterPoloMap.clubsIn(city.id).any { it.name.lowercase().contains(q) }
+                (country.isEmpty() || city.country == country) && (narrowed || city.region == region) &&
+                    (cityMatches(city, q) || clubsOf(city, q).isNotEmpty()) && (sex.isEmpty() || clubsOf(city, "").isNotEmpty())
             }
         }
 
-    val clubs: List<Club>
-        get() {
-            val q = query.trim().lowercase()
-            val inCities = cities.map { it.id }.toSet()
-            return WaterPoloMap.clubs.filter { club ->
-                club.cityId in inCities && (q.isEmpty() || club.name.lowercase().contains(q) || WaterPoloMap.city(club.cityId)?.let {
-                    it.name.lowercase().contains(q) || it.country.lowercase().contains(q)
-                } == true)
-            }
-        }
+    val clubs: List<Club> get() = query.trim().lowercase().let { q -> cities.flatMap { clubsOf(it, q) } }
+
+    private fun cityMatches(city: City, q: String) = q.isEmpty() || city.name.lowercase().contains(q) || city.country.lowercase().contains(q)
+
+    /** The city's clubs that pass the Men's or Women's filter, and the search unless the city itself matches. */
+    private fun clubsOf(city: City, q: String): List<Club> = WaterPoloMap.clubsIn(city.id).filter { club ->
+        (sex != "women" || club.hasWomen) && (cityMatches(city, q) || club.name.lowercase().contains(q))
+    }
 
     /** The trip already in the cart for [cityId] (a draft wins over a sent one), for the "In your trips" chip. */
     fun tripIn(cityId: String): Trip? = profile.trips.filter { it.cityId == cityId }.minByOrNull { it.sent }

@@ -12,6 +12,10 @@ sealed class GlobeEvent : BaseEvent {
     data class OnCityClick(val cityId: String) : GlobeEvent()
     data class OnClubClick(val clubId: String) : GlobeEvent()
     data object OnSheetDismiss : GlobeEvent()
+    data class OnCountryClick(val country: String) : GlobeEvent()
+    data class OnSexClick(val sex: String) : GlobeEvent()
+    data class OnGroupClick(val index: Int) : GlobeEvent()
+    data object OnPopupDismiss : GlobeEvent()
 
     // Build your experience
     data class OnBuildClick(val cityId: String, val clubId: String = "") : GlobeEvent()

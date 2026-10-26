@@ -243,9 +243,40 @@ object WaterPoloMap {
     fun club(id: String): Club? = clubs.firstOrNull { it.id == id }
     fun clubsIn(cityId: String): List<Club> = clubs.filter { it.cityId == cityId }
 
+    /** The countries in list order, for the Globe+ country filter. */
+    val countries: List<String> by lazy { cities.map { it.country }.distinct() }
+
+    /**
+     * Clubs whose cities sit within half a degree of each other share one badge on the globe (the prototype's
+     * CLUB_GROUPS): Barcelona, Sabadell and Terrassa, or the four clubs around Athens.
+     */
+    val clubGroups: List<ClubGroup> by lazy {
+        val groups = ArrayList<ClubGroup>()
+        clubs.forEach { club ->
+            val city = city(club.cityId) ?: return@forEach
+            val i = groups.indexOfFirst { kotlin.math.hypot(it.latitude - city.latitude, it.longitude - city.longitude) < 0.5f }
+            if (i < 0) {
+                groups += ClubGroup(city.latitude, city.longitude, listOf(club), listOf(city.name))
+            } else {
+                val g = groups[i]
+                groups[i] = g.copy(clubs = g.clubs + club, cities = if (city.name in g.cities) g.cities else g.cities + city.name)
+            }
+        }
+        groups
+    }
+
     /** Crest monogram: "CN Atlètic-Barceloneta" -> "AB", like the prototype's monog. */
     fun monogram(name: String): String =
         name.replace(Regex("^(CN|VK|PVK|HAVK|AN|CC|CSM|NO|IKAI)\\s+"), "")
             .split(Regex("[\\s/-]+")).filter { it.isNotBlank() }.take(2)
             .joinToString("") { it.first().uppercase() }
 }
+
+/** Nearby clubs shown as one badge: where it sits, its clubs and their cities. */
+data class ClubGroup(val latitude: Float, val longitude: Float, val clubs: List<Club>, val cities: List<String>)
+
+/**
+ * Whether the club fields a women's team. TODO: The prototype's stand-in rule until GWP confirms: clubs in
+ * Romania and Montenegro are men's only, every other club has both.
+ */
+val Club.hasWomen: Boolean get() = WaterPoloMap.city(cityId)?.country !in setOf("Romania", "Montenegro")

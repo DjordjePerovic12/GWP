@@ -48,6 +48,9 @@ suspend fun loadGlobeTexture(): ImageBitmap {
 /** The ball's resting forward tilt (three.js rotation.x = 0.18). */
 const val BASE_TILT = 0.18f
 
+/** The ball's fixed sideways roll (radians), like the prototype's tilt.rotation.z. */
+const val GLOBE_ROLL = -0.32f
+
 /** A place marked on the ball (the tour's club cities); [active] is drawn bigger with a ring. */
 data class GlobePin(val latitude: Float, val longitude: Float, val active: Boolean = false)
 
@@ -66,7 +69,7 @@ class GlobeMesh(private val textureWidth: Int, private val textureHeight: Int) {
     private val white = List(count) { Color.White }
 
     private val tiltX = BASE_TILT
-    private val tiltZ = -0.32f
+    private val tiltZ = GLOBE_ROLL
 
     init {
         val coords = ArrayList<Offset>(count)

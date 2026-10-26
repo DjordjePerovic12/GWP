@@ -68,13 +68,17 @@ class GlobeViewModel(
             is GlobeEvent.OnQueryChanged -> state.update { it.copy(query = event.query) }
             is GlobeEvent.OnRegionClick -> state.update { it.copy(region = event.region, query = "") }
             is GlobeEvent.OnCityClick -> state.update {
-                it.copy(sheet = GlobeSheet.CityPage(event.cityId), focus = WaterPoloMap.city(event.cityId) ?: it.focus)
+                it.copy(sheet = GlobeSheet.CityPage(event.cityId), focus = WaterPoloMap.city(event.cityId) ?: it.focus, popup = null)
             }
             is GlobeEvent.OnClubClick -> state.update {
                 val city = WaterPoloMap.club(event.clubId)?.let { club -> WaterPoloMap.city(club.cityId) }
-                it.copy(sheet = GlobeSheet.ClubPage(event.clubId), focus = city ?: it.focus)
+                it.copy(sheet = GlobeSheet.ClubPage(event.clubId), focus = city ?: it.focus, popup = null)
             }
             GlobeEvent.OnSheetDismiss -> state.update { it.copy(sheet = null) }
+            is GlobeEvent.OnCountryClick -> state.update { it.copy(country = event.country, popup = null) }
+            is GlobeEvent.OnSexClick -> state.update { it.copy(sex = if (it.sex == event.sex) "" else event.sex) }
+            is GlobeEvent.OnGroupClick -> state.update { it.copy(popup = event.index) }
+            GlobeEvent.OnPopupDismiss -> state.update { it.copy(popup = null) }
 
             is GlobeEvent.OnBuildClick -> state.update {
                 // Like the prototype's startBuild: an unsent trip to the city is edited, not duplicated.
