@@ -40,6 +40,7 @@ sealed interface ProfileSheet {
     data class Editor(val group: InfoGroup) : ProfileSheet
     data object LetterRequest : ProfileSheet
     data class GalleryItem(val id: Long) : ProfileSheet
+    data object Today : ProfileSheet
 }
 
 /** A sample clinic listing: name, date, city, format and photo key. */

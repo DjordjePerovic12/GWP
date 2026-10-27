@@ -957,6 +957,13 @@
     <string name="port_visibility_note">Documents are always private. Coaches have to ask, and you approve every request.</string>
     <string name="port_proto">Prototype. Files stay on this phone and nothing is uploaded.</string>
 
+    <!-- Profile: GWP Elite Today -->
+    <string name="today_label">Today</string>
+    <string name="today_title">Your day.</string>
+    <string name="today_wod">Workout of the day</string>
+    <string name="today_wod_sub">Lower body and core</string>
+    <string name="today_fine">Sample plan. Your GWP performance coach builds your real one.</string>
+
     <!-- Portfolio: full profile -->
     <string name="pf_add_photo">Add your photo</string>
     <string name="pf_change">Change</string>

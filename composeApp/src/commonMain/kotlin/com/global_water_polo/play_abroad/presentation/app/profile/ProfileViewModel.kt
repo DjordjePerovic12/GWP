@@ -135,6 +135,10 @@ class ProfileViewModel(
             ProfileEvent.OnLabExampleClick -> state.update { it.copy(sheet = ProfileSheet.LabExample) }
 
             is ProfileEvent.OnPreviewToggle -> state.update { it.copy(preview = event.preview) }
+            ProfileEvent.OnTodayClick -> state.update { it.copy(sheet = ProfileSheet.Today) }
+            is ProfileEvent.OnWorkoutToggle -> profileRepository.update {
+                it.copy(workoutDone = if (event.index in it.workoutDone) it.workoutDone - event.index else it.workoutDone + event.index)
+            }
             is ProfileEvent.OnEditInfo -> state.update { it.copy(sheet = ProfileSheet.Editor(event.group)) }
             is ProfileEvent.OnInfoSaved -> {
                 updatePortfolio { it.copy(info = event.info) }

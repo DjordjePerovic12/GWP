@@ -15,6 +15,7 @@ import com.global_water_polo.play_abroad.presentation.app.profile.components.Let
 import com.global_water_polo.play_abroad.presentation.app.profile.components.LabExampleSheet
 import com.global_water_polo.play_abroad.presentation.app.profile.components.LabTestSheet
 import com.global_water_polo.play_abroad.presentation.app.profile.components.ProgramDetailSheet
+import com.global_water_polo.play_abroad.presentation.app.profile.components.TodaySheet
 import com.global_water_polo.play_abroad.presentation.base.BaseContentView
 
 @Composable
@@ -89,6 +90,11 @@ private fun ProfileSheetContent(sheet: ProfileSheet, state: ProfileState, viewMo
         )
         ProfileSheet.LabExample -> LabExampleSheet(
             onFilmClick = { viewModel.onEvent(ProfileEvent.OnLabTestClick(1)) },
+            onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
+        )
+        ProfileSheet.Today -> TodaySheet(
+            done = state.profile.workoutDone,
+            onToggle = { viewModel.onEvent(ProfileEvent.OnWorkoutToggle(it)) },
             onDismiss = { viewModel.onEvent(ProfileEvent.OnSheetDismiss) }
         )
         is ProfileSheet.Editor -> InfoEditorSheet(

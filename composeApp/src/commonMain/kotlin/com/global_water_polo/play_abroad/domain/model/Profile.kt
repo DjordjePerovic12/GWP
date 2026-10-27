@@ -45,6 +45,8 @@ data class Profile(
     val labAngles: Map<Int, Map<String, PlatformFile>> = emptyMap(),
     val labSent: Set<Int> = emptySet(),
     val saved: Set<String> = emptySet(),
+    /** GWP Elite "Today": workout of the day exercises ticked off, by index. */
+    val workoutDone: Set<Int> = emptySet(),
     val likes: Set<String> = emptySet(),
     /** Experiences built on Globe+, drafts and sent inquiries; the first one is the next trip on Travel. */
     val trips: List<Trip> = emptyList(),

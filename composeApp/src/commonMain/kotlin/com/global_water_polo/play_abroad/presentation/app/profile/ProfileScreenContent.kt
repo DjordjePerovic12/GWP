@@ -34,6 +34,7 @@ import com.global_water_polo.play_abroad.domain.model.Profile
 import com.global_water_polo.play_abroad.presentation.app.profile.components.LabSection
 import com.global_water_polo.play_abroad.presentation.app.profile.components.PathwaySection
 import com.global_water_polo.play_abroad.presentation.app.profile.components.PortfolioSection
+import com.global_water_polo.play_abroad.presentation.app.profile.components.TodayRow
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
@@ -61,6 +62,7 @@ fun ProfileScreenContent(
                     onEvent(ProfileEvent.OnMembershipSheet(if (state.membership.plan == null) MembershipSheet.PAYWALL else MembershipSheet.MANAGE))
                 }
             )
+            if (state.membership.elite) TodayRow(done = state.profile.workoutDone, onClick = { onEvent(ProfileEvent.OnTodayClick) })
             SegmentBar(current = state.segment, onClick = { onEvent(ProfileEvent.OnSegmentClick(it)) })
             when (state.segment) {
                 ProfileSegment.PATH -> PathwaySection(

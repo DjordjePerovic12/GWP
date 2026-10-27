@@ -17,6 +17,8 @@ sealed class ProfileEvent : BaseEvent {
     data object OnSwitchToNext : ProfileEvent()
     data object OnCancelPlan : ProfileEvent()
     data object OnSheetDismiss : ProfileEvent()
+    data object OnTodayClick : ProfileEvent()
+    data class OnWorkoutToggle(val index: Int) : ProfileEvent()
 
     data object OnBuildPathwayClick : ProfileEvent()
     data class OnBuildPathway(
