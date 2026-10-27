@@ -19,8 +19,8 @@
     <!-- GWP onboarding prototype copy (friendly-melomakarona-953fa1.netlify.app) -->
     <string name="brand_short">GWP</string>
     <string name="brand_long">GLOBAL WATER POLO</string>
-    <string name="haptics_on">Haptics on</string>
-    <string name="haptics_off">Haptics off</string>
+    <string name="haptics_on">Sound on</string>
+    <string name="haptics_off">Sound off</string>
     <string name="common_continue">Continue</string>
     <string name="intro_skip">Skip intro</string>
     <string name="intro_tap_ball">Tap the ball</string>
@@ -957,6 +957,35 @@
     <string name="port_visibility_note">Documents are always private. Coaches have to ask, and you approve every request.</string>
     <string name="port_proto">Prototype. Files stay on this phone and nothing is uploaded.</string>
 
+    <!-- Parent home: Play Abroad -->
+    <string name="parent_requested">Requested</string>
+    <string name="parent_included">Included</string>
+    <string name="parent_seven_days">7 days free</string>
+    <string name="parent_free">Free</string>
+    <string name="abroad_title">Plan a year abroad.</string>
+    <string name="abroad_fine">GWP builds a proposed program around this. It's a request, not a booking or a guaranteed placement. Placement fees are separate from GWP Next.</string>
+    <string name="abroad_request">Request my proposal</string>
+    <string name="abroad_requested">Proposal requested</string>
+    <string name="abroad_not_now">Not now</string>
+    <string name="elite_teaser_sub">Every program and perk. 7 days free.</string>
+
+    <!-- Settings: Studio -->
+    <string name="studio_title">Studio</string>
+    <string name="studio_note">Verified accounts</string>
+    <string name="studio_videos">Upload videos</string>
+    <string name="studio_videos_who">Coaches and clubs</string>
+    <string name="studio_club">Edit club information</string>
+    <string name="studio_club_who">Clubs</string>
+    <string name="studio_availability">Manage availability</string>
+    <string name="studio_availability_who">Clubs and housing partners</string>
+    <string name="studio_tours">Add property tours</string>
+    <string name="studio_tours_who">Housing partners</string>
+    <string name="studio_publish">Publish training opportunities</string>
+    <string name="studio_publish_who">Coaches, clubs, GWP</string>
+    <string name="studio_fine">Publishing tools open for verified coaches, clubs and GWP administrators. Athletes manage their own profile and uploads above.</string>
+    <string name="studio_request">I'm a coach or club: request access</string>
+    <string name="studio_requested">Request sent</string>
+
     <!-- Profile: GWP Elite Today -->
     <string name="today_label">Today</string>
     <string name="today_title">Your day.</string>
@@ -1301,7 +1330,7 @@
     <string name="set_off">Off</string>
     <string name="set_home_airport">Home airport</string>
     <string name="set_sign_out">Sign out</string>
-    <string name="set_proto">Prototype. Nothing is saved or sent.</string>
+    <string name="set_proto">Prototype. Saved on this device only; nothing is sent.</string>
 
     <string-array name="months">
         <item>January</item>

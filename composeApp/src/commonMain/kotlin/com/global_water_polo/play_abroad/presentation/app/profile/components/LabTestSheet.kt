@@ -24,12 +24,14 @@ import com.global_water_polo.play_abroad.core.components.SheetHeading
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.presentation.app.profile.ProfileState
 import com.global_water_polo.play_abroad.core.components.MediaKind
-import com.global_water_polo.play_abroad.core.components.PlayIcon
 import com.global_water_polo.play_abroad.core.components.rememberMediaPicker
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.name
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Color
+import com.global_water_polo.play_abroad.core.components.VideoPlayer
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
@@ -92,40 +94,51 @@ fun LabTestSheet(
     }
 }
 
-/** One camera angle: "Add video" opens the video picker; once picked it shows the file, tap to replace. */
+/**
+ * One camera angle (the prototype's `.vs3`): "Add video" opens the video picker; once filmed the clip plays in
+ * place, labelled, with Replace (and Remove) until the test is sent.
+ */
 @Composable
 private fun AngleSlot(label: String, file: PlatformFile?, enabled: Boolean, onClick: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val colors = GWPPATheme.colors
     val shape = RoundedCornerShape(16.dp)
-    val filmed = file != null
+    if (file != null) {
+        Box(modifier = modifier.aspectRatio(3f / 4f).clip(shape).background(Color.Black).border(1.5.dp, colors.chlorineBlue, shape)) {
+            VideoPlayer(file, Modifier.fillMaxSize())
+            Text(
+                label,
+                style = GWPPATheme.typography.archivoBold11,
+                color = colors.colorWhite,
+                modifier = Modifier.align(Alignment.TopStart).padding(8.dp).clip(CircleShape).background(colors.nightNavy.copy(alpha = 0.6f)).padding(horizontal = 8.dp, vertical = 3.dp)
+            )
+            if (enabled) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
+                    listOf(Res.string.pf_replace to onClick, Res.string.port_remove to onRemove).forEach { (text, action) ->
+                        Text(
+                            stringResource(text),
+                            style = GWPPATheme.typography.archivoBold11,
+                            color = colors.inkBlack,
+                            modifier = Modifier.clip(CircleShape).background(colors.colorWhite).clickable(onClick = action).padding(horizontal = 9.dp, vertical = 5.dp)
+                        )
+                    }
+                }
+            }
+        }
+        return
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         modifier = modifier
-            .height(132.dp)
+            .aspectRatio(3f / 4f)
             .clip(shape)
-            .background(if (filmed) colors.nightNavy else colors.colorWhite)
-            .border(1.5.dp, if (filmed) colors.chlorineBlue else colors.lineGrey, shape)
+            .background(colors.colorWhite)
+            .border(1.5.dp, colors.lineGrey, shape)
             .clickable(enabled = enabled, onClick = onClick)
             .padding(10.dp)
     ) {
-        if (filmed) PlayIcon(colors.colorWhite, Modifier.size(22.dp))
-        else Text("＋", style = GWPPATheme.typography.archivoExpandedBold21, color = colors.chlorineBlue)
-        Text(label, style = GWPPATheme.typography.archivoBold13, color = if (filmed) colors.colorWhite else colors.inkBlack)
-        Text(
-            file?.name ?: stringResource(Res.string.lab_add_video),
-            style = GWPPATheme.typography.archivoRegular13,
-            color = if (filmed) colors.colorWhite.copy(alpha = 0.7f) else colors.slateGrey,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        if (filmed && enabled) {
-            Text(
-                stringResource(Res.string.port_remove),
-                style = GWPPATheme.typography.archivoBold12,
-                color = colors.ballYellow,
-                modifier = Modifier.clip(CircleShape).clickable(onClick = onRemove).padding(horizontal = 8.dp, vertical = 2.dp)
-            )
-        }
+        Text("＋", style = GWPPATheme.typography.archivoExpandedBold21, color = colors.chlorineBlue)
+        Text(label, style = GWPPATheme.typography.archivoBold13, color = colors.inkBlack)
+        Text(stringResource(Res.string.lab_add_video), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
     }
 }

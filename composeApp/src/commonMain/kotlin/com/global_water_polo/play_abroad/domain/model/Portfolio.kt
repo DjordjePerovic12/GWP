@@ -1,11 +1,13 @@
 package com.global_water_polo.play_abroad.domain.model
 
+import kotlinx.serialization.Serializable
 import io.github.vinceglb.filekit.PlatformFile
 
 /** The water polo positions an athlete can pick; the first one picked is the main position. */
 val POSITIONS = listOf("Goalkeeper", "Center", "Center defender", "Driver", "Utility")
 
 /** Personal info rows on the portfolio, each typed in by the athlete. Empty = not added. */
+@Serializable
 data class PersonalInfo(
     val height: String = "",
     val wingspan: String = "",
@@ -31,15 +33,18 @@ enum class InfoGroup {
 }
 
 /** A recommendation letter: requested from a coach (no [file] yet) or uploaded by the athlete. */
+@Serializable
 data class Letter(val id: Long, val from: String, val club: String = "", val file: PlatformFile? = null)
 
 /** A photo or clip in the gallery; any of them can become the profile photo or the highlight. */
+@Serializable
 data class GalleryItem(val id: Long, val file: PlatformFile, val video: Boolean)
 
 /**
  * Everything on the portfolio besides positions (the prototype's `S.pf`, `S.prof` and `S.gal`). Files stay
  * on the device; nothing is uploaded yet.
  */
+@Serializable
 data class Portfolio(
     val info: PersonalInfo = PersonalInfo(),
     /** Gallery item ids used as the profile photo and the highlight video. */

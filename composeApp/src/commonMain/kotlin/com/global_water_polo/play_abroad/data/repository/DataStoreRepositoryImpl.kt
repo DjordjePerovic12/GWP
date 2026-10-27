@@ -18,6 +18,7 @@ class DataStoreRepositoryImpl(
         val ACCESS_TOKEN = stringPreferencesKey("ACCESS_TOKEN")
         val REFRESH_TOKEN = stringPreferencesKey("REFRESH_TOKEN")
         val USER_PREFERRED_LANGUAGE = stringPreferencesKey("USER_PREFERRED_LANGUAGE")
+        val PROFILE = stringPreferencesKey("PROFILE")
     }
 
     override suspend fun saveAccessToken(token: String) {
@@ -46,6 +47,15 @@ class DataStoreRepositoryImpl(
 
     override suspend fun getPreferredLanguage(): Flow<String> =
         datastore.data.map { preferences -> preferences[USER_PREFERRED_LANGUAGE] ?: "" }
+
+    override suspend fun saveProfile(json: String) {
+        datastore.edit { preferences ->
+            preferences[PROFILE] = json
+        }
+    }
+
+    override fun getProfile(): Flow<String> =
+        datastore.data.map { preferences -> preferences[PROFILE] ?: "" }
 
     override suspend fun clearDatastore() {
         datastore.edit {

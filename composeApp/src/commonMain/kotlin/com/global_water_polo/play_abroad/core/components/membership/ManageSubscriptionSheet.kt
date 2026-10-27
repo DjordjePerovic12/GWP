@@ -251,3 +251,46 @@ private fun MembershipSheetContent(
         )
     }
 }
+
+/** The plan card under the name (Profile, parent home): Free with See plans, or the trial with Manage. */
+@Composable
+fun MembershipCard(membership: Membership, onClick: () -> Unit) {
+    val colors = GWPPATheme.colors
+    val m = membership
+    val shape = RoundedCornerShape(16.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(top = 16.dp)
+            .fillMaxWidth()
+            .clip(shape)
+            .background(if (m.elite) colors.nightNavy else colors.colorWhite)
+            .border(1.dp, if (m.elite) colors.eliteGold else colors.lineGrey, shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(
+                    when {
+                        m.elite -> Res.string.trial_elite
+                        m.next -> Res.string.trial_next
+                        else -> Res.string.plan_free
+                    }
+                ),
+                style = GWPPATheme.typography.archivoExpandedBold16,
+                color = if (m.elite) colors.colorWhite else colors.inkBlack
+            )
+            Text(
+                if (m.plan != null) trialLeft(m.daysLeft) else stringResource(Res.string.plan_free_sub),
+                style = GWPPATheme.typography.archivoRegular13,
+                color = if (m.elite) colors.colorWhite.copy(alpha = 0.7f) else colors.slateGrey
+            )
+        }
+        Text(
+            stringResource(if (m.plan != null) Res.string.plan_manage else Res.string.plan_see),
+            style = GWPPATheme.typography.archivoBold13,
+            color = if (m.elite) colors.eliteGold else colors.chlorineBlue
+        )
+    }
+}

@@ -102,8 +102,9 @@ fun InquirySheet(
     }
 }
 
+/** Words for an onboarding goal ("pro" -> "Pro in Europe"). */
 @Composable
-private fun goalLabel(goal: String): String = when (goal) {
+fun goalLabel(goal: String): String = when (goal) {
     "college" -> stringResource(Res.string.goal_college)
     "pro" -> stringResource(Res.string.goal_pro)
     "nt" -> stringResource(Res.string.goal_nt)

@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import io.github.vinceglb.filekit.PlatformFile
+import com.global_water_polo.play_abroad.data.local.MediaFiles
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
 import com.global_water_polo.play_abroad.core.navigation.Screen
@@ -114,10 +116,12 @@ class ProfileViewModel(
             }
 
             is ProfileEvent.OnLabTestClick -> state.update { it.copy(sheet = ProfileSheet.LabTest(event.index)) }
-            is ProfileEvent.OnLabAnglePicked -> profileRepository.update {
-                if (event.index in it.labSent) return@update it
-                val angles = it.labAngles[event.index].orEmpty()
-                it.copy(labAngles = it.labAngles + (event.index to angles + (event.angle to event.file)))
+            is ProfileEvent.OnLabAnglePicked -> keep(event.file) { file ->
+                profileRepository.update {
+                    if (event.index in it.labSent) return@update it
+                    val angles = it.labAngles[event.index].orEmpty()
+                    it.copy(labAngles = it.labAngles + (event.index to angles + (event.angle to file)))
+                }
             }
             is ProfileEvent.OnLabAngleRemove -> profileRepository.update {
                 if (event.index in it.labSent) return@update it
@@ -148,28 +152,37 @@ class ProfileViewModel(
                 profileRepository.update { it.copy(positions = event.positions, leftHanded = event.leftHanded) }
                 state.update { it.copy(sheet = null) }
             }
-            // Prototype: picked files stay on the device; nothing is uploaded yet. A picked photo or highlight
-            // also lands in the gallery, like the prototype.
-            is ProfileEvent.OnPhotoPicked -> updatePortfolio {
-                val item = GalleryItem(newId(), event.file, video = false)
-                it.copy(gallery = listOf(item) + it.gallery, photoId = item.id)
+            // Prototype: picked files are copied into app storage (so they survive a restart) and stay on the
+            // device; nothing is uploaded yet. A picked photo or highlight also lands in the gallery.
+            is ProfileEvent.OnPhotoPicked -> keep(event.file) { file ->
+                updatePortfolio {
+                    val item = GalleryItem(newId(), file, video = false)
+                    it.copy(gallery = listOf(item) + it.gallery, photoId = item.id)
+                }
             }
-            is ProfileEvent.OnHighlightPicked -> updatePortfolio {
-                val item = GalleryItem(newId(), event.file, video = true)
-                it.copy(gallery = listOf(item) + it.gallery, highlightId = item.id)
+            is ProfileEvent.OnHighlightPicked -> keep(event.file) { file ->
+                updatePortfolio {
+                    val item = GalleryItem(newId(), file, video = true)
+                    it.copy(gallery = listOf(item) + it.gallery, highlightId = item.id)
+                }
             }
-            is ProfileEvent.OnTranscriptPicked -> updatePortfolio { it.copy(transcript = event.file) }
+            is ProfileEvent.OnTranscriptPicked -> keep(event.file) { file -> updatePortfolio { it.copy(transcript = file) } }
             ProfileEvent.OnLetterRequestClick -> state.update { it.copy(sheet = ProfileSheet.LetterRequest) }
             // Prototype: no email goes to the coach.
             is ProfileEvent.OnLetterRequested -> {
                 updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, event.club)) }
                 state.update { it.copy(sheet = null) }
             }
-            is ProfileEvent.OnLetterUploaded -> updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, file = event.file)) }
+            is ProfileEvent.OnLetterUploaded -> keep(event.file) { file ->
+                updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, file = file)) }
+            }
             is ProfileEvent.OnLetterRemove -> updatePortfolio { p -> p.copy(letters = p.letters.filterNot { it.id == event.id }) }
-            is ProfileEvent.OnGalleryAdd -> updatePortfolio { p ->
-                val base = newId()
-                p.copy(gallery = event.files.mapIndexed { i, f -> GalleryItem(base + i, f, f.isVideo()) } + p.gallery)
+            is ProfileEvent.OnGalleryAdd -> viewModelScope.launch {
+                val files = event.files.map { MediaFiles.keep(it) }
+                updatePortfolio { p ->
+                    val base = newId()
+                    p.copy(gallery = files.mapIndexed { i, f -> GalleryItem(base + i, f, f.isVideo()) } + p.gallery)
+                }
             }
             is ProfileEvent.OnGalleryFilter -> state.update { it.copy(galleryFilter = event.filter) }
             is ProfileEvent.OnGalleryItemClick -> state.update { it.copy(sheet = ProfileSheet.GalleryItem(event.id)) }
@@ -193,6 +206,9 @@ class ProfileViewModel(
             is ProfileEvent.OnVisibilityClick -> profileRepository.update { it.copy(visibility = event.visibility) }
         }
     }
+
+    /** Copies a picked file into app storage, then hands the copy on. */
+    private fun keep(file: PlatformFile, use: (PlatformFile) -> Unit) = viewModelScope.launch { use(MediaFiles.keep(file)) }
 
     private fun updatePortfolio(transform: (Portfolio) -> Portfolio) = profileRepository.update { it.copy(portfolio = transform(it.portfolio)) }
 

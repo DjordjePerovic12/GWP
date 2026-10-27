@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad.presentation.onboarding.tour
 
+import com.global_water_polo.play_abroad.core.components.LocalSound
+import com.global_water_polo.play_abroad.core.components.Sfx
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +41,7 @@ fun TourScreen(
     val state by viewModel.onboardingState.collectAsStateWithLifecycle()
     val globe = LocalGlobeController.current
     val haptics = LocalHapticFeedback.current
+    val sound = LocalSound.current
     // -1: "The world" before the first city; TOUR_CITIES.size: "Your profile is ready."
     var stop by remember { mutableIntStateOf(-1) }
 
@@ -59,7 +62,10 @@ fun TourScreen(
             stop = index
             globe.aimAt(city.longitude, city.latitude)
             globe.pins = TOUR_CITIES.mapIndexed { i, c -> GlobePin(c.latitude, c.longitude, active = i == index) }
-            if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+            if (globe.hapticsOn) {
+                haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                sound.play(Sfx.TICK)
+            }
             delay(step.toLong())
         }
         stop = TOUR_CITIES.size

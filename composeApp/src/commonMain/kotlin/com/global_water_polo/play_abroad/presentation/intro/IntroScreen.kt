@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad.presentation.intro
 
+import com.global_water_polo.play_abroad.core.components.LocalSound
+import com.global_water_polo.play_abroad.core.components.Sfx
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +26,7 @@ fun IntroScreen(
     val state by viewModel.introState.collectAsStateWithLifecycle()
     val globe = LocalGlobeController.current
     val haptics = LocalHapticFeedback.current
+    val sound = LocalSound.current
 
     viewModel.snackBarChannel.observeWithLifecycle { message ->
         showSnackBar(message)
@@ -39,7 +42,10 @@ fun IntroScreen(
             val zone = floor(globe.angle / 15f).toInt()
             if (zone != lastZone) {
                 lastZone = zone
-                if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                if (globe.hapticsOn) {
+                    haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                    sound.play(Sfx.RATCHET)
+                }
             }
         }
         onDispose { globe.onUserTurn = null }
@@ -48,7 +54,10 @@ fun IntroScreen(
     // The spring lets go: the ball runs through the remaining zones on its own, slowing but never stopping.
     LaunchedEffect(state.running) {
         if (!state.running || state.spunAll) return@LaunchedEffect
-        if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (globe.hapticsOn) {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            sound.play(Sfx.SWOOSH)
+        }
         var speed = 520f
         var last = withFrameMillis { it }
         while (!viewModel.introState.value.spunAll) {
@@ -67,7 +76,10 @@ fun IntroScreen(
     LaunchedEffect(state.finished) {
         if (state.finished) {
             globe.kick(velocityDegreesPerMs = 1.6f, withBurst = true)
-            if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+            if (globe.hapticsOn) {
+                haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                sound.play(Sfx.BOOM)
+            }
         }
     }
 

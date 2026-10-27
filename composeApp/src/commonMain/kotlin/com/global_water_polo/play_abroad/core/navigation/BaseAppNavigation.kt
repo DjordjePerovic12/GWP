@@ -61,7 +61,8 @@ fun BaseAppNavigation(
     navController: NavHostController,
     navigator: Navigator,
     showSnackBar: (String) -> Unit,
-    density: Density
+    density: Density,
+    startDestination: Screen = Screen.IntroScreen
 ) {
 
     ObserveAsEvents(flow = navigator.navigationFlow) { navType ->
@@ -86,7 +87,7 @@ fun BaseAppNavigation(
     val rise = with(density) { 16.dp.roundToPx() }
     NavHost(
         navController = navController,
-        startDestination = Screen.IntroScreen,
+        startDestination = startDestination,
         enterTransition = { fadeIn(tween(460, easing = enterEasing)) + slideInVertically(tween(460, easing = enterEasing)) { rise } },
         exitTransition = { fadeOut(tween(200)) },
         popEnterTransition = { fadeIn(tween(460, easing = enterEasing)) + slideInVertically(tween(460, easing = enterEasing)) { rise } },

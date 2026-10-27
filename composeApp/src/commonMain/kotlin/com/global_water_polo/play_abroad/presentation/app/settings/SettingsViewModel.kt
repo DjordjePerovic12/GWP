@@ -54,7 +54,9 @@ class SettingsViewModel(
             SettingsEvent.OnCancelPlan -> profileRepository.cancelPlan()
             SettingsEvent.OnNotificationsClick -> profileRepository.update { it.copy(notifications = !it.notifications) }
             SettingsEvent.OnHomeAirportClick -> open(Screen.FlightRadarScreen)
-            // Prototype: signing out forgets everything (it was only kept in memory) and starts again at the globe.
+            // Prototype: the request is only remembered; GWP would verify the coach or club.
+            SettingsEvent.OnStudioRequestClick -> profileRepository.update { it.copy(studioRequested = true) }
+            // Prototype: signing out deletes the saved profile and kept files and starts again at the globe.
             SettingsEvent.OnSignOutClick -> {
                 profileRepository.reset()
                 viewModelScope.launch {

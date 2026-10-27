@@ -3,6 +3,8 @@ package com.global_water_polo.play_abroad
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import com.global_water_polo.play_abroad.core.components.LocalStatusBarOverride
+import com.global_water_polo.play_abroad.core.components.LocalSound
+import com.global_water_polo.play_abroad.core.components.rememberSoundPlayer
 import com.global_water_polo.play_abroad.core.components.StatusBarStyle
 import com.global_water_polo.play_abroad.core.components.globe.GlobeMode
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,6 +29,10 @@ import com.global_water_polo.play_abroad.core.utils.AppEnvironment
 import com.global_water_polo.play_abroad.core.utils.CustomModifiers
 import com.global_water_polo.play_abroad.core.utils.observeWithLifecycle
 import com.global_water_polo.play_abroad.core.utils.rememberAppState
+import com.global_water_polo.play_abroad.core.navigation.Screen
+import com.global_water_polo.play_abroad.domain.model.Lane
+import com.global_water_polo.play_abroad.domain.model.Profile
+import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
 /**
@@ -40,6 +46,8 @@ fun App() {
     val mainViewModel = koinViewModel<MainViewModel>()
     val state by mainViewModel.viewStateFlow.collectAsStateWithLifecycle()
     val globe = remember { GlobeController() }
+    val profileRepository = koinInject<ProfileRepository>()
+    val loaded by profileRepository.loaded.collectAsStateWithLifecycle()
 
     AppEnvironment(languageTag = state.languageTag) {
         GWPPATheme {
@@ -55,7 +63,8 @@ fun App() {
             val night = routeMode == GlobeMode.CLOCK || routeMode == GlobeMode.REVEAL || routeMode == GlobeMode.EXPLORE
             StatusBarStyle(lightIcons = statusOverride.value ?: night)
 
-            CompositionLocalProvider(LocalStatusBarOverride provides statusOverride) {
+            val sound = rememberSoundPlayer()
+            CompositionLocalProvider(LocalStatusBarOverride provides statusOverride, LocalSound provides sound) {
                 GlobeStage(controller = globe, routeMode = routeMode) {
                     // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
                     // consume the system bars (that left screens running under the status bar and home indicator).
@@ -65,17 +74,29 @@ fun App() {
                         contentWindowInsets = WindowInsets(0),
                         snackbarHost = { CustomModifiers.snackBarHost(appState.scaffoldState) }
                     ) {
+                        // Wait for the saved profile so a returning user opens on their home, not the intro.
+                        if (!loaded) return@Scaffold
+                        val start = remember { homeOf(profileRepository.profile.value) }
                         BaseAppNavigation(
                             navigator = navigator,
                             navController = appState.navController,
                             showSnackBar = { message ->
                                 appState.showSnackBar(message)
                             },
-                            density = LocalDensity.current
+                            density = LocalDensity.current,
+                            startDestination = start
                         )
                     }
                 }
             }
         }
     }
+}
+
+/** Where the app opens: the lane's home once onboarding is done, else the intro. */
+private fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.IntroScreen else when (profile.lane) {
+    Lane.ATHLETE -> Screen.ProfileScreen()
+    Lane.PARENT -> Screen.ParentHomeScreen
+    Lane.COACH -> Screen.CoachHomeScreen
+    Lane.CLUB, null -> Screen.IntroScreen
 }

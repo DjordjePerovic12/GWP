@@ -24,7 +24,9 @@ import com.global_water_polo.play_abroad.core.components.BrandBar
 import com.global_water_polo.play_abroad.core.components.ClockChip
 import com.global_water_polo.play_abroad.core.components.OfferCard
 import com.global_water_polo.play_abroad.core.components.SectionTitle
+import com.global_water_polo.play_abroad.core.components.membership.MembershipCard
 import com.global_water_polo.play_abroad.presentation.home.components.ProfileCard
+import com.global_water_polo.play_abroad.presentation.home.parent.components.EliteTeaser
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
@@ -34,7 +36,9 @@ fun ParentHomeScreenContent(
     state: ParentHomeState,
     onCompareClick: () -> Unit,
     onBookCallClick: () -> Unit,
-    onInviteClick: () -> Unit
+    onInviteClick: () -> Unit,
+    onMembershipClick: () -> Unit,
+    onEliteClick: () -> Unit
 ) {
     val colors = GWPPATheme.colors
     val w = state.window
@@ -57,6 +61,7 @@ fun ParentHomeScreenContent(
             style = GWPPATheme.typography.archivoExpandedBold27,
             color = colors.inkBlack
         )
+        MembershipCard(membership = state.membership, onClick = onMembershipClick)
         ProfileCard(
             name = state.kidName.ifBlank { stringResource(Res.string.parent_your_athlete) },
             meta = {
@@ -82,14 +87,20 @@ fun ParentHomeScreenContent(
             OfferCard(
                 title = stringResource(Res.string.parent_compare),
                 subtitle = stringResource(Res.string.parent_compare_sub),
-                badge = stringResource(Res.string.home_free_month),
+                badge = stringResource(
+                    when {
+                        state.profile.abroadRequested -> Res.string.parent_requested
+                        state.membership.plan != null -> Res.string.parent_included
+                        else -> Res.string.parent_seven_days
+                    }
+                ),
                 hero = true,
                 onClick = onCompareClick
             )
             OfferCard(
                 title = stringResource(Res.string.parent_book_call),
                 subtitle = stringResource(Res.string.parent_book_call_sub),
-                badge = stringResource(Res.string.home_free_month),
+                badge = stringResource(if (state.profile.callRequested) Res.string.parent_requested else Res.string.parent_free),
                 onClick = onBookCallClick
             )
         }
@@ -101,17 +112,18 @@ fun ParentHomeScreenContent(
                 onClick = onInviteClick
             )
         }
+        EliteTeaser(onClick = onEliteClick)
     }
 }
 
 @Composable
-private fun tripStartLabel(offset: Int): String {
+internal fun tripStartLabel(offset: Int): String {
     val start = PathwayCalculator.monthAt(offset)
     return "${stringArrayResource(Res.array.months_short)[start.month.number - 1]} ${start.year}"
 }
 
 @Composable
-private fun tripLengthLabel(months: Int): String = when {
+internal fun tripLengthLabel(months: Int): String = when {
     months <= 0 -> "-"
     months >= 10 -> stringResource(Res.string.tripplan_full_season)
     else -> pluralStringResource(Res.plurals.travel_months, months, months)
@@ -121,6 +133,6 @@ private fun tripLengthLabel(months: Int): String = when {
 @Composable
 private fun ParentHomeScreenContentPreview() {
     GWPPATheme {
-        ParentHomeScreenContent(state = ParentHomeState(firstName = "Sam", kidName = "Alex"), onCompareClick = {}, onBookCallClick = {}, onInviteClick = {})
+        ParentHomeScreenContent(state = ParentHomeState(firstName = "Sam", kidName = "Alex"), onCompareClick = {}, onBookCallClick = {}, onInviteClick = {}, onMembershipClick = {}, onEliteClick = {})
     }
 }

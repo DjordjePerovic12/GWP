@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad.presentation.onboarding.clock
 
+import com.global_water_polo.play_abroad.core.components.LocalSound
+import com.global_water_polo.play_abroad.core.components.Sfx
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +28,7 @@ fun ClockScreen(
     val state by viewModel.onboardingState.collectAsStateWithLifecycle()
     val globe = LocalGlobeController.current
     val haptics = LocalHapticFeedback.current
+    val sound = LocalSound.current
 
     viewModel.snackBarChannel.observeWithLifecycle { message ->
         showSnackBar(message)
@@ -38,9 +41,24 @@ fun ClockScreen(
         state = state,
         hapticsOn = globe.hapticsOn,
         onHapticsClick = { globe.hapticsOn = !globe.hapticsOn },
-        onDigitLocked = { if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) },
-        onSettled = { if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.Confirm) },
-        onSecond = { if (globe.hapticsOn) haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) },
+        onDigitLocked = {
+            if (globe.hapticsOn) {
+                haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                sound.play(Sfx.RATCHET)
+            }
+        },
+        onSettled = {
+            if (globe.hapticsOn) {
+                haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+                sound.play(Sfx.BOOM)
+            }
+        },
+        onSecond = {
+            if (globe.hapticsOn) {
+                haptics.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                sound.play(Sfx.TICK)
+            }
+        },
         onBackClick = { viewModel.onEvent(OnboardingEvent.NavigateBack) },
         onContinueClick = { viewModel.onEvent(OnboardingEvent.OnClockContinueClick) }
     )

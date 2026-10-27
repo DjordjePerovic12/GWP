@@ -18,5 +18,9 @@ interface DataStoreRepository {
 
     suspend fun getPreferredLanguage(): Flow<String>
 
+    suspend fun saveProfile(json: String)
+
+    fun getProfile(): Flow<String>
+
     suspend fun clearDatastore()
 }

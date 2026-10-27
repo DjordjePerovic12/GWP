@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad.presentation.app.profile
 
+import com.global_water_polo.play_abroad.core.components.membership.MembershipCard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,8 +57,8 @@ fun ProfileScreenContent(
                 .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp)
         ) {
             Identity(state)
-            MembershipRow(
-                state = state,
+            MembershipCard(
+                membership = state.membership,
                 onClick = {
                     onEvent(ProfileEvent.OnMembershipSheet(if (state.membership.plan == null) MembershipSheet.PAYWALL else MembershipSheet.MANAGE))
                 }
@@ -104,48 +105,6 @@ private fun Identity(state: ProfileState) {
             Text(name, style = GWPPATheme.typography.archivoExpandedBold27, color = colors.inkBlack)
             Text(meta.joinToString("  ·  "), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
         }
-    }
-}
-
-@Composable
-private fun MembershipRow(state: ProfileState, onClick: () -> Unit) {
-    val colors = GWPPATheme.colors
-    val m = state.membership
-    val shape = RoundedCornerShape(16.dp)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(top = 16.dp)
-            .fillMaxWidth()
-            .clip(shape)
-            .background(if (m.elite) colors.nightNavy else colors.colorWhite)
-            .border(1.dp, if (m.elite) colors.eliteGold else colors.lineGrey, shape)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                stringResource(
-                    when {
-                        m.elite -> Res.string.trial_elite
-                        m.next -> Res.string.trial_next
-                        else -> Res.string.plan_free
-                    }
-                ),
-                style = GWPPATheme.typography.archivoExpandedBold16,
-                color = if (m.elite) colors.colorWhite else colors.inkBlack
-            )
-            Text(
-                if (m.plan != null) trialLeft(m.daysLeft) else stringResource(Res.string.plan_free_sub),
-                style = GWPPATheme.typography.archivoRegular13,
-                color = if (m.elite) colors.colorWhite.copy(alpha = 0.7f) else colors.slateGrey
-            )
-        }
-        Text(
-            stringResource(if (m.plan != null) Res.string.plan_manage else Res.string.plan_see),
-            style = GWPPATheme.typography.archivoBold13,
-            color = if (m.elite) colors.eliteGold else colors.chlorineBlue
-        )
     }
 }
 

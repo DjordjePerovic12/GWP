@@ -1,9 +1,11 @@
 package com.global_water_polo.play_abroad.domain.model
 
+import kotlinx.serialization.Serializable
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.datetime.LocalDate
 
 /** What the user tells us during onboarding. Kept in memory only; nothing is saved or sent yet. */
+@Serializable
 data class Profile(
     val lane: Lane? = null,
     val birthday: LocalDate? = null,
@@ -53,7 +55,14 @@ data class Profile(
     val flightRequests: Set<String> = emptySet(),
     val homeAirport: String = "LAX",
     val travelChecks: Set<String> = emptySet(),
-    val notifications: Boolean = true
+    val notifications: Boolean = true,
+    /** Settings Studio: asked GWP for publishing access (coaches and clubs). */
+    val studioRequested: Boolean = false,
+    /** Parent home: asked GWP for a call, and for a year-abroad proposal. */
+    val callRequested: Boolean = false,
+    val abroadRequested: Boolean = false,
+    /** Onboarding is done and the user reached their home; the app reopens there. */
+    val onboarded: Boolean = false
 ) {
     /** The main position, or empty. */
     val position: String get() = positions.firstOrNull().orEmpty()

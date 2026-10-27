@@ -8,6 +8,9 @@ import com.global_water_polo.play_abroad.domain.model.Profile
 
 interface ProfileRepository {
     val profile: StateFlow<Profile>
+
+    /** False until the saved profile has been read at launch. */
+    val loaded: StateFlow<Boolean>
     fun update(transform: (Profile) -> Profile)
     fun reset()
 }

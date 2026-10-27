@@ -15,4 +15,5 @@ sealed class SettingsEvent : BaseEvent {
     data object OnNotificationsClick : SettingsEvent()
     data object OnHomeAirportClick : SettingsEvent()
     data object OnSignOutClick : SettingsEvent()
+    data object OnStudioRequestClick : SettingsEvent()
 }

@@ -32,7 +32,7 @@ class OnboardingViewModel(
     override val initialViewState = seededState()
 
     /** True when a step is opened again from the app (e.g. parent home -> invite), not during first onboarding. */
-    private val resumedFromApp = profileRepository.profile.value.lane != null
+    private val resumedFromApp = profileRepository.profile.value.onboarded
 
     override fun dismissError() {
         state.update { it.copy(error = null) }
@@ -359,8 +359,11 @@ class OnboardingViewModel(
     }
 
     /** Leaves onboarding for the app: the onboarding steps are removed from the back stack. */
-    private fun goHome(screen: Screen) = go(screen) {
-        popUpTo(Screen.IntroScreen) { inclusive = true }
+    private fun goHome(screen: Screen) {
+        profileRepository.update { it.copy(onboarded = true) }
+        go(screen) {
+            popUpTo(Screen.IntroScreen) { inclusive = true }
+        }
     }
 
     private companion object {

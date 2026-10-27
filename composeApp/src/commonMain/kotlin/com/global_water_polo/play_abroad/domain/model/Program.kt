@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad.domain.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * GWP programs abroad, from the prototype's PROGRAMS list.
  * [seasonStartMonth] is the 1-based month a seasonal program starts (null = flexible dates).
@@ -44,6 +46,7 @@ data class ProgramDetails(
 )
 
 /** One step of "my pathway": a program, when it would happen and why it fits. */
+@Serializable
 data class PathwayStep(val program: Program, val year: Int, val month: Int, val timing: PathwayTiming, val why: PathwayWhy)
 
 /** How a step's timing is worded. */
@@ -72,6 +75,7 @@ enum class PathwayWhy {
  * The athlete's own pathway, built from the "Build my pathway" sheet: goal, level, education, how long
  * (any of weeks, summer, semester, year, unsure) and where (eu, am, world).
  */
+@Serializable
 data class Pathway(
     val goal: String,
     val level: String,

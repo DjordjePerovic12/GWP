@@ -11,7 +11,11 @@ import kotlinx.coroutines.launch
 import com.global_water_polo.play_abroad.core.navigation.Screen
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
+import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
 import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
+import com.global_water_polo.play_abroad.domain.repository.cancelPlan
+import com.global_water_polo.play_abroad.domain.repository.startPlan
+import com.global_water_polo.play_abroad.domain.repository.switchToNext
 import com.global_water_polo.play_abroad.presentation.base.BaseViewModel
 
 /** Parent home: the athlete's progress, Play Abroad, a call with GWP, and inviting the athlete. */
@@ -36,6 +40,7 @@ class ParentHomeViewModel(
                         val window = p.birthday?.let { NcaaClockCalculator.window(it) }
                         state.update {
                             it.copy(
+                                profile = p,
                                 firstName = p.firstName,
                                 kidName = p.kidName,
                                 invited = p.invited,
@@ -64,8 +69,24 @@ class ParentHomeViewModel(
     fun onEvent(event: ParentHomeEvent) {
         when (event) {
             ParentHomeEvent.OnInviteClick -> viewModelScope.launch { navigator.navigateTo(Screen.InviteScreen) }
-            //TODO: Comparison and booking flows are not designed yet.
-            ParentHomeEvent.OnCompareClick, ParentHomeEvent.OnBookCallClick -> Unit
+            // Like the prototype: planning a year abroad needs a membership; the trial comes first, then the sheet.
+            ParentHomeEvent.OnCompareClick -> state.update {
+                if (it.membership.plan == null) it.copy(membershipSheet = MembershipSheet.PAYWALL, abroadAfterTrial = true)
+                else it.copy(abroadOpen = true)
+            }
+            // Prototype: a call or a proposal request is only remembered; GWP would reply by email.
+            ParentHomeEvent.OnBookCallClick -> profileRepository.update { it.copy(callRequested = true) }
+            ParentHomeEvent.OnAbroadRequestClick -> profileRepository.update { it.copy(abroadRequested = true) }
+            ParentHomeEvent.OnSheetDismiss -> state.update { it.copy(abroadOpen = false) }
+            is ParentHomeEvent.OnMembershipSheet -> state.update {
+                it.copy(membershipSheet = event.sheet, abroadAfterTrial = it.abroadAfterTrial && event.sheet != null)
+            }
+            is ParentHomeEvent.OnStartPlan -> {
+                profileRepository.startPlan(event.plan, event.yearly)
+                state.update { it.copy(abroadOpen = it.abroadAfterTrial, abroadAfterTrial = false) }
+            }
+            ParentHomeEvent.OnSwitchToNext -> profileRepository.switchToNext()
+            ParentHomeEvent.OnCancelPlan -> profileRepository.cancelPlan()
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.global_water_polo.play_abroad.domain.model
 
+import kotlinx.serialization.Serializable
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
@@ -29,6 +30,7 @@ enum class AddOn {
  * [clubId]), the dates, a home and the extras. A draft until [sent]; sending makes it an availability
  * inquiry, never a booking.
  */
+@Serializable
 data class Trip(
     val id: Long,
     val cityId: String,

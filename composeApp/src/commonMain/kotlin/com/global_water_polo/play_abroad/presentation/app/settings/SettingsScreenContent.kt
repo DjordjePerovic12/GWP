@@ -23,6 +23,7 @@ import com.global_water_polo.play_abroad.core.components.InfoPanel
 import com.global_water_polo.play_abroad.core.components.InfoRow
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.presentation.app.profile.components.SectionHeader
+import com.global_water_polo.play_abroad.presentation.app.settings.components.StudioSection
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
@@ -37,7 +38,8 @@ fun SettingsScreenContent(
     onSubscriptionClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onHomeAirportClick: () -> Unit,
-    onSignOutClick: () -> Unit
+    onSignOutClick: () -> Unit,
+    onStudioRequestClick: () -> Unit
 ) {
     val colors = GWPPATheme.colors
     val m = state.membership
@@ -57,6 +59,7 @@ fun SettingsScreenContent(
                 HorizontalDivider(color = colors.lineGrey)
                 InfoRow(stringResource(Res.string.set_preview), "", onClick = onPreviewClick)
             }
+            StudioSection(requested = state.profile.studioRequested, onRequestClick = onStudioRequestClick)
             SectionHeader(title = stringResource(Res.string.set_account))
             InfoPanel {
                 InfoRow(
@@ -101,7 +104,8 @@ private fun SettingsScreenContentPreview() {
             onSubscriptionClick = {},
             onNotificationsClick = {},
             onHomeAirportClick = {},
-            onSignOutClick = {}
+            onSignOutClick = {},
+            onStudioRequestClick = {}
         )
     }
 }

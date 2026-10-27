@@ -34,7 +34,8 @@ fun SettingsScreen(
             onSubscriptionClick = { viewModel.onEvent(SettingsEvent.OnMembershipSheet(MembershipSheet.MANAGE)) },
             onNotificationsClick = { viewModel.onEvent(SettingsEvent.OnNotificationsClick) },
             onHomeAirportClick = { viewModel.onEvent(SettingsEvent.OnHomeAirportClick) },
-            onSignOutClick = { viewModel.onEvent(SettingsEvent.OnSignOutClick) }
+            onSignOutClick = { viewModel.onEvent(SettingsEvent.OnSignOutClick) },
+            onStudioRequestClick = { viewModel.onEvent(SettingsEvent.OnStudioRequestClick) }
         )
     }
 
