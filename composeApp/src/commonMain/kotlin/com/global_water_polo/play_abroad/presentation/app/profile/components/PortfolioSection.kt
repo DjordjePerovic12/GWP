@@ -26,6 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.text.font.FontWeight
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.nameWithoutExtension
 import org.jetbrains.compose.resources.StringResource
@@ -71,19 +76,19 @@ fun PortfolioSection(state: ProfileState, onEvent: (ProfileEvent) -> Unit) {
     }
     val addToGallery = rememberGalleryPicker { onEvent(ProfileEvent.OnGalleryAdd(it)) }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Toggle(
+    // `.pf-top`: the Edit / Preview as coach toggle (`.seg2`) and the completion pill (`.pct-pill`).
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+        ModeToggle(
             options = listOf(stringResource(Res.string.port_edit), stringResource(Res.string.port_preview)),
             selected = if (preview) 1 else 0,
-            onSelect = { onEvent(ProfileEvent.OnPreviewToggle(it == 1)) },
-            modifier = Modifier.weight(1f)
+            onSelect = { onEvent(ProfileEvent.OnPreviewToggle(it == 1)) }
         )
         if (!preview) {
             Text(
-                stringResource(Res.string.port_complete, "${state.portfolioPercent}%"),
-                style = GWPPATheme.typography.archivoBold13,
-                color = colors.chlorineBlue,
-                modifier = Modifier.padding(start = 12.dp)
+                "${state.portfolioPercent}%",
+                style = GWPPATheme.typography.archivoBold13.copy(fontWeight = FontWeight.ExtraBold),
+                color = colors.inkBlack,
+                modifier = Modifier.clip(CircleShape).background(colors.sandBeige).padding(horizontal = 10.dp, vertical = 6.dp)
             )
         }
     }
@@ -129,13 +134,23 @@ fun PortfolioSection(state: ProfileState, onEvent: (ProfileEvent) -> Unit) {
 
     SectionHeader(title = stringResource(Res.string.port_eligibility), note = stringResource(Res.string.port_estimate))
     val f = state.freeYear
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+    // `.elig`: one panel split in three by thin lines.
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .clip(RoundedCornerShape(18.dp))
+            .background(colors.colorWhite)
+            .border(1.dp, colors.lineGrey, RoundedCornerShape(18.dp))
+    ) {
         Cell(stringResource(Res.string.match_clock_starts), state.clockYear?.let { stringResource(Res.string.match_fall, it) } ?: "-", Modifier.weight(1f))
+        Box(Modifier.width(1.dp).fillMaxHeight().background(colors.lineGrey))
         Cell(stringResource(Res.string.port_seasons_left), f?.let { stringResource(Res.string.home_of_five, it.straight) } ?: "-", Modifier.weight(1f))
+        Box(Modifier.width(1.dp).fillMaxHeight().background(colors.lineGrey))
         Cell(
             stringResource(if (f != null && f.free > 0) Res.string.port_free_time else Res.string.inq_class),
             when {
-                f != null && f.free > 0 -> if (f.free == 1) stringResource(Res.string.match_a_free_year) else stringResource(Res.string.match_n_free_years, f.free)
+                f != null && f.free > 0 -> if (f.free == 1) stringResource(Res.string.port_one_year) else stringResource(Res.string.port_n_years, f.free)
                 else -> profile.classOf.ifEmpty { "-" }
             },
             Modifier.weight(1f)
@@ -160,23 +175,31 @@ fun PortfolioSection(state: ProfileState, onEvent: (ProfileEvent) -> Unit) {
     if (rows.isEmpty()) {
         SmallText(text = stringResource(Res.string.pf_not_added))
     } else {
-        InfoPanel {
+        // `.irows`: a white panel, full-width lines between rows; an empty value reads "Add".
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(colors.colorWhite)
+                .border(1.dp, colors.lineGrey, RoundedCornerShape(18.dp))
+        ) {
             rows.forEachIndexed { i, row ->
                 if (i > 0) HorizontalDivider(color = colors.lineGrey)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .then(if (preview) Modifier else Modifier.clickable { onEvent(ProfileEvent.OnEditInfo(row.group)) })
-                        .padding(vertical = 12.dp)
+                        .padding(horizontal = 16.dp, vertical = 14.dp)
                 ) {
                     Text(stringResource(row.label), style = GWPPATheme.typography.archivoRegular15, color = colors.slateGrey, modifier = Modifier.weight(1f))
                     Text(
                         row.value.ifEmpty { stringResource(Res.string.port_add) },
-                        style = GWPPATheme.typography.archivoBold13,
-                        color = if (row.value.isEmpty()) colors.chlorineBlue else colors.inkBlack
+                        style = if (row.value.isEmpty()) GWPPATheme.typography.archivoSemiBold15 else GWPPATheme.typography.archivoBold16,
+                        color = colors.inkBlack
                     )
-                    if (!preview) Text("  ›", style = GWPPATheme.typography.archivoBold16, color = colors.mistGrey)
+                    if (!preview) Text("›", style = GWPPATheme.typography.archivoRegular16, color = colors.mistGrey)
                 }
             }
         }
@@ -220,17 +243,26 @@ fun PortfolioSection(state: ProfileState, onEvent: (ProfileEvent) -> Unit) {
                     actions = if (preview) emptyList() else listOf(stringResource(Res.string.port_remove) to { onEvent(ProfileEvent.OnLetterRemove(letter.id)) })
                 )
             }
+            // Two separate rows, each tappable across its width, so requesting and uploading can't be mixed up.
             if (!preview) {
+                if (letters.isEmpty()) SmallText(text = stringResource(Res.string.pf_add_letter_sub))
                 DocRow(
-                    title = stringResource(Res.string.pf_add_letter),
-                    sub = stringResource(Res.string.pf_add_letter_sub),
+                    title = stringResource(Res.string.pf_letter_request_row),
+                    sub = stringResource(Res.string.pf_letter_request_row_sub),
                     empty = true,
                     locked = false,
-                    icon = "＋",
-                    actions = listOf(
-                        stringResource(Res.string.pf_request) to { onEvent(ProfileEvent.OnLetterRequestClick) },
-                        stringResource(Res.string.pf_upload) to { picker.open(LETTER, MediaKind.DOCUMENT) }
-                    )
+                    icon = "@",
+                    actions = emptyList(),
+                    onClick = { onEvent(ProfileEvent.OnLetterRequestClick) }
+                )
+                DocRow(
+                    title = stringResource(Res.string.pf_letter_upload_row),
+                    sub = stringResource(Res.string.pf_letter_upload_row_sub),
+                    empty = true,
+                    locked = false,
+                    icon = "↑",
+                    actions = emptyList(),
+                    onClick = { picker.open(LETTER, MediaKind.DOCUMENT) }
                 )
             }
         }
@@ -286,7 +318,10 @@ private fun EmptyCard(play: Boolean, title: String, sub: String, onClick: () -> 
     }
 }
 
-/** A document or letter row (`.doc`): an icon, title and line, then its actions; dashed while empty. */
+/**
+ * A document or letter row (`.doc`): an icon, title and line, then its actions; dashed while empty. With
+ * [onClick] the whole row is the button and shows a chevron instead of actions.
+ */
 @Composable
 private fun DocRow(
     title: String,
@@ -294,7 +329,8 @@ private fun DocRow(
     empty: Boolean,
     locked: Boolean,
     actions: List<Pair<String, () -> Unit>>,
-    icon: String = "▤"
+    icon: String = "▤",
+    onClick: (() -> Unit)? = null
 ) {
     val colors = GWPPATheme.colors
     val shape = RoundedCornerShape(18.dp)
@@ -306,6 +342,7 @@ private fun DocRow(
             .clip(shape)
             .background(if (empty) Color.Transparent else colors.colorWhite)
             .border(1.dp, if (empty) colors.mistGrey.copy(alpha = 0.6f) else colors.lineGrey, shape)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(colors.chlorineBlueSoft)) {
@@ -316,6 +353,7 @@ private fun DocRow(
             Text(sub, style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
         }
         if (locked) Text("🔒", style = GWPPATheme.typography.archivoRegular14)
+        if (onClick != null) Text("›", style = GWPPATheme.typography.archivoBold16, color = colors.mistGrey)
         Column(horizontalAlignment = Alignment.End) {
             actions.forEach { (label, onClick) ->
                 Text(
@@ -332,9 +370,35 @@ private fun DocRow(
 @Composable
 private fun Cell(label: String, value: String, modifier: Modifier = Modifier) {
     val colors = GWPPATheme.colors
-    Column(modifier = modifier.clip(RoundedCornerShape(14.dp)).background(colors.colorWhite).padding(12.dp)) {
-        Text(label, style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
-        Text(value, style = GWPPATheme.typography.archivoExpandedBold16, color = colors.inkBlack)
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = modifier.padding(horizontal = 12.dp, vertical = 14.dp)) {
+        Text(
+            label.uppercase(),
+            style = GWPPATheme.typography.archivoBold11.copy(letterSpacing = 0.06.em),
+            color = colors.mistGrey
+        )
+        Text(value, style = GWPPATheme.typography.archivoBold17, color = colors.inkBlack)
+    }
+}
+
+/** `.seg2`: a small grey toggle, the chosen side on white. */
+@Composable
+private fun ModeToggle(options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
+    val colors = GWPPATheme.colors
+    Row(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(colors.inkBlack.copy(alpha = 0.06f)).padding(2.dp)) {
+        options.forEachIndexed { i, label ->
+            val on = i == selected
+            Text(
+                label,
+                style = GWPPATheme.typography.archivoSemiBold13,
+                color = if (on) colors.inkBlack else colors.slateGrey,
+                modifier = Modifier
+                    .then(if (on) Modifier.shadow(2.dp, RoundedCornerShape(8.dp)) else Modifier)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (on) colors.colorWhite else Color.Transparent)
+                    .clickable { onSelect(i) }
+                    .padding(horizontal = 12.dp, vertical = 7.dp)
+            )
+        }
     }
 }
 
@@ -349,19 +413,25 @@ private fun Toggle(options: List<String>, selected: Int, onSelect: (Int) -> Unit
             .padding(3.dp)
             .height(IntrinsicSize.Min)
     ) {
+        // Every option as tall as the tallest and its label centred both ways ("Players and coaches" wraps).
         options.forEachIndexed { i, label ->
-            Text(
-                label,
-                style = GWPPATheme.typography.archivoBold12,
-                color = if (i == selected) colors.colorWhite else colors.inkBlack,
-                textAlign = TextAlign.Center,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .clip(CircleShape)
                     .background(if (i == selected) colors.inkBlack else colors.colorWhite.copy(alpha = 0f))
                     .clickable { onSelect(i) }
-                    .padding(vertical = 9.dp, horizontal = 4.dp)
-            )
+                    .padding(vertical = 11.dp, horizontal = 6.dp)
+            ) {
+                Text(
+                    label,
+                    style = GWPPATheme.typography.archivoBold12,
+                    color = if (i == selected) colors.colorWhite else colors.inkBlack,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

@@ -23,6 +23,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.Canvas
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.PickedImage
 import com.global_water_polo.play_abroad.domain.model.Profile
@@ -46,9 +55,22 @@ fun PortfolioHero(profile: Profile, preview: Boolean, onAddPhoto: () -> Unit) {
             .fillMaxWidth()
             .aspectRatio(4f / 5f)
             .clip(shape)
-            .background(if (photo != null || preview) colors.nightNavy else colors.colorWhite)
-            .then(if (photo == null && !preview) Modifier.border(1.5.dp, colors.lineGrey, shape).clickable(onClick = onAddPhoto) else Modifier)
+            .background(if (photo != null || preview) colors.nightNavy else colors.sandLight)
+            .then(if (photo == null && !preview) Modifier.clickable(onClick = onAddPhoto) else Modifier)
     ) {
+        // `.ph-hero.empty`: soft diagonal stripes while there is no photo.
+        if (photo == null && !preview) {
+            Canvas(Modifier.matchParentSize()) {
+                // 135° bands, 14dp each way: lines across the diagonal, spaced so bands and gaps match.
+                val band = 14.dp.toPx()
+                val step = band * 2f * kotlin.math.sqrt(2f)
+                var x = -size.height
+                while (x < size.width + size.height) {
+                    drawLine(colors.sandBeige, Offset(x, 0f), Offset(x + size.height, size.height), strokeWidth = band)
+                    x += step
+                }
+            }
+        }
         when {
             photo != null -> PickedImage(photo.file, Modifier.fillMaxSize())
             preview -> Text(
@@ -62,12 +84,17 @@ fun PortfolioHero(profile: Profile, preview: Boolean, onAddPhoto: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.align(Alignment.Center).padding(bottom = 90.dp, start = 24.dp, end = 24.dp)
             ) {
-                Text("＋", style = GWPPATheme.typography.archivoExpandedBold32, color = colors.chlorineBlue)
+                CameraIcon(colors.inkBlack, Modifier.size(34.dp))
                 Text(stringResource(Res.string.pf_add_photo), style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack)
                 Text(stringResource(Res.string.port_photo_sub), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey, textAlign = TextAlign.Center)
             }
         }
-        Box(Modifier.matchParentSize().background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to colors.nightNavy.copy(alpha = if (photo != null || preview) 0.85f else 0.75f))))
+        Box(
+            Modifier.matchParentSize().background(
+                if (photo != null || preview) Brush.verticalGradient(0.5f to Color.Transparent, 1f to colors.nightNavy.copy(alpha = 0.85f))
+                else Brush.verticalGradient(0.55f to Color.Transparent, 1f to colors.nightNavy.copy(alpha = 0.78f))
+            )
+        )
         if (photo != null && !preview) {
             Text(
                 stringResource(Res.string.pf_change),
@@ -107,10 +134,18 @@ fun PositionTags(profile: Profile, preview: Boolean, onEditClick: () -> Unit) {
             Text(
                 stringResource(if (profile.positions.isEmpty()) Res.string.pf_add_position else Res.string.pf_edit_position),
                 style = GWPPATheme.typography.archivoBold13,
-                color = colors.chlorineBlue,
+                color = colors.inkBlack,
+                // `.tag.add`: a dashed outline.
                 modifier = Modifier
                     .clip(CircleShape)
-                    .border(1.dp, colors.chlorineBlue.copy(alpha = 0.5f), CircleShape)
+                    .background(colors.colorWhite)
+                    .drawBehind {
+                        drawRoundRect(
+                            color = colors.lineGrey,
+                            cornerRadius = CornerRadius(size.height / 2f),
+                            style = Stroke(width = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 4.dp.toPx())))
+                        )
+                    }
                     .clickable(onClick = onEditClick)
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             )
@@ -131,4 +166,31 @@ private fun Tag(text: String, filled: Boolean) {
             .border(1.dp, if (filled) colors.inkBlack else colors.lineGrey, CircleShape)
             .padding(horizontal = 12.dp, vertical = 6.dp)
     )
+}
+
+/** The camera outline on an empty photo card (the prototype's camSvg). */
+@Composable
+private fun CameraIcon(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val u = size.width / 24f
+        val stroke = Stroke(width = 1.7f * u, join = StrokeJoin.Round)
+        val body = Path().apply {
+            moveTo(5.5f * u, 7f * u)
+            lineTo(7.5f * u, 7f * u)
+            lineTo(9f * u, 5f * u)
+            lineTo(15f * u, 5f * u)
+            lineTo(16.5f * u, 7f * u)
+            lineTo(18.5f * u, 7f * u)
+            quadraticTo(20f * u, 7f * u, 20f * u, 8.5f * u)
+            lineTo(20f * u, 17.5f * u)
+            quadraticTo(20f * u, 19f * u, 18.5f * u, 19f * u)
+            lineTo(5.5f * u, 19f * u)
+            quadraticTo(4f * u, 19f * u, 4f * u, 17.5f * u)
+            lineTo(4f * u, 8.5f * u)
+            quadraticTo(4f * u, 7f * u, 5.5f * u, 7f * u)
+            close()
+        }
+        drawPath(body, color, style = stroke)
+        drawCircle(color, 3.4f * u, Offset(12f * u, 12.5f * u), style = stroke)
+    }
 }

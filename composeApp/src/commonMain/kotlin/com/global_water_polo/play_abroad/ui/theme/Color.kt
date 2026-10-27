@@ -20,6 +20,9 @@ val nightNavy = Color(0xFF04101E) // clock takeover background
 val poolTeal = Color(0xFF0D8F7A) // feed card gradient
 val graphiteGrey = Color(0xFF3B3F46) // feed card gradient
 val eliteGold = Color(0xFFC9A96A) // GWP Elite membership
+val antiqueGold = Color(0xFFA8864E) // --gold in the athlete app: kickers on light cards
+val sandBeige = Color(0xFFEBE5D8) // --chlorine-soft in the athlete app: segment bars, the % pill, photo stripes
+val sandLight = Color(0xFFEFEADF) // the lighter stripe of an empty photo card
 
 @Immutable
 data class GWPPAColors(
@@ -38,6 +41,9 @@ data class GWPPAColors(
     val poolTeal: Color,
     val graphiteGrey: Color,
     val eliteGold: Color,
+    val antiqueGold: Color,
+    val sandBeige: Color,
+    val sandLight: Color,
 )
 
 val LocalGWPPAColors = staticCompositionLocalOf {
@@ -57,6 +63,9 @@ val LocalGWPPAColors = staticCompositionLocalOf {
         poolTeal = Color.Unspecified,
         graphiteGrey = Color.Unspecified,
         eliteGold = Color.Unspecified,
+        antiqueGold = Color.Unspecified,
+        sandBeige = Color.Unspecified,
+        sandLight = Color.Unspecified,
     )
 }
 
@@ -76,4 +85,25 @@ val gwppaColors = GWPPAColors(
     poolTeal = poolTeal,
     graphiteGrey = graphiteGrey,
     eliteGold = eliteGold,
+    antiqueGold = antiqueGold,
+    sandBeige = sandBeige,
+    sandLight = sandLight,
+)
+
+/**
+ * The athlete app's palette (the prototype's `.device.app` overrides): navy where onboarding is chlorine blue,
+ * gold where it is ball yellow, warm bone and paper backgrounds, warmer greys and lines. App.kt switches to
+ * it on the app's tabs; onboarding keeps [gwppaColors].
+ */
+val appColors = gwppaColors.copy(
+    inkBlack = Color(0xFF0B1628), // --ink
+    slateGrey = Color(0xFF4C5566), // --ink-2
+    mistGrey = Color(0xFF8A909A), // --ink-3
+    lineGrey = Color(0xFFDDD6C7), // --line
+    boneWhite = Color(0xFFF1EDE4), // --bone
+    colorWhite = Color(0xFFFBF9F4), // --paper / --ivory
+    chlorineBlue = Color(0xFF0B1628), // --chlorine: navy in the app
+    chlorineBlueSoft = sandBeige, // --chlorine-soft
+    ballYellow = eliteGold, // --ball: gold in the app
+    ballYellowSoft = Color(0xFFF3ECDD)
 )

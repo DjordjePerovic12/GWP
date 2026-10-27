@@ -34,6 +34,9 @@ import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.domain.model.Profile
 import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
+import com.global_water_polo.play_abroad.ui.theme.LocalGWPPAColors
+import com.global_water_polo.play_abroad.ui.theme.appColors
+import com.global_water_polo.play_abroad.ui.theme.gwppaColors
 
 /**
   Root composable shared by Android (MainActivity) and iOS (MainViewController).
@@ -64,7 +67,13 @@ fun App() {
             StatusBarStyle(lightIcons = statusOverride.value ?: night)
 
             val sound = rememberSoundPlayer()
-            CompositionLocalProvider(LocalStatusBarOverride provides statusOverride, LocalSound provides sound) {
+            // The app's tabs use the prototype's app palette (navy and gold on warm paper); onboarding keeps its own.
+            val inApp = routeMode == GlobeMode.HIDDEN || routeMode == GlobeMode.EXPLORE
+            CompositionLocalProvider(
+                LocalStatusBarOverride provides statusOverride,
+                LocalSound provides sound,
+                LocalGWPPAColors provides if (inApp) appColors else gwppaColors
+            ) {
                 GlobeStage(controller = globe, routeMode = routeMode) {
                     // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
                     // consume the system bars (that left screens running under the status bar and home indicator).
@@ -94,7 +103,7 @@ fun App() {
 }
 
 /** Where the app opens: the lane's home once onboarding is done, else the intro. */
-private fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.IntroScreen else when (profile.lane) {
+internal fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.IntroScreen else when (profile.lane) {
     Lane.ATHLETE -> Screen.ProfileScreen()
     Lane.PARENT -> Screen.ParentHomeScreen
     Lane.COACH -> Screen.CoachHomeScreen

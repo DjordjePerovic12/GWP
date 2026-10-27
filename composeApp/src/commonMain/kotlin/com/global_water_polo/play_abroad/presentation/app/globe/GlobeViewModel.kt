@@ -65,6 +65,8 @@ class GlobeViewModel(
     fun onEvent(event: GlobeEvent) {
         when (event) {
             is GlobeEvent.OnTabClick -> viewModelScope.launch { navigator.openTab(event.tab.route) }
+            // The prototype's g-prog: the programs live on the Pathway.
+            GlobeEvent.OnProgramsClick -> viewModelScope.launch { navigator.openTab(Screen.ProfileScreen(segment = "path")) }
             is GlobeEvent.OnQueryChanged -> state.update { it.copy(query = event.query) }
             is GlobeEvent.OnRegionClick -> state.update { it.copy(region = event.region, query = "") }
             is GlobeEvent.OnCityClick -> state.update {

@@ -72,6 +72,9 @@ class GlobeController {
     private var zoomTarget: Float? = null
 
     fun setMode(mode: GlobeMode) {
+        // A drag never outlives its screen. Its end can be lost when the screen leaves mid-gesture, and a
+        // stuck drag freezes the turn (the tour then tilts to each city but never turns to it).
+        dragging = false
         // On the intro the globe rests on the device's own time zone until someone spins it.
         idleSpeed = if (mode == GlobeMode.INTRO || mode == GlobeMode.REVEAL || mode == GlobeMode.EXPLORE) 0f else 0.006f
         if (mode != GlobeMode.REVEAL && mode != GlobeMode.EXPLORE) {
@@ -103,6 +106,7 @@ class GlobeController {
         tiltTarget = exact?.second ?: latitude?.let { it * kotlin.math.PI.toFloat() / 180f } ?: BASE_TILT
         val target = exact?.first ?: (-90f - longitude)
         aim = angle + (((target - angle) % 360f + 540f) % 360f - 180f)
+        dragging = false
         velocity = 0f
         userSpin = false
     }

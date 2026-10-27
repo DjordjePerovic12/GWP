@@ -125,16 +125,22 @@ fun GlobeStage(
 private data class GlobeLayout(val cy: Float, val d: Float)
 
 /** Centre y and diameter (dp) of the big intro ball on a [w] x [h] dp stage, so the intro can hit-test taps on it. */
+/**
+ * Globe+ ball size before zoom (the prototype's gBase), centred at 44% of the screen: zoomed out it sits on
+ * the night sky between the filters and the lists; zoomed in it fills the screen behind them. GlobeScreenContent uses it for its drag radius.
+ */
+fun exploreGlobeDiameter(w: Float, h: Float): Float = min(w * 0.92f, h * 0.5f)
+
 fun introGlobeCircle(w: Float, h: Float): Pair<Float, Float> =
     layoutFor(GlobeMode.INTRO, w, h, 0f).let { it.cy to it.d }
 
 private fun layoutFor(mode: GlobeMode, w: Float, h: Float, top: Float): GlobeLayout = when (mode) {
-    GlobeMode.INTRO -> GlobeLayout(cy = h * 0.485f, d = min(min(w * 0.84f, h * 0.45f), 560f))
+    // Lower and a little smaller than the other modes: the title and the two manifesto lines sit above it.
+    GlobeMode.INTRO -> GlobeLayout(cy = h * 0.52f, d = min(min(w * 0.8f, h * 0.38f), 520f))
     GlobeMode.CLOCK -> min(min(w * 0.36f, h * 0.17f), 150f).let { GlobeLayout(cy = top + 14f + it / 2f, d = it) }
     // The tour and the world reveal: a big ball rising from the top of the screen, like the prototype's tweenBall.
     GlobeMode.REVEAL -> min(w * 0.9f, h * 0.46f).let { GlobeLayout(cy = top + 24f + it / 2f, d = it) }
-    // Globe+: a big ball under the tab's header, the city and club list below it.
-    GlobeMode.EXPLORE -> min(w * 0.86f, h * 0.38f).let { GlobeLayout(cy = top + 96f + it / 2f, d = it) }
+    GlobeMode.EXPLORE -> GlobeLayout(cy = h * 0.44f, d = exploreGlobeDiameter(w, h))
     GlobeMode.BADGE, GlobeMode.HIDDEN -> min(min(w * 0.24f, h * 0.12f), 104f).let { GlobeLayout(cy = top + 16f + it / 2f, d = it) }
 }
 

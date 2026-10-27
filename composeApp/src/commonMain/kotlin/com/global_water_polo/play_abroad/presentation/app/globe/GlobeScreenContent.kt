@@ -26,6 +26,9 @@ import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
 import com.global_water_polo.play_abroad.presentation.app.globe.components.ClubGroupPopup
 import com.global_water_polo.play_abroad.presentation.app.globe.components.GlobeFilters
 import com.global_water_polo.play_abroad.presentation.app.globe.components.GlobeZoomButtons
+import com.global_water_polo.play_abroad.presentation.app.globe.components.GlobeSearch
+import com.global_water_polo.play_abroad.core.components.globe.exploreGlobeDiameter
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,9 +68,10 @@ import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 import kotlin.math.min
 
 /**
- * Globe+ (the prototype's globeTab): the night globe under the header, then search, filters, regions and
- * two rows to pick from, cities and clubs. Drag to turn and lean the globe, pinch or use the buttons to
- * zoom, tap a country, city or club badge.
+ * Globe+ (the prototype's globeTab): the night globe fills the screen and everything floats over it. On top
+ * the title, search and filters; on the right the zoom buttons; at the bottom the regions, two rows to pick
+ * from (cities and clubs), GWP programs and the hint. Drag to turn and lean the globe, pinch or use the
+ * buttons to zoom, tap a country, city or club badge.
  */
 @Composable
 fun GlobeScreenContent(
@@ -85,30 +89,33 @@ fun GlobeScreenContent(
 ) {
     val colors = GWPPATheme.colors
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        // Same ball size as GlobeStage's EXPLORE layout, so the drag area sits exactly over the globe.
-        val ball = min(maxWidth.value * 0.86f, maxHeight.value * 0.38f).dp
-        val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
-        var boxOrigin by remember { mutableStateOf(Offset.Zero) }
-        val currentZoom = rememberUpdatedState(zoom)
+        // GlobeStage's EXPLORE size (it measures the whole screen too), for the drag radius.
+        val ball = exploreGlobeDiameter(maxWidth.value, maxHeight.value).dp
+        val zoomTop = maxHeight * 0.42f
         Column(Modifier.fillMaxSize()) {
+            val statusTop = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toDp() }
+            val currentZoom = rememberUpdatedState(zoom)
             Box(
                 Modifier
+                    .weight(1f)
                     .fillMaxWidth()
-                    .height(statusTop + 96.dp + ball)
-                    .onGloballyPositioned { boxOrigin = it.positionInRoot() }
                     .pointerInput(ball) {
                         // Google Earth style: one finger turns the ball (sideways) and leans it (up and down), two
-                        // fingers pinch to zoom, a quick tap picks what is under the finger.
+                        // fingers pinch to zoom, a quick tap picks what is under the finger. The controls float
+                        // over the globe: a gesture they take (a button, a scrolling row) is left to them.
                         val tracker = VelocityTracker()
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val start = down.position
                             var moved = false
                             var pinched = false
+                            var taken = false
                             tracker.resetTracking()
                             tracker.addPosition(down.uptimeMillis, down.position)
                             do {
                                 val event = awaitPointerEvent()
+                                if (!moved && event.changes.any { it.isConsumed }) taken = true
+                                if (taken) continue
                                 val pressed = event.changes.filter { it.pressed }
                                 // The finger is on the ball's surface: a radius of travel turns it one radian.
                                 val radiusPx = ball.toPx() * currentZoom.value / 2f
@@ -134,90 +141,129 @@ fun GlobeScreenContent(
                             } while (event.changes.any { it.pressed })
                             val radiusPx = ball.toPx() * currentZoom.value / 2f
                             when {
-                                !moved -> onTap(boxOrigin + start)
+                                taken -> if (moved) onDragEnd(0f)
+                                !moved -> onTap(start)
                                 pinched -> onDragEnd(0f)
                                 else -> onDragEnd(tracker.calculateVelocity().x / radiusPx * 57.3f / 1000f)
                             }
                         }
                     }
             ) {
-                Row(Modifier.padding(top = statusTop + 14.dp, start = 22.dp, end = 16.dp), verticalAlignment = Alignment.Top) {
-                    Column(Modifier.weight(1f)) {
-                        Text(stringResource(Res.string.globe_kicker).uppercase(), style = GWPPATheme.typography.archivoBold12, color = colors.eliteGold)
-                        Text(stringResource(Res.string.globe_title), style = GWPPATheme.typography.archivoExpandedBold27, color = colors.colorWhite)
-                    }
-                    TripsButton(count = state.profile.trips.size, onClick = { onEvent(GlobeEvent.OnTripsClick) })
-                }
-                GlobeZoomButtons(onZoomIn = onZoomIn, onZoomOut = onZoomOut, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp, top = statusTop + 40.dp))
-                state.popup?.let { WaterPoloMap.clubGroups.getOrNull(it) }?.let { group ->
-                    ClubGroupPopup(
-                        group = group,
-                        onClubClick = { onEvent(GlobeEvent.OnClubClick(it)) },
-                        onDismiss = { onEvent(GlobeEvent.OnPopupDismiss) },
-                        modifier = Modifier.align(Alignment.BottomCenter).padding(horizontal = 12.dp, vertical = 8.dp)
-                    )
-                }
-            }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .background(Brush.verticalGradient(0f to Color.Transparent, 0.08f to colors.nightNavy.copy(alpha = 0.9f), 1f to colors.nightNavy))
-                    .verticalScroll(rememberScrollState())
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 14.dp)
-            ) {
-                FormField(
-                    label = stringResource(Res.string.globe_search),
-                    value = state.query,
-                    onValueChange = { onEvent(GlobeEvent.OnQueryChanged(it)) }
-                )
-                GlobeFilters(
-                    country = state.country,
-                    sex = state.sex,
-                    onCountryClick = { onEvent(GlobeEvent.OnCountryClick(it)) },
-                    onSexClick = { onEvent(GlobeEvent.OnSexClick(it)) }
-                )
-                Regions(current = state.region, onClick = { onEvent(GlobeEvent.OnRegionClick(it)) })
-                if (state.cities.isEmpty()) {
-                    Text(stringResource(Res.string.globe_none), style = GWPPATheme.typography.archivoRegular14, color = colors.colorWhite.copy(alpha = 0.7f))
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                        state.cities.forEach { city ->
-                            val clubs = state.clubs.count { it.cityId == city.id }
-                            Pill(
-                                text = "${city.flag} ${city.name}" + if (clubs > 0) "  $clubs" else "",
-                                selected = state.tripIn(city.id) != null || city.id == state.focus?.id,
-                                onClick = { onEvent(GlobeEvent.OnCityClick(city.id)) }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = statusTop + 10.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.Top) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(Res.string.globe_kicker).uppercase(), style = GWPPATheme.typography.archivoBold12, color = colors.ballYellow)
+                            Text(
+                                stringResource(Res.string.globe_title),
+                                style = GWPPATheme.typography.archivoExpandedBold27.copy(shadow = Shadow(Color.Black.copy(alpha = 0.4f), Offset(0f, 4f), 24f)),
+                                color = colors.colorWhite,
+                                modifier = Modifier.padding(top = 4.dp)
                             )
                         }
+                        TripsButton(count = state.profile.trips.size, onClick = { onEvent(GlobeEvent.OnTripsClick) })
                     }
-                    if (state.clubs.isNotEmpty()) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                            state.clubs.forEach { club ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.08f))
-                                        .clickable { onEvent(GlobeEvent.OnClubClick(club.id)) }
-                                        .padding(start = 6.dp, end = 14.dp, top = 6.dp, bottom = 6.dp)
-                                ) {
-                                    Crest(club, 30.dp)
-                                    Text(club.name, style = GWPPATheme.typography.archivoBold13, color = colors.colorWhite)
+                    GlobeSearch(
+                        query = state.query,
+                        onQueryChange = { onEvent(GlobeEvent.OnQueryChanged(it)) },
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                    GlobeFilters(
+                        country = state.country,
+                        sex = state.sex,
+                        onCountryClick = { onEvent(GlobeEvent.OnCountryClick(it)) },
+                        onSexClick = { onEvent(GlobeEvent.OnSexClick(it)) }
+                    )
+                }
+                GlobeZoomButtons(
+                    onZoomIn = onZoomIn,
+                    onZoomOut = onZoomOut,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = zoomTop, end = 14.dp)
+                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(bottom = 12.dp)
+                ) {
+                    // The pop-up lists only the group's clubs that pass the filters.
+                    state.popup?.let { WaterPoloMap.clubGroups.getOrNull(it) }
+                        ?.let { g -> g.copy(clubs = g.clubs.filter { state.showsOnGlobe(it) }) }
+                        ?.takeIf { it.clubs.isNotEmpty() }
+                        ?.let { group ->
+                        ClubGroupPopup(
+                            group = group,
+                            onClubClick = { onEvent(GlobeEvent.OnClubClick(it)) },
+                            onDismiss = { onEvent(GlobeEvent.OnPopupDismiss) },
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+                    }
+                    Regions(current = state.region, onClick = { onEvent(GlobeEvent.OnRegionClick(it)) }, modifier = Modifier.padding(horizontal = 16.dp))
+                    if (state.cities.isEmpty()) {
+                        Text(
+                            stringResource(Res.string.globe_none),
+                            style = GWPPATheme.typography.archivoRegular14,
+                            color = colors.colorWhite.copy(alpha = 0.8f),
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    } else {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp)
+                        ) {
+                            state.cities.forEach { city ->
+                                CityChip(
+                                    flag = city.flag,
+                                    name = city.name,
+                                    clubs = state.clubs.count { it.cityId == city.id },
+                                    selected = state.tripIn(city.id) != null || city.id == state.focus?.id,
+                                    onClick = { onEvent(GlobeEvent.OnCityClick(city.id)) }
+                                )
+                            }
+                        }
+                        if (state.clubs.isNotEmpty()) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp)
+                            ) {
+                                state.clubs.forEach { club ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(colors.nightNavy.copy(alpha = 0.6f))
+                                            .border(1.dp, colors.ballYellow.copy(alpha = 0.35f), CircleShape)
+                                            .clickable { onEvent(GlobeEvent.OnClubClick(club.id)) }
+                                            .padding(start = 6.dp, end = 13.dp, top = 6.dp, bottom = 6.dp)
+                                    ) {
+                                        Crest(club, 30.dp)
+                                        Text(club.name, style = GWPPATheme.typography.archivoBold13, color = colors.colorWhite)
+                                    }
                                 }
                             }
                         }
                     }
+                    Text(
+                        stringResource(Res.string.globe_programs),
+                        style = GWPPATheme.typography.archivoBold12,
+                        color = colors.colorWhite,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.08f))
+                            .border(1.dp, Color.White.copy(alpha = 0.22f), CircleShape)
+                            .clickable { onEvent(GlobeEvent.OnProgramsClick) }
+                            .padding(horizontal = 14.dp, vertical = 7.dp)
+                    )
+                    Text(
+                        stringResource(Res.string.globe_hint),
+                        style = GWPPATheme.typography.archivoRegular13,
+                        color = colors.colorWhite.copy(alpha = 0.55f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    )
                 }
-                Text(
-                    stringResource(Res.string.globe_hint),
-                    style = GWPPATheme.typography.archivoRegular13,
-                    color = colors.colorWhite.copy(alpha = 0.55f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
             AppTabBar(current = AppTab.GLOBE, onSelect = { onEvent(GlobeEvent.OnTabClick(it)) }, dark = true)
         }
@@ -264,14 +310,14 @@ private fun TripsButton(count: Int, onClick: () -> Unit) {
     }
 }
 
+/** Europe / Americas / World (`.g-reg`): a see-through segmented pill, as wide as its labels. */
 @Composable
-private fun Regions(current: String, onClick: (String) -> Unit) {
+private fun Regions(current: String, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
     val colors = GWPPATheme.colors
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.1f))
+            .background(Color.White.copy(alpha = 0.12f))
             .padding(3.dp)
     ) {
         listOf("eu" to Res.string.globe_eu, "am" to Res.string.globe_am, "world" to Res.string.globe_world).forEach { (key, label) ->
@@ -279,33 +325,42 @@ private fun Regions(current: String, onClick: (String) -> Unit) {
             Text(
                 stringResource(label),
                 style = GWPPATheme.typography.archivoBold13,
-                color = if (on) colors.nightNavy else colors.colorWhite,
-                textAlign = TextAlign.Center,
+                color = if (on) colors.inkBlack else colors.colorWhite.copy(alpha = 0.75f),
                 modifier = Modifier
-                    .weight(1f)
                     .clip(CircleShape)
                     .background(if (on) colors.colorWhite else Color.Transparent)
                     .clickable { onClick(key) }
-                    .padding(vertical = 9.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }
     }
 }
 
+/** A city to pick (`.g-city`): flag and name on a dark see-through pill, its club count in a yellow badge. */
 @Composable
-private fun Pill(text: String, selected: Boolean, onClick: () -> Unit) {
+private fun CityChip(flag: String, name: String, clubs: Int, selected: Boolean, onClick: () -> Unit) {
     val colors = GWPPATheme.colors
-    Text(
-        text,
-        style = GWPPATheme.typography.archivoBold13,
-        color = if (selected) colors.nightNavy else colors.colorWhite,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier
             .clip(CircleShape)
-            .background(if (selected) colors.ballYellow else Color.White.copy(alpha = 0.08f))
-            .border(1.dp, Color.White.copy(alpha = if (selected) 0f else 0.15f), CircleShape)
+            .background(colors.nightNavy.copy(alpha = 0.55f))
+            .border(if (selected) 2.dp else 1.dp, if (selected) colors.ballYellow else Color.White.copy(alpha = 0.18f), CircleShape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 9.dp)
-    )
+            .padding(horizontal = 13.dp, vertical = 9.dp)
+    ) {
+        Text(flag, style = GWPPATheme.typography.archivoRegular13)
+        Text(name, style = GWPPATheme.typography.archivoBold13, color = colors.colorWhite)
+        if (clubs > 0) {
+            Text(
+                clubs.toString(),
+                style = GWPPATheme.typography.archivoBold11,
+                color = colors.inkBlack,
+                modifier = Modifier.clip(CircleShape).background(colors.ballYellow).padding(horizontal = 7.dp, vertical = 1.dp)
+            )
+        }
+    }
 }
 
 @Preview

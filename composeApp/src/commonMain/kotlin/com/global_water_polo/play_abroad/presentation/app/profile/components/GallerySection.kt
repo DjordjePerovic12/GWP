@@ -20,6 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.Brush
 import io.github.vinceglb.filekit.name
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.ButtonStyle
@@ -33,6 +36,13 @@ import com.global_water_polo.play_abroad.domain.model.Portfolio
 import com.global_water_polo.play_abroad.presentation.app.profile.GalleryFilter
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
+
+/** Lets a block run past the page's side padding ([by] on each side), like the prototype's negative margins. */
+private fun Modifier.bleed(by: Dp): Modifier = layout { measurable, constraints ->
+    val extra = by.roundToPx() * 2
+    val placeable = measurable.measure(constraints.copy(minWidth = constraints.maxWidth + extra, maxWidth = constraints.maxWidth + extra))
+    layout(constraints.maxWidth, placeable.height) { placeable.place(-extra / 2, 0) }
+}
 
 /**
  * The gallery (the prototype's galleryTab, inside Portfolio): add photos and clips several at once, filter
@@ -57,18 +67,34 @@ fun GallerySection(
         )
     }
     if (portfolio.gallery.isEmpty()) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(colors.lineGrey.copy(alpha = 0.35f))
-                .padding(22.dp)
-        ) {
-            Text(stringResource(Res.string.pf_gallery_empty), style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack)
-            Text(stringResource(Res.string.pf_gallery_empty_sub), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey, textAlign = TextAlign.Center)
-            PrimaryButton(text = stringResource(Res.string.pf_gallery_add), onClick = onAddClick, style = ButtonStyle.BALL, modifier = Modifier.padding(top = 8.dp))
+        // `.g-empty`: a ghost 3 x 3 grid edge to edge, faded, with the message and button over it.
+        Box(Modifier.bleed(20.dp).padding(top = 4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                repeat(3) { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        repeat(3) { col ->
+                            Box(
+                                Modifier
+                                    .weight(1f)
+                                    .aspectRatio(1f)
+                                    .background(colors.inkBlack.copy(alpha = if ((row * 3 + col) % 2 == 0) 0.08f else 0.05f))
+                            )
+                        }
+                    }
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Brush.verticalGradient(0f to colors.boneWhite.copy(alpha = 0.55f), 1f to colors.boneWhite.copy(alpha = 0.92f)))
+                    .padding(horizontal = 40.dp, vertical = 20.dp)
+            ) {
+                Text(stringResource(Res.string.pf_gallery_empty), style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack)
+                Text(stringResource(Res.string.pf_gallery_empty_sub), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey, textAlign = TextAlign.Center)
+                PrimaryButton(text = stringResource(Res.string.pf_gallery_add), onClick = onAddClick, style = ButtonStyle.BLUE, modifier = Modifier.padding(top = 10.dp))
+            }
         }
         return
     }

@@ -46,6 +46,8 @@ data class Profile(
     /** GWP LAB: the video picked for each angle ("above", "under") per test, and the tests sent for coach review. */
     val labAngles: Map<Int, Map<String, PlatformFile>> = emptyMap(),
     val labSent: Set<Int> = emptySet(),
+    /** When each LAB test was sent for review (tests sent before dates were kept have none). */
+    val labSentOn: Map<Int, LocalDate> = emptyMap(),
     val saved: Set<String> = emptySet(),
     /** GWP Elite "Today": workout of the day exercises ticked off, by index. */
     val workoutDone: Set<Int> = emptySet(),

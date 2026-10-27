@@ -87,9 +87,12 @@ buildkonfig {
         rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
     }
     val baseUrl = localProperties.getProperty("BASE_URL") ?: providers.gradleProperty("BASE_URL").get()
+    // Quick start on the intro (long-press the logo): sample profiles for testing. Set false for client builds.
+    val demoShortcuts = (localProperties.getProperty("DEMO_SHORTCUTS") ?: providers.gradleProperty("DEMO_SHORTCUTS").getOrElse("false")).toBoolean()
 
     defaultConfigs {
         buildConfigField(FieldSpec.Type.STRING, "BASE_URL", baseUrl)
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEMO_SHORTCUTS", demoShortcuts.toString())
     }
 }
 

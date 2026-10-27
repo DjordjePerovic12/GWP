@@ -52,8 +52,9 @@ fun GlobeScreen(
         showSnackBar(message)
     }
 
-    // Clusters, pins, club badges and labels for every city and club; the picked city stands out.
-    val markers = globeMarkers(activeCityId = state.focus?.id)
+    // Clusters, pins, club badges and labels for the clubs the country and Men's/Women's filters keep; the
+    // picked city stands out.
+    val markers = globeMarkers(activeCityId = state.focus?.id, country = state.country, sex = state.sex, state = state)
     LaunchedEffect(markers) { globe.markers = markers }
 
     // Each change flies the globe on its own: the region, a country picked in the filter, a city or club,
@@ -187,28 +188,31 @@ private fun GlobePage(sheet: GlobeSheet, state: GlobeState, onEvent: (GlobeEvent
 
 /** Globe+ markers from the club map (the prototype's clusters, CLUB_GROUPS badges and city labels). */
 @Composable
-private fun globeMarkers(activeCityId: String?): GlobeMarkers {
+private fun globeMarkers(activeCityId: String?, country: String, sex: String, state: GlobeState): GlobeMarkers {
     val notes = WaterPoloMap.cities.associate { city ->
-        val n = WaterPoloMap.clubsIn(city.id).size
+        val n = WaterPoloMap.clubsIn(city.id).count { state.showsOnGlobe(it) }
         city.id to if (n == 0) "" else pluralStringResource(Res.plurals.globe_clubs_count, n, n)
     }
-    return remember(activeCityId, notes) {
-        val clusters = WaterPoloMap.cities.groupBy { it.country }.map { (country, list) ->
+    return remember(activeCityId, country, sex, notes) {
+        val cities = WaterPoloMap.cities.filter { state.showsOnGlobe(it) }
+        val clusters = cities.groupBy { it.country }.map { (country, list) ->
             GlobeCluster(
                 country = country,
                 latitude = list.map { it.latitude }.average().toFloat(),
                 longitude = list.map { it.longitude }.average().toFloat(),
-                count = list.sumOf { max(1, WaterPoloMap.clubsIn(it.id).size) }
+                count = list.sumOf { city -> max(1, WaterPoloMap.clubsIn(city.id).count { state.showsOnGlobe(it) }) }
             )
         }
         // One label per spot: cities closer than a degree (Piraeus and Athens) would print on top of each other.
         val labelled = ArrayList<City>()
-        WaterPoloMap.cities.forEach { c -> if (labelled.none { hypot(it.latitude - c.latitude, it.longitude - c.longitude) < 0.9f }) labelled += c }
+        cities.forEach { c -> if (labelled.none { hypot(it.latitude - c.latitude, it.longitude - c.longitude) < 0.9f }) labelled += c }
         GlobeMarkers(
             clusters = clusters,
-            cities = WaterPoloMap.cities.map { GlobeCity(it.id, it.latitude, it.longitude, active = it.id == activeCityId) },
-            badges = WaterPoloMap.clubGroups.mapIndexed { i, g ->
-                GlobeBadge(i, g.latitude, g.longitude, WaterPoloMap.monogram(g.clubs.first().name), g.clubs.size)
+            cities = cities.map { GlobeCity(it.id, it.latitude, it.longitude, active = it.id == activeCityId) },
+            // A badge keeps its group's index (the pop-up looks it up) and shows only the clubs that pass.
+            badges = WaterPoloMap.clubGroups.mapIndexedNotNull { i, g ->
+                val shown = g.clubs.filter { state.showsOnGlobe(it) }
+                if (shown.isEmpty()) null else GlobeBadge(i, g.latitude, g.longitude, WaterPoloMap.monogram(shown.first().name), shown.size)
             },
             labels = labelled.map { GlobeLabel(it.id, it.latitude, it.longitude, it.name, notes[it.id].orEmpty()) }
         )

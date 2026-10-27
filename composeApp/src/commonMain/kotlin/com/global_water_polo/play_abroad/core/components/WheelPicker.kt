@@ -35,6 +35,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 import kotlin.math.abs
 import kotlin.math.max
@@ -89,7 +90,10 @@ fun BirthdayWheels(
         )
         Row(Modifier.fillMaxWidth()) {
             PickerWheel(monthLabel, months, m, tapToSelect, Modifier.weight(1.5f)) { v, user -> m = v; onChange(m, d, y, user) }
-            PickerWheel(dayLabel, (1..31).map { it.toString() }, d, tapToSelect, Modifier.weight(0.8f)) { v, user -> d = v; onChange(m, d, y, user) }
+            // Only the days the month has: 28 or 29 in February (29 until a non-leap year is picked), 30 or 31
+            // otherwise. When the month gets shorter the wheel drops to its last day and reports it.
+            val days = NcaaClockCalculator.daysIn(y ?: 2000, m ?: 1)
+            PickerWheel(dayLabel, (1..days).map { it.toString() }, d, tapToSelect, Modifier.weight(0.8f)) { v, user -> d = v; onChange(m, d, y, user) }
             PickerWheel(yearLabel, years.map { it.toString() }, y?.let { years.indexOf(it) + 1 }?.takeIf { it > 0 }, tapToSelect, Modifier.weight(1f)) { v, user ->
                 y = v?.let { years[it - 1] }
                 onChange(m, d, y, user)

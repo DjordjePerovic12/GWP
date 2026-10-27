@@ -6,20 +6,25 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.global_water_polo.play_abroad.BuildKonfig
+import com.global_water_polo.play_abroad.homeOf
 import com.global_water_polo.play_abroad.core.navigation.Screen
+import com.global_water_polo.play_abroad.data.local.DemoProfiles
+import com.global_water_polo.play_abroad.domain.model.Lane
+import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.presentation.base.BaseViewModel
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 
 /**
- * "Wind it up": turning the ball to the right winds a spring through the time zones, getting heavier as
- * it loads. Twelve zones in, the spring lets go and the ball runs through the other twelve on its own
- * (IntroScreen drives that run). Turning left slips and takes nothing back. With all 24 zones spun the
- * ball waits for a tap; skipping enters straight away.
+ * Spin the world through all 24 time zones (one full turn to the right), then tap the ball to enter.
+ * Turning left takes progress back until the turn is complete; skipping enters straight away.
  */
 class IntroViewModel(
-    private val navigator: Navigator
+    private val navigator: Navigator,
+    private val profileRepository: ProfileRepository
 ) : BaseViewModel<IntroState, IntroEvent>() {
 
     override val initialViewState = IntroState()
@@ -41,23 +46,33 @@ class IntroViewModel(
             is IntroEvent.OnSpin -> spin(event.deltaDegrees)
             IntroEvent.OnSkipClick -> finish()
             IntroEvent.OnBallClick -> if (state.value.spunAll) finish()
+            IntroEvent.OnLogoLongPress -> if (BuildKonfig.DEMO_SHORTCUTS) state.update { it.copy(quickStartOpen = true) }
+            IntroEvent.OnQuickStartDismiss -> state.update { it.copy(quickStartOpen = false) }
+            is IntroEvent.OnQuickStart -> quickStart(event.lane)
         }
     }
 
     private fun spin(delta: Float) {
-        val s = state.value
-        if (s.finished || s.spunAll || delta <= 0f) return
-        // The spring tightens as it loads by hand; once released it runs freely.
-        val load = min(1f, s.progressDegrees / IntroState.BY_HAND)
-        val turn = if (s.running) delta else delta * (1f - 0.32f * load)
-        val progress = min(IntroState.FULL_TURN, s.progressDegrees + turn)
+        if (state.value.finished || state.value.spunAll) return
+        val progress = max(0f, state.value.progressDegrees + delta)
         state.update {
             it.copy(
                 progressDegrees = progress,
-                zonesCrossed = min(IntroState.ZONES, floor(progress / 15f).toInt()),
-                running = it.running || progress >= IntroState.BY_HAND,
-                spunAll = progress >= IntroState.FULL_TURN
+                zonesCrossed = min(IntroState.ZONES, floor(progress / 15f).toInt())
             )
+        }
+        if (progress >= IntroState.FULL_TURN) {
+            state.update { it.copy(progressDegrees = IntroState.FULL_TURN, zonesCrossed = IntroState.ZONES, spunAll = true) }
+        }
+    }
+
+    /** Testing shortcut: replaces the saved profile with a sample one and opens that lane's home. */
+    private fun quickStart(lane: Lane) {
+        val profile = DemoProfiles.of(lane)
+        profileRepository.update { profile }
+        state.update { it.copy(quickStartOpen = false) }
+        viewModelScope.launch {
+            navigator.navigateTo(homeOf(profile)) { popUpTo(Screen.IntroScreen) { inclusive = true } }
         }
     }
 

@@ -21,6 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.IntrinsicSize
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.domain.model.Trip
 import com.global_water_polo.play_abroad.domain.model.WaterPoloMap
@@ -28,6 +32,10 @@ import com.global_water_polo.play_abroad.presentation.app.globe.components.TripC
 import com.global_water_polo.play_abroad.presentation.app.globe.components.TripSummary
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
+
+/** `.tk-st .pend`: a warm beige cell with brown text for what waits on a partner. */
+private val PENDING_BG = Color(0xFFF6EEDD)
+private val PENDING_TEXT = Color(0xFF8A6A2F)
 
 private val STEPS = listOf(
     Res.string.tk_step_build to Res.string.tk_step_build_sub,
@@ -61,19 +69,26 @@ fun TripTracker(trip: Trip, flightsRequested: Boolean) {
             Res.string.tk_travel to stringResource(if (flightsRequested) Res.string.tk_planning else Res.string.fly_not_booked)
         )
         statuses.chunked(2).forEachIndexed { row, pair ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // `.tk-st`: both cells in a row as tall as the taller one.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(IntrinsicSize.Min)) {
                 pair.forEach { (label, value) ->
-                    // Club and apartment wait on partners, so they get the pending tint.
+                    // Club and apartment wait on partners, so they get the pending tint and brown text.
                     val pending = row == 0
                     Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
                         modifier = Modifier
                             .weight(1f)
+                            .fillMaxHeight()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(if (pending) colors.ballYellowSoft else colors.boneWhite)
+                            .background(if (pending) PENDING_BG else colors.inkBlack.copy(alpha = 0.05f))
                             .padding(10.dp)
                     ) {
-                        Text(stringResource(label), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
-                        Text(value, style = GWPPATheme.typography.archivoBold13, color = colors.inkBlack)
+                        Text(
+                            stringResource(label).uppercase(),
+                            style = GWPPATheme.typography.archivoBold11.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 0.08.em),
+                            color = colors.mistGrey
+                        )
+                        Text(value, style = GWPPATheme.typography.archivoBold13, color = if (pending) PENDING_TEXT else colors.inkBlack)
                     }
                 }
             }
@@ -86,25 +101,29 @@ fun TripTracker(trip: Trip, flightsRequested: Boolean) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             contentAlignment = Alignment.Center,
+                            // Done: navy with a tick. Now: a gold ring with a soft halo (`.tk-steps li.now i`).
                             modifier = Modifier
-                                .size(20.dp)
+                                .then(if (now) Modifier.border(4.dp, PENDING_BG, CircleShape).padding(4.dp) else Modifier.padding(4.dp))
+                                .size(22.dp)
                                 .clip(CircleShape)
-                                .background(
+                                .background(if (done) colors.chlorineBlue else colors.colorWhite)
+                                .border(
+                                    2.dp,
                                     when {
-                                        done -> colors.chlorineBlue
-                                        now -> colors.ballYellow
-                                        else -> colors.colorWhite
-                                    }
+                                        done -> Color.Transparent
+                                        now -> colors.antiqueGold
+                                        else -> colors.inkBlack.copy(alpha = 0.2f)
+                                    },
+                                    CircleShape
                                 )
-                                .border(1.5.dp, if (done || now) Color.Transparent else colors.lineGrey, CircleShape)
                         ) {
                             if (done) Text("✓", style = GWPPATheme.typography.archivoBold11, color = colors.colorWhite)
                         }
-                        if (i < STEPS.lastIndex) Box(Modifier.width(2.dp).height(26.dp).background(if (done) colors.chlorineBlue else colors.lineGrey))
+                        if (i < STEPS.lastIndex) Box(Modifier.width(2.dp).height(22.dp).background(if (done) colors.chlorineBlue else colors.inkBlack.copy(alpha = 0.12f)))
                     }
                     Column(Modifier.padding(bottom = 8.dp)) {
                         Text(stringResource(title), style = GWPPATheme.typography.archivoBold16, color = if (done || now) colors.inkBlack else colors.mistGrey)
-                        Text(stringResource(sub), style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
+                        Text(stringResource(sub), style = GWPPATheme.typography.archivoRegular13, color = colors.mistGrey)
                     }
                 }
             }

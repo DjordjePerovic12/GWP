@@ -24,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.em
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.ChoiceChip
@@ -99,7 +102,7 @@ fun PathwaySection(
                 .padding(16.dp)
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(stringResource(Res.string.path_suggested).uppercase(), style = GWPPATheme.typography.archivoBold11, color = colors.chlorineBlue)
+                Text(stringResource(Res.string.path_suggested).uppercase(), style = GWPPATheme.typography.archivoBold11, color = colors.eliteGold)
                 Text(stringResource(rec.title), style = GWPPATheme.typography.archivoExpandedBold16, color = colors.inkBlack)
                 Text(rec.details.idea, style = GWPPATheme.typography.archivoRegular14, color = colors.slateGrey)
             }
@@ -124,35 +127,28 @@ fun PathwaySection(
 
     SectionHeader(title = stringResource(Res.string.path_clinics), note = stringResource(Res.string.path_clinics_note))
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
+        // `.cl3-c`: the photo with its date, then the name, place and button straight on the page (no card).
         ProfileState.CLINICS.forEachIndexed { i, clinic ->
-            Column(
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .width(210.dp)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(colors.colorWhite)
-                    .border(1.dp, colors.lineGrey, RoundedCornerShape(18.dp))
-                    .padding(bottom = 12.dp)
-            ) {
-                Box(Modifier.fillMaxWidth().height(110.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.width(200.dp)) {
+                Box(Modifier.fillMaxWidth().height(112.dp).clip(RoundedCornerShape(14.dp)).background(colors.nightNavy)) {
                     drawableNamed(clinic.image)?.let {
                         Image(painterResource(it), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.matchParentSize())
                     }
                     Text(
                         clinic.date,
-                        style = GWPPATheme.typography.archivoBold12,
+                        style = GWPPATheme.typography.archivoBold11,
                         color = colors.inkBlack,
-                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).clip(CircleShape).background(colors.ballYellow).padding(horizontal = 8.dp, vertical = 3.dp)
+                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).clip(CircleShape).background(colors.colorWhite).padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
-                Text(clinic.name, style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack, modifier = Modifier.padding(horizontal = 12.dp))
-                Text("${clinic.city}. ${clinic.format}.", style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey, modifier = Modifier.padding(horizontal = 12.dp))
+                Text(clinic.name, style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack, modifier = Modifier.padding(top = 4.dp))
+                Text("${clinic.city}. ${clinic.format}.", style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey)
                 val requested = i in state.profile.clinicRequests
                 ChoiceChip(
                     text = stringResource(if (requested) Res.string.path_clinic_requested else Res.string.path_clinic_request),
                     selected = requested,
                     onClick = { onClinicClick(i) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
@@ -223,27 +219,58 @@ private fun whyText(why: PathwayWhy) = when (why) {
     PathwayWhy.CONFIRM_NCAA -> Res.string.why_confirm_ncaa
 }
 
-/** A program card (`.pc3`): photo, when, name, the one idea, and a lock or a chevron. */
+/**
+ * A program card (`.pc3`): a small rounded photo, when (gold capitals, "Flagship" outlined for the gap year),
+ * name, the one idea, and a lock or a chevron. The flagship card is navy with a gold edge.
+ */
 @Composable
 private fun ProgramRow(program: Program, locked: Boolean, sent: Boolean, onClick: () -> Unit) {
     val colors = GWPPATheme.colors
     val shape = RoundedCornerShape(18.dp)
+    val flag = program.flagship
+    val kicker = GWPPATheme.typography.archivoBold11.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 0.1.em)
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(colors.colorWhite)
-            .border(if (program.flagship) 2.dp else 1.dp, if (program.flagship) colors.ballYellow else colors.lineGrey, shape)
+            .background(if (flag) colors.nightNavy else colors.colorWhite)
+            .border(1.dp, if (flag) colors.eliteGold.copy(alpha = 0.55f) else colors.lineGrey, shape)
             .clickable(onClick = onClick)
+            .padding(start = 10.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
     ) {
-        Image(painterResource(program.image), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(width = 88.dp, height = 96.dp))
-        Column(Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(stringResource(program.duration), style = GWPPATheme.typography.archivoBold12, color = colors.chlorineBlue)
-            Text(stringResource(program.title), style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack)
-            Text(program.details.idea, style = GWPPATheme.typography.archivoRegular13, color = colors.slateGrey, maxLines = 2)
-            if (sent) Text(stringResource(Res.string.path_inquiry_sent), style = GWPPATheme.typography.archivoBold12, color = colors.poolTeal)
+        Image(
+            painterResource(program.image),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(width = 62.dp, height = 76.dp).clip(RoundedCornerShape(12.dp))
+        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    stringResource(if (flag) Res.string.path_when_gapyear else program.duration).uppercase(),
+                    style = kicker,
+                    color = if (flag) colors.eliteGold else colors.antiqueGold
+                )
+                if (flag) {
+                    Text(
+                        stringResource(Res.string.offers_flagship).uppercase(),
+                        style = kicker.copy(fontSize = 9.sp, letterSpacing = 0.08.em),
+                        color = colors.eliteGold,
+                        modifier = Modifier.border(1.dp, colors.eliteGold, CircleShape).padding(horizontal = 7.dp, vertical = 1.dp)
+                    )
+                }
+            }
+            Text(stringResource(program.title), style = GWPPATheme.typography.archivoExpandedBold16, color = if (flag) colors.colorWhite else colors.inkBlack)
+            Text(
+                program.details.idea,
+                style = GWPPATheme.typography.archivoRegular13,
+                color = if (flag) colors.colorWhite.copy(alpha = 0.7f) else colors.slateGrey,
+                maxLines = 2
+            )
+            if (sent) Text(stringResource(Res.string.path_inquiry_sent), style = GWPPATheme.typography.archivoBold12, color = if (flag) colors.eliteGold else colors.inkBlack)
         }
-        Text(if (locked) "🔒" else "›", style = GWPPATheme.typography.archivoBold16, color = colors.mistGrey, modifier = Modifier.padding(end = 14.dp))
+        Text(if (locked) "🔒" else "›", style = GWPPATheme.typography.archivoBold16, color = if (flag) colors.colorWhite.copy(alpha = 0.6f) else colors.mistGrey)
     }
 }

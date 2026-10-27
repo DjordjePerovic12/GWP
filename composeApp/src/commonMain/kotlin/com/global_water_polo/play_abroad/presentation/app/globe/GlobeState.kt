@@ -66,6 +66,17 @@ data class GlobeState(
         (sex != "women" || club.hasWomen) && (cityMatches(city, q) || club.name.lowercase().contains(q))
     }
 
+    /**
+     * Whether the globe shows [club] under the country and Men's or Women's filters (the search and region
+     * only narrow the lists). Men's keeps every club: the prototype gives every club a men's team.
+     */
+    fun showsOnGlobe(club: Club): Boolean =
+        (country.isEmpty() || WaterPoloMap.city(club.cityId)?.country == country) && (sex != "women" || club.hasWomen)
+
+    /** A city stays on the globe in the chosen country; with Men's or Women's on, only if it has such a club. */
+    fun showsOnGlobe(city: City): Boolean =
+        (country.isEmpty() || city.country == country) && (sex.isEmpty() || WaterPoloMap.clubsIn(city.id).any { showsOnGlobe(it) })
+
     /** The trip already in the cart for [cityId] (a draft wins over a sent one), for the "In your trips" chip. */
     fun tripIn(cityId: String): Trip? = profile.trips.filter { it.cityId == cityId }.minByOrNull { it.sent }
 

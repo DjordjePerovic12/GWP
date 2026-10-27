@@ -188,9 +188,11 @@ private fun TripCard(city: City, depart: String?, home: String, requested: Boole
             stringResource(if (requested) Res.string.fly_requested else Res.string.fly_request),
             style = GWPPATheme.typography.archivoBold13,
             color = if (requested) colors.colorWhite else colors.inkBlack,
+            // `.chip`: paper with a line until pressed, then navy.
             modifier = Modifier
                 .clip(CircleShape)
-                .background(if (requested) colors.inkBlack else colors.ballYellow)
+                .background(if (requested) colors.inkBlack else colors.colorWhite)
+                .border(1.5.dp, if (requested) colors.inkBlack else colors.lineGrey, CircleShape)
                 .clickable(onClick = onRequestClick)
                 .padding(horizontal = 14.dp, vertical = 8.dp)
         )

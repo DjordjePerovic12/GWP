@@ -22,7 +22,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.text.font.FontWeight
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.InfoPanel
 import com.global_water_polo.play_abroad.core.components.InfoRow
@@ -56,9 +62,19 @@ fun LabSection(
         Stat(sent.size.toString(), stringResource(Res.string.lab_with_coach), Modifier.weight(1f))
         Stat("0", stringResource(Res.string.lab_reviewed), Modifier.weight(1f))
     }
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 12.dp)) {
+    // `.lab-how`: four columns, each under a grey rule, a gold 01-04 and the step.
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().padding(top = 14.dp)) {
         listOf(Res.string.lab_how_1, Res.string.lab_how_2, Res.string.lab_how_3, Res.string.lab_how_4).forEachIndexed { i, step ->
-            Text("${i + 1}. ${stringResource(step)}", style = GWPPATheme.typography.archivoSemiBold14, color = colors.inkBlack)
+            Column(Modifier.weight(1f)) {
+                Box(Modifier.fillMaxWidth().height(2.dp).background(colors.lineGrey))
+                Text(
+                    "0${i + 1}",
+                    style = GWPPATheme.typography.archivoBold12.copy(fontWeight = FontWeight.ExtraBold),
+                    color = colors.antiqueGold,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+                )
+                Text(stringResource(step), style = GWPPATheme.typography.archivoRegular13.copy(fontSize = 12.sp, lineHeight = 1.3.em), color = colors.slateGrey)
+            }
         }
     }
     SectionHeader(title = stringResource(Res.string.lab_part_1), note = stringResource(Res.string.lab_tests_4))
@@ -94,10 +110,17 @@ fun LabSection(
     if (sent.isEmpty()) {
         SmallText(text = stringResource(Res.string.lab_history_empty))
     } else {
+        val months = stringArrayResource(Res.array.months)
         InfoPanel {
             sent.sorted().forEachIndexed { i, test ->
                 if (i > 0) HorizontalDivider(color = colors.lineGrey)
-                InfoRow(ProfileState.LAB_TESTS[test].first, stringResource(Res.string.lab_sent_row))
+                // "Sent October 27, 2026"; tests sent before dates were kept just say they were sent.
+                val on = state.profile.labSentOn[test]
+                InfoRow(
+                    ProfileState.LAB_TESTS[test].first,
+                    on?.let { stringResource(Res.string.lab_sent_on, "${months[it.month.ordinal]} ${it.day}, ${it.year}") }
+                        ?: stringResource(Res.string.lab_sent_row)
+                )
             }
         }
     }

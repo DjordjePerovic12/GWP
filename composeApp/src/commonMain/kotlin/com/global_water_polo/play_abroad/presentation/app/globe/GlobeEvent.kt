@@ -7,6 +7,7 @@ import com.global_water_polo.play_abroad.presentation.base.BaseEvent
 
 sealed class GlobeEvent : BaseEvent {
     data class OnTabClick(val tab: AppTab) : GlobeEvent()
+    data object OnProgramsClick : GlobeEvent()
     data class OnQueryChanged(val query: String) : GlobeEvent()
     data class OnRegionClick(val region: String) : GlobeEvent()
     data class OnCityClick(val cityId: String) : GlobeEvent()

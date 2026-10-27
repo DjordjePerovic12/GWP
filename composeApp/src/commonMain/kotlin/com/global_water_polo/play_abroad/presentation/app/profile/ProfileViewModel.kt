@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
 import io.github.vinceglb.filekit.PlatformFile
 import com.global_water_polo.play_abroad.data.local.MediaFiles
 import com.global_water_polo.play_abroad.core.components.AppTab
@@ -133,7 +134,9 @@ class ProfileViewModel(
                 if (!s.membership.elite) {
                     state.update { it.copy(sheet = null, membershipSheet = if (s.membership.plan == null) MembershipSheet.PAYWALL else MembershipSheet.ELITE) }
                 } else if (s.labState(event.index) == "ready") {
-                    profileRepository.update { it.copy(labSent = it.labSent + event.index) }
+                    profileRepository.update {
+                        it.copy(labSent = it.labSent + event.index, labSentOn = it.labSentOn + (event.index to NcaaClockCalculator.today()))
+                    }
                 }
             }
             ProfileEvent.OnLabExampleClick -> state.update { it.copy(sheet = ProfileSheet.LabExample) }

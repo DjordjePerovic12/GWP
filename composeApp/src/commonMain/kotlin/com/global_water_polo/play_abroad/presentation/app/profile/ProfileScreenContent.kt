@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.AppTabBar
@@ -37,6 +39,7 @@ import com.global_water_polo.play_abroad.presentation.app.profile.components.Pat
 import com.global_water_polo.play_abroad.presentation.app.profile.components.PortfolioSection
 import com.global_water_polo.play_abroad.presentation.app.profile.components.TodayRow
 import com.global_water_polo.play_abroad.resources.*
+import com.global_water_polo.play_abroad.core.components.PickedImage
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
 /** Profile tab (the prototype's meTab): identity, membership, then Pathway, GWP LAB or Portfolio. */
@@ -99,7 +102,10 @@ private fun Identity(state: ProfileState) {
     )
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(60.dp).clip(CircleShape).background(colors.nightNavy)) {
-            Text(initials, style = GWPPATheme.typography.archivoExpandedBold21, color = colors.colorWhite)
+            // The portfolio's profile photo once there is one, else the initials.
+            val photo = p.portfolio.photo
+            if (photo != null) PickedImage(photo.file, Modifier.matchParentSize())
+            else Text(initials, style = GWPPATheme.typography.archivoExpandedBold21, color = colors.colorWhite)
         }
         Column {
             Text(name, style = GWPPATheme.typography.archivoExpandedBold27, color = colors.inkBlack)
@@ -112,13 +118,15 @@ private fun Identity(state: ProfileState) {
 @Composable
 private fun SegmentBar(current: ProfileSegment, onClick: (ProfileSegment) -> Unit) {
     val colors = GWPPATheme.colors
+    // `.seg3`: a beige bar, the open section on a white tab.
     Row(
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
         modifier = Modifier
             .padding(top = 16.dp, bottom = 16.dp)
             .fillMaxWidth()
-            .clip(CircleShape)
-            .background(colors.lineGrey.copy(alpha = 0.6f))
-            .padding(4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(colors.sandBeige.copy(alpha = 0.92f))
+            .padding(3.dp)
     ) {
         ProfileSegment.entries.forEach { segment ->
             val on = segment == current
@@ -131,14 +139,15 @@ private fun SegmentBar(current: ProfileSegment, onClick: (ProfileSegment) -> Uni
                     }
                 ),
                 style = GWPPATheme.typography.archivoBold13,
-                color = if (on) colors.colorWhite else colors.inkBlack,
+                color = if (on) colors.inkBlack else colors.slateGrey,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
-                    .clip(CircleShape)
-                    .background(if (on) colors.inkBlack else colors.colorWhite.copy(alpha = 0f))
+                    .then(if (on) Modifier.shadow(2.dp, RoundedCornerShape(9.dp)) else Modifier)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(if (on) colors.colorWhite else Color.Transparent)
                     .clickable { onClick(segment) }
-                    .padding(vertical = 10.dp)
+                    .padding(vertical = 9.dp)
             )
         }
     }

@@ -105,9 +105,9 @@ data class ProfileState(
 
         //TODO: Sample listings until GWP publishes clinics.
         val CLINICS = listOf(
-            Clinic("Center play clinic", "Nov 14", "Los Angeles", "Small group with an Olympian", "p_residency"),
-            Clinic("Shooting clinic", "Dec 5", "Belgrade", "Small group with a pro player", "p_immersion"),
-            Clinic("Goalkeeping clinic", "Jan 9", "Budapest", "Small group with an Olympian", "p_semester")
+            Clinic("Center play", "Nov 14", "Los Angeles", "Small group with an Olympian", "p_residency"),
+            Clinic("Shooting", "Dec 5", "Belgrade", "Small group with a pro player", "p_immersion"),
+            Clinic("Goalkeeping", "Jan 9", "Budapest", "Small group with an Olympian", "p_semester")
         )
     }
 }
