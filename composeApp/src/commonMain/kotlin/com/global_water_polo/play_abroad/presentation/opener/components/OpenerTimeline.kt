@@ -1,5 +1,9 @@
 package com.global_water_polo.play_abroad.presentation.opener.components
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.global_water_polo.play_abroad.core.components.model3d.BALL_FRONT_SPIN
 import com.global_water_polo.play_abroad.core.components.model3d.BallFrame
 import kotlin.math.PI
@@ -130,6 +134,16 @@ class OpenerTimeline(
 /** Where the ball's turn ended, so the first onboarding screen's ball carries on from the same face. */
 object BallSpinMemory {
     var spin = BALL_FRONT_SPIN
+}
+
+/**
+ * What the opener puts on the app's stage (GlobeStage) while it runs: its space backdrop and where the ball
+ * is each frame. The stage keeps one 3D ball for the opener and the first question, so the hand-over moves
+ * the same, already loaded ball instead of swapping views (which blinked on Android while the new one loaded).
+ */
+object OpenerStage {
+    var backdrop: (@Composable () -> Unit)? by mutableStateOf(null)
+    var frame: (() -> BallFrame)? by mutableStateOf(null)
 }
 
 private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t

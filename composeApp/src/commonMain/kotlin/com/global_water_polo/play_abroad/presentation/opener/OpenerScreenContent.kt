@@ -47,9 +47,9 @@ import com.global_water_polo.play_abroad.core.components.LocalStatusBarOverride
 import com.global_water_polo.play_abroad.core.components.Sfx
 import com.global_water_polo.play_abroad.core.components.globe.LocalGlobeController
 import com.global_water_polo.play_abroad.core.components.globe.badgeGlobeCircle
-import com.global_water_polo.play_abroad.core.components.model3d.BallModelView
 import com.global_water_polo.play_abroad.presentation.intro.QuickStartSheet
 import com.global_water_polo.play_abroad.presentation.opener.components.BallSpinMemory
+import com.global_water_polo.play_abroad.presentation.opener.components.OpenerStage
 import com.global_water_polo.play_abroad.presentation.opener.components.OpenerTimeline
 import com.global_water_polo.play_abroad.presentation.opener.components.SpaceBackdrop
 import com.global_water_polo.play_abroad.resources.Res
@@ -118,18 +118,28 @@ fun OpenerScreenContent(
             onDispose { statusOverride.value = null }
         }
 
-        SpaceBackdrop(
-            time = { time },
-            petrol = { timeline.petrol(time) },
-            stars = { timeline.stars(time, u()) },
-            deepSpace = { timeline.deepSpace(time) },
-            halo = { timeline.halo(time, u()) },
-            ivory = { timeline.ivory(u()) },
-            ballCy = { timeline.ballCy(time, u()) * px },
-            ballRadius = { timeline.ballRadius(time, u()) * px },
-            modifier = Modifier.fillMaxSize()
-        )
-        BallModelView(frame = { timeline.frame(time, u()) }, modifier = Modifier.fillMaxSize())
+        // The space and the ball live on the app's stage (GlobeStage), under this screen: the stage keeps the
+        // same 3D ball when the first question opens, so the hand-over doesn't reload it.
+        DisposableEffect(timeline) {
+            OpenerStage.backdrop = {
+                SpaceBackdrop(
+                    time = { time },
+                    petrol = { timeline.petrol(time) },
+                    stars = { timeline.stars(time, u()) },
+                    deepSpace = { timeline.deepSpace(time) },
+                    halo = { timeline.halo(time, u()) },
+                    ivory = { timeline.ivory(u()) },
+                    ballCy = { timeline.ballCy(time, u()) * px },
+                    ballRadius = { timeline.ballRadius(time, u()) * px },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            OpenerStage.frame = { timeline.frame(time, u()) }
+            onDispose {
+                OpenerStage.backdrop = null
+                OpenerStage.frame = null
+            }
+        }
 
         val large = GWPPATheme.typography.archivoExpandedExtraBold23.copy(fontSize = 22.sp, lineHeight = 1.08.em, textAlign = TextAlign.Center)
         Column(

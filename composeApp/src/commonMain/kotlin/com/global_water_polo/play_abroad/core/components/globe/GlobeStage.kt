@@ -1,6 +1,7 @@
 package com.global_water_polo.play_abroad.core.components.globe
 
 import com.global_water_polo.play_abroad.core.components.LoaderVisibility
+import com.global_water_polo.play_abroad.presentation.opener.components.OpenerStage
 import com.global_water_polo.play_abroad.presentation.opener.components.OpenerTimeline
 import com.global_water_polo.play_abroad.presentation.opener.components.BallSpinMemory
 import com.global_water_polo.play_abroad.core.components.model3d.BallModelView
@@ -106,27 +107,7 @@ fun GlobeStage(
             PoolBackground(night = night, modifier = Modifier.fillMaxSize())
             if (mode == GlobeMode.INTRO) ContactShadow(cy.value, d.value)
             BurstRings(controller.burst, cy.value)
-            if (ball3d) {
-                // The 3D model in the badge's place, carrying on the opener's turn at its idle speed.
-                val start = remember { BallSpinMemory.spin }
-                var idle by remember { mutableFloatStateOf(0f) }
-                LaunchedEffect(Unit) {
-                    val t0 = withFrameNanos { it }
-                    while (true) idle = withFrameNanos { (it - t0) / 1e9f }
-                }
-                BallModelView(
-                    frame = {
-                        BallFrame(
-                            radius = d.value / 2f / h,
-                            centerY = cy.value / h,
-                            spin = start + OpenerTimeline.IDLE_SPEED * idle,
-                            tilt = 0.14f,
-                            visible = !LoaderVisibility.showing
-                        )
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else texture?.let { tex ->
+            if (!ball3d) texture?.let { tex ->
                 val explore = mode == GlobeMode.EXPLORE
                 SpinningGlobe(
                     texture = tex,
@@ -140,6 +121,32 @@ fun GlobeStage(
                     onMarkersDrawn = { controller.markerHits = it }
                 )
             }
+        }
+        if (ball3d) {
+            // The opener's space, then one 3D ball for the opener and the first question. It stays put across
+            // the hand-over: the opener moves it into the badge spot, then it idles on from the same turn.
+            OpenerStage.backdrop?.invoke()
+            var clock by remember { mutableFloatStateOf(0f) }
+            LaunchedEffect(Unit) {
+                val t0 = withFrameNanos { it }
+                while (true) clock = withFrameNanos { (it - t0) / 1e9f }
+            }
+            val handOver = remember { object { var spin = BallSpinMemory.spin; var at = 0f } }
+            BallModelView(
+                frame = {
+                    OpenerStage.frame?.invoke()?.also {
+                        handOver.spin = it.spin
+                        handOver.at = clock
+                    } ?: BallFrame(
+                        radius = d.value / 2f / h,
+                        centerY = cy.value / h,
+                        spin = handOver.spin + OpenerTimeline.IDLE_SPEED * (clock - handOver.at),
+                        tilt = 0.14f,
+                        visible = !LoaderVisibility.showing
+                    )
+                },
+                modifier = Modifier.fillMaxSize()
+            )
         }
         CompositionLocalProvider(
             LocalGlobeController provides controller,

@@ -79,8 +79,9 @@ fun App() {
                 LocalSound provides sound,
                 LocalGWPPAColors provides if (inApp) appColors else gwppaColors
             ) {
-                // The first onboarding question shows the 3D ball the opener landed there (custom/3Dmodel_test).
-                val ball3d = entry?.destination?.hasRoute<Screen.WhoScreen>() == true
+                // One 3D ball on the stage for the opener and the first onboarding question (custom/3Dmodel_test).
+                val destination = entry?.destination
+                val ball3d = destination?.hasRoute<Screen.OpenerScreen>() == true || destination?.hasRoute<Screen.WhoScreen>() == true
                 GlobeStage(controller = globe, routeMode = routeMode, ball3d = ball3d) {
                     // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
                     // consume the system bars (that left screens running under the status bar and home indicator).
