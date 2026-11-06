@@ -1,20 +1,58 @@
-*.iml
-.kotlin
+# Gradle and Kotlin
 .gradle
+.kotlin
 **/build/
-xcuserdata
 !src/**/build/
-local.properties
-.idea
-.DS_Store
 captures
 .externalNativeBuild
 .cxx
-node_modules/
+*.hprof
+
+# Per-machine settings (SDK path, BASE_URL override)
+local.properties
+
+# Secrets and signing: never commit
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+keystore.properties
+signing.properties
+google-services.json
+GoogleService-Info.plist
+.env
+.env.*
+
+# Build outputs
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM/
+
+# IDEs
+*.iml
+.idea
+.fleet
+.vscode
+
+# Xcode
+xcuserdata
+DerivedData/
+iosApp/build/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
+Pods/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tooling
+node_modules/
 .claude/settings.local.json
