@@ -15,6 +15,10 @@ sealed interface Screen {
     @Serializable
     data object IntroScreen : Screen
 
+    /** The 3D opener: the flight in from space to the GWP ball (custom/3Dmodel_test). */
+    @Serializable
+    data object OpenerScreen : Screen
+
     // Onboarding graph: every step shares OnboardingViewModel, scoped to this graph.
     @Serializable
     data object OnboardingGraph : Screen

@@ -38,6 +38,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // Lottie: the full-screen loader plays a .lottie (dotLottie) file.
+            implementation(libs.compottie)
+            implementation(libs.compottie.dot)
             implementation(libs.bundles.compose)
             implementation(libs.bundles.lifecycle)
             implementation(libs.androidx.navigation.compose)
@@ -62,6 +65,9 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.media3.exoplayer)
             implementation(libs.androidx.media3.ui)
+            // 3D: the GWP ball model on the opener (Filament renders the glTF).
+            implementation(libs.filament.android)
+            implementation(libs.filament.gltfio)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

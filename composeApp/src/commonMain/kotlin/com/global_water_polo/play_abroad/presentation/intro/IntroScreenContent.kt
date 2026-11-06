@@ -296,7 +296,7 @@ private fun ManifestoPiece(text: String, shown: () -> Float) {
 
 /** Quick start (testing): pick a lane and open its home with a sample profile, skipping onboarding. */
 @Composable
-private fun QuickStartSheet(onPick: (Lane) -> Unit, onDismiss: () -> Unit) {
+internal fun QuickStartSheet(onPick: (Lane) -> Unit, onDismiss: () -> Unit) {
     val colors = GWPPATheme.colors
     AppSheet(onDismiss = onDismiss) {
         Text(stringResource(Res.string.quick_title), style = GWPPATheme.typography.archivoExpandedBold27, color = colors.inkBlack)

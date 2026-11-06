@@ -23,6 +23,11 @@
     <string name="haptics_off">Sound off</string>
     <string name="common_continue">Continue</string>
     <string name="intro_skip">Skip intro</string>
+    <string name="opener_welcome">Welcome to</string>
+    <string name="opener_name">Global Water Polo</string>
+    <string name="opener_tag_1">Beyond the pool.</string>
+    <string name="opener_tag_2">Around the world.</string>
+    <string name="opener_begin">Begin Your Journey</string>
     <string name="quick_title">Quick start</string>
     <string name="quick_sub">Testing shortcut: opens a lane's home with a sample profile and skips onboarding. It replaces what is saved on this phone.</string>
     <string name="quick_athlete">Athlete</string>

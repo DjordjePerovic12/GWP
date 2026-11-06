@@ -1,5 +1,7 @@
 package com.global_water_polo.play_abroad
 
+import com.global_water_polo.play_abroad.core.components.LoaderAnimation
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import com.global_water_polo.play_abroad.core.components.LocalStatusBarOverride
@@ -18,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.NavDestination.Companion.hasRoute
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import com.global_water_polo.play_abroad.core.components.globe.GlobeController
@@ -51,6 +54,8 @@ fun App() {
     val globe = remember { GlobeController() }
     val profileRepository = koinInject<ProfileRepository>()
     val loaded by profileRepository.loaded.collectAsStateWithLifecycle()
+    // Parse the full-screen loader's animation now, so it is ready the first time something loads.
+    LaunchedEffect(Unit) { LoaderAnimation.get() }
 
     AppEnvironment(languageTag = state.languageTag) {
         GWPPATheme {
@@ -74,7 +79,9 @@ fun App() {
                 LocalSound provides sound,
                 LocalGWPPAColors provides if (inApp) appColors else gwppaColors
             ) {
-                GlobeStage(controller = globe, routeMode = routeMode) {
+                // The first onboarding question shows the 3D ball the opener landed there (custom/3Dmodel_test).
+                val ball3d = entry?.destination?.hasRoute<Screen.WhoScreen>() == true
+                GlobeStage(controller = globe, routeMode = routeMode, ball3d = ball3d) {
                     // The screens handle insets themselves; this Scaffold only hosts the snack bar, so it must not
                     // consume the system bars (that left screens running under the status bar and home indicator).
                     Scaffold(
@@ -103,9 +110,9 @@ fun App() {
 }
 
 /** Where the app opens: the lane's home once onboarding is done, else the intro. */
-internal fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.IntroScreen else when (profile.lane) {
+internal fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.OpenerScreen else when (profile.lane) {
     Lane.ATHLETE -> Screen.ProfileScreen()
     Lane.PARENT -> Screen.ParentHomeScreen
     Lane.COACH -> Screen.CoachHomeScreen
-    Lane.CLUB, null -> Screen.IntroScreen
+    Lane.CLUB, null -> Screen.OpenerScreen
 }

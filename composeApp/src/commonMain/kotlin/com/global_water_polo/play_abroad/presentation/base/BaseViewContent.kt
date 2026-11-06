@@ -1,11 +1,11 @@
 package com.global_water_polo.play_abroad.presentation.base
 
+import com.global_water_polo.play_abroad.core.components.FullScreenLoader
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.foundation.layout.WindowInsets
@@ -77,12 +77,7 @@ fun BaseContentView(
         ) {
             content(viewState)
             if (viewState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(
-                        alignment = Alignment.Center
-                    ),
-                    color = GWPPATheme.colors.inkBlack
-                )
+                FullScreenLoader()
             }
         }
     }

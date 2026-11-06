@@ -1,5 +1,12 @@
 package com.global_water_polo.play_abroad.core.components.globe
 
+import com.global_water_polo.play_abroad.core.components.LoaderVisibility
+import com.global_water_polo.play_abroad.presentation.opener.components.OpenerTimeline
+import com.global_water_polo.play_abroad.presentation.opener.components.BallSpinMemory
+import com.global_water_polo.play_abroad.core.components.model3d.BallModelView
+import com.global_water_polo.play_abroad.core.components.model3d.BallFrame
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -60,6 +67,7 @@ private val easeOut = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
 fun GlobeStage(
     controller: GlobeController,
     routeMode: GlobeMode,
+    ball3d: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val mode = if (controller.revealOverride) GlobeMode.REVEAL else routeMode
@@ -98,7 +106,27 @@ fun GlobeStage(
             PoolBackground(night = night, modifier = Modifier.fillMaxSize())
             if (mode == GlobeMode.INTRO) ContactShadow(cy.value, d.value)
             BurstRings(controller.burst, cy.value)
-            texture?.let { tex ->
+            if (ball3d) {
+                // The 3D model in the badge's place, carrying on the opener's turn at its idle speed.
+                val start = remember { BallSpinMemory.spin }
+                var idle by remember { mutableFloatStateOf(0f) }
+                LaunchedEffect(Unit) {
+                    val t0 = withFrameNanos { it }
+                    while (true) idle = withFrameNanos { (it - t0) / 1e9f }
+                }
+                BallModelView(
+                    frame = {
+                        BallFrame(
+                            radius = d.value / 2f / h,
+                            centerY = cy.value / h,
+                            spin = start + OpenerTimeline.IDLE_SPEED * idle,
+                            tilt = 0.14f,
+                            visible = !LoaderVisibility.showing
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else texture?.let { tex ->
                 val explore = mode == GlobeMode.EXPLORE
                 SpinningGlobe(
                     texture = tex,
@@ -130,6 +158,10 @@ private data class GlobeLayout(val cy: Float, val d: Float)
  * the night sky between the filters and the lists; zoomed in it fills the screen behind them. GlobeScreenContent uses it for its drag radius.
  */
 fun exploreGlobeDiameter(w: Float, h: Float): Float = min(w * 0.92f, h * 0.5f)
+
+/** Centre y and diameter (dp) of the onboarding badge ball, under a status bar [top] dp tall (the 3D opener lands there). */
+fun badgeGlobeCircle(w: Float, h: Float, top: Float): Pair<Float, Float> =
+    layoutFor(GlobeMode.BADGE, w, h, top).let { it.cy to it.d }
 
 fun introGlobeCircle(w: Float, h: Float): Pair<Float, Float> =
     layoutFor(GlobeMode.INTRO, w, h, 0f).let { it.cy to it.d }

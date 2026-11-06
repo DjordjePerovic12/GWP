@@ -36,6 +36,7 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.birthdaySc
 import com.global_water_polo.play_abroad.core.navigation.destinations.clockScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.emailScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.introScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.openerScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.inviteScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.lookScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.nameScreenComposable
@@ -62,7 +63,7 @@ fun BaseAppNavigation(
     navigator: Navigator,
     showSnackBar: (String) -> Unit,
     density: Density,
-    startDestination: Screen = Screen.IntroScreen
+    startDestination: Screen = Screen.OpenerScreen
 ) {
 
     ObserveAsEvents(flow = navigator.navigationFlow) { navType ->
@@ -93,6 +94,7 @@ fun BaseAppNavigation(
         popEnterTransition = { fadeIn(tween(460, easing = enterEasing)) + slideInVertically(tween(460, easing = enterEasing)) { rise } },
         popExitTransition = { fadeOut(tween(200)) }
     ) {
+        openerScreenComposable(navController = navController, showSnackBar = showSnackBar)
         introScreenComposable(navController = navController, showSnackBar = showSnackBar)
         navigation<Screen.OnboardingGraph>(startDestination = Screen.WhoScreen) {
             whoScreenComposable(navController = navController, showSnackBar = showSnackBar)

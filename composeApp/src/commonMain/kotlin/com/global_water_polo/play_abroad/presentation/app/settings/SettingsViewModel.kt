@@ -60,7 +60,7 @@ class SettingsViewModel(
             SettingsEvent.OnSignOutClick -> {
                 profileRepository.reset()
                 viewModelScope.launch {
-                    navigator.navigateTo(Screen.IntroScreen) {
+                    navigator.navigateTo(Screen.OpenerScreen) {
                         popUpTo<Screen.ProfileScreen> { inclusive = true }
                     }
                 }

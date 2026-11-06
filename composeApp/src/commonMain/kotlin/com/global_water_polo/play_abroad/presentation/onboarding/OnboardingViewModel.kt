@@ -72,9 +72,14 @@ class OnboardingViewModel(
                     popUpTo(Screen.WhoScreen) { inclusive = true }
                 }
             }
-            is OnboardingEvent.OnRoleClick -> {
+            is OnboardingEvent.OnRoleClick -> if (!state.value.isLoading) viewModelScope.launch {
+                // TODO: Dummy API call to try the full-screen loader (athletes only, a fast round trip).
+                if (event.lane == Lane.ATHLETE) {
+                    state.update { it.copy(isLoading = true) }
+                    delay(DUMMY_CALL_MILLIS)
+                }
                 // A different role starts clean; picking the same role again keeps what was typed.
-                state.update { if (it.lane == event.lane) it.copy(looking = emptySet()) else OnboardingState(lane = event.lane) }
+                state.update { if (it.lane == event.lane) it.copy(looking = emptySet(), isLoading = false) else OnboardingState(lane = event.lane) }
                 go(state.value.flow().first().route(event.lane))
             }
             // Skip and the tour's own timer can both fire; the one-time steps move on only once.
@@ -371,3 +376,6 @@ class OnboardingViewModel(
         val ONCE = setOf(FlowStep.TOUR, FlowStep.WORLD)
     }
 }
+
+/** How long the dummy athlete call takes: a fast API round trip. */
+private const val DUMMY_CALL_MILLIS = 500L
