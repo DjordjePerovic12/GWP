@@ -82,7 +82,10 @@ data class Profile(
     val transcriptRequest: String = "",
     /** Profile card: national teams and international events played. */
     val nationalTeams: Set<String> = emptySet(),
-    val nationalEvents: Set<String> = emptySet()
+    val nationalEvents: Set<String> = emptySet(),
+    /** Feed: folders the athlete named, and which folder each saved clip ("r<index>") sits in (Elite). */
+    val folders: List<String> = emptyList(),
+    val clipFolders: Map<String, String> = emptyMap()
 ) {
     /** The main position, or empty. */
     val position: String get() = positions.firstOrNull().orEmpty()

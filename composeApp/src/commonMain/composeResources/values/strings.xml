@@ -1270,22 +1270,22 @@
     <string name="feed_watch_elite">Watch with GWP Elite</string>
     <string name="feed_saved_toast">Saved to your library</string>
     <string name="feed_lib_title">The library.</string>
-    <string name="feed_lib_elite">Courses from GWP coaches. Everything is open with Elite.</string>
-    <string name="feed_lib_next">Courses from GWP coaches. Elite breaks the chains on the full library.</string>
-    <string name="feed_lib_none">Courses from GWP coaches. Start a free trial to open the library.</string>
+    <string name="feed_lib_elite">GWP's own teaching, in folders: fundamentals, positions, tactics and performance. Every folder is open with Elite.</string>
+    <string name="feed_lib_next">GWP's own teaching, in folders: fundamentals, positions, tactics and performance. Buy single folders, or open all of them with Elite.</string>
+    <string name="feed_lib_none">GWP's own teaching, in folders: fundamentals, positions, tactics and performance. Two folders are free. Elite opens every folder, and coaches get the library free.</string>
     <string name="feed_lessons">%1$d lessons</string>
     <string name="feed_lessons_free">%1$d lessons, free</string>
     <string name="feed_lib_fine">Sample curriculum. Lessons publish here as GWP releases them.</string>
     <string name="feed_saved_title">Saved.</string>
     <string name="feed_saved_stories">Stories</string>
-    <string name="feed_saved_courses">Courses</string>
-    <string name="feed_saved_empty">Tap the bookmark on any story or course and it lands here.</string>
+    <string name="feed_saved_courses">Library folders</string>
+    <string name="feed_saved_empty">With GWP Elite, the bookmark on any clip drops it into your own folders: mindset, strength and performance, or one you name.</string>
     <string name="feed_browse">Browse the feed</string>
     <string name="course_free">Free</string>
     <string name="course_break_chains">Break the chains with GWP Elite</string>
     <string name="course_start_trial">Start 7 days free</string>
     <string name="course_saved">Saved to your library</string>
-    <string name="course_save">Save course to library</string>
+    <string name="course_save">Save folder to your library</string>
     <string name="course_fine">Sample curriculum. Lessons publish here as GWP films them.</string>
     <string name="feed_like">Like</string>
     <string name="feed_save">Save</string>
@@ -1715,4 +1715,22 @@
         <item>Youth Olympic Games</item>
         <item>Other international events</item>
     </string-array>
+
+    <!-- v29 Feed folders (phase 4) -->
+    <string name="feed_saved_empty_elite">Tap the bookmark on any clip and drop it into a folder: mindset, strength and performance, or one you name.</string>
+    <string name="course_buy">Buy this folder</string>
+    <string name="course_buy_toast">Folder purchases are set up by GWP. Prototype.</string>
+    <string name="course_open_all">Or open every folder with Elite</string>
+    <string name="course_included">Included with GWP Elite</string>
+    <string name="course_prices">Folder prices are set by GWP.</string>
+    <string name="save_kicker_folders">Saved folders</string>
+    <string name="save_elite_title">Save with Elite.</string>
+    <string name="save_elite_body">Saving clips into your own folders, like mindset or strength and performance, is part of GWP Elite.</string>
+    <string name="save_not_now">Not now</string>
+    <string name="save_kicker_folder">Save to a folder</string>
+    <string name="save_new_label">Or a new folder</string>
+    <string name="save_new_folder">New folder name</string>
+    <string name="save_create">Create</string>
+    <string name="save_remove">Remove from %1$s</string>
+    <string name="save_toast">Saved to %1$s</string>
 </resources>

@@ -2,6 +2,7 @@ package com.global_water_polo.play_abroad.presentation.app.feed
 
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
+import com.global_water_polo.play_abroad.core.utils.LockAction
 import com.global_water_polo.play_abroad.presentation.base.BaseEvent
 
 sealed class FeedEvent : BaseEvent {
@@ -17,4 +18,14 @@ sealed class FeedEvent : BaseEvent {
     data class OnStartPlan(val plan: String, val yearly: Boolean) : FeedEvent()
     data object OnSwitchToNext : FeedEvent()
     data object OnCancelPlan : FeedEvent()
+
+    data class OnLock(val action: LockAction) : FeedEvent()
+    data object OnSaveDismiss : FeedEvent()
+    data class OnFolderPick(val story: Int, val folder: String) : FeedEvent()
+    data class OnFolderCreate(val story: Int, val name: String) : FeedEvent()
+    data class OnSaveRemove(val story: Int) : FeedEvent()
+    data object OnSeeEliteClick : FeedEvent()
+    data class OnSavedClipClick(val story: Int) : FeedEvent()
+    data object OnOpenAllWithEliteClick : FeedEvent()
+    data object OnFreedShown : FeedEvent()
 }

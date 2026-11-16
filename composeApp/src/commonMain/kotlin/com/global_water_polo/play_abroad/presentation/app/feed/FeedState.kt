@@ -3,6 +3,9 @@ package com.global_water_polo.play_abroad.presentation.app.feed
 import com.global_water_polo.play_abroad.core.components.membership.Membership
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
 import com.global_water_polo.play_abroad.core.components.membership.membershipOf
+import com.global_water_polo.play_abroad.core.utils.AccountGate
+import com.global_water_polo.play_abroad.core.utils.Lock
+import com.global_water_polo.play_abroad.core.utils.LockView
 import com.global_water_polo.play_abroad.domain.model.Profile
 import com.global_water_polo.play_abroad.presentation.base.BaseError
 import com.global_water_polo.play_abroad.presentation.base.BaseViewState
@@ -28,21 +31,51 @@ data class FeedState(
     val profile: Profile = Profile(),
     val tab: FeedTab = FeedTab.FOR_YOU,
     val course: Int? = null,
-    val membershipSheet: MembershipSheet? = null
+    val membershipSheet: MembershipSheet? = null,
+    /** The clip whose Save sheet is open. */
+    val saveSheet: Int? = null,
+    /** For you opens on this reel (a saved clip was tapped). */
+    val reel: Int = 0,
+    /** Folders whose chains just fell away (after an Elite unlock); drawn once with the falling chain. */
+    val freed: Boolean = false,
+    val lockView: LockView = LockView()
 ) : BaseViewState(isLoading, error) {
 
     val membership: Membership get() = membershipOf(profile)
+    val lock: Lock get() = AccountGate.lockOf(profile)
+
+    /** v29's FOLDERS28: three starting folders, then the athlete's own. */
+    val folders: List<String> get() = (BASE_FOLDERS + profile.folders).distinct()
+
+    /** The folder a clip is saved in, or null. Clips saved before folders existed count as "Fundamentals". */
+    fun folderOf(story: Int): String? {
+        val key = "r$story"
+        return profile.clipFolders[key] ?: if (key in profile.saved) LEGACY_FOLDER else null
+    }
+
+    /** Saved clips by folder, folders in order, only folders holding at least one clip. */
+    val savedClips: List<Pair<String, List<Int>>>
+        get() {
+            val byFolder = STORIES.indices.mapNotNull { i -> folderOf(i)?.let { it to i } }.groupBy({ it.first }, { it.second })
+            return (folders + byFolder.keys).distinct().mapNotNull { f -> byFolder[f]?.let { f to it } }
+        }
+
+    val savedCourses: List<Int> get() = COURSES.indices.filter { "c$it" in profile.saved }
 
     fun storyLocked(story: Story): Boolean = story.elite && !membership.elite
     fun courseLocked(course: Course): Boolean = !course.free && !membership.elite
 
     companion object {
+        val BASE_FOLDERS = listOf("Mindset", "Strength and performance", "Fundamentals")
+        const val LEGACY_FOLDER = "Fundamentals"
+        const val FOLDER_NAME_MAX = 32
+
         //TODO: Sample stories and courses until GWP films and publishes them.
         val STORIES = listOf(
             Story("GWP LAB", "What your legs do underwater", "0:48", "f_under", "lab", "Open GWP LAB"),
             Story("Club stories", "Where the sea meets the old town", "Kotor, Montenegro", "f_harbour", "city:kotor", "Explore Kotor"),
             Story("Coaching", "Win the position before the ball arrives", "2:10", "f_coach"),
-            Story("Abroad", "The first morning in a new city", "Athlete story", "f_pier", "globe", "See clubs on the globe"),
+            Story("Abroad", "The first morning in a new city", "Athlete story", "f_pier", "globe", "Build an experience"),
             Story("Training", "Goalkeeping: read the hips, not the arm", "3:05", "f_keeper", elite = true),
             Story("GWP LAB", "The shot, seen from below", "1:02", "f_shot", "lab", "Open GWP LAB"),
             Story("Strength", "Rotational power for the outside shot", "6 min", "f_gym", elite = true),

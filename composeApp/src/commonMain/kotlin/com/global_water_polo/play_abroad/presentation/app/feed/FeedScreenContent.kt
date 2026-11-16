@@ -49,6 +49,20 @@ import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.AppTabBar
 import com.global_water_polo.play_abroad.core.utils.AccountGate
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import com.global_water_polo.play_abroad.core.components.ChainIcon
+import com.global_water_polo.play_abroad.core.utils.Lock
+import com.global_water_polo.play_abroad.core.utils.LockAction
 import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.core.components.drawableNamed
@@ -78,14 +92,16 @@ fun FeedScreenContent(
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (state.tab) {
                 FeedTab.FOR_YOU -> {
-                    val pager = rememberPagerState { FeedState.STORIES.size }
+                    val pager = rememberPagerState(initialPage = state.reel) { FeedState.STORIES.size }
+                    // A tapped saved clip opens For you on that reel.
+                    LaunchedEffect(state.reel) { if (pager.currentPage != state.reel) pager.scrollToPage(state.reel) }
                     VerticalPager(state = pager, modifier = Modifier.fillMaxSize()) { i ->
                         val story = FeedState.STORIES[i]
                         ReelCard(
                             story = story,
                             locked = state.storyLocked(story),
                             liked = "r$i" in state.profile.likes,
-                            saved = "r$i" in state.profile.saved,
+                            saved = state.folderOf(i) != null,
                             onLikeClick = { onEvent(FeedEvent.OnLikeClick(i)) },
                             onSaveClick = { onEvent(FeedEvent.OnSaveStoryClick(i)) },
                             onActionClick = { onEvent(FeedEvent.OnStoryActionClick(i)) }
@@ -117,7 +133,15 @@ fun FeedScreenContent(
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = statusTop + 6.dp)
             )
         }
-        AppTabBar(current = AppTab.FEED, onSelect = { onEvent(FeedEvent.OnTabClick(it)) }, dark = true, inboxBadge = AccountGate.badge(state.profile))
+        AppTabBar(
+            current = AppTab.FEED,
+            onSelect = { onEvent(FeedEvent.OnTabClick(it)) },
+            dark = true,
+            inboxBadge = AccountGate.badge(state.profile),
+            // v29 keeps full-screen For you clear: the lock pill shows on Library and Saved only.
+            lock = if (state.tab == FeedTab.FOR_YOU) Lock.NONE else state.lock,
+            onLockClick = { onEvent(FeedEvent.OnLock(LockAction.OPEN)) }
+        )
     }
 }
 
@@ -188,6 +212,7 @@ private fun Library(state: FeedState, onEvent: (FeedEvent) -> Unit) {
                     CourseTile(
                         course = course,
                         locked = state.courseLocked(course),
+                        freed = state.freed && !course.free,
                         saved = "c$index" in state.profile.saved,
                         onClick = { onEvent(FeedEvent.OnCourseClick(index)) },
                         modifier = Modifier.weight(1f)
@@ -195,6 +220,11 @@ private fun Library(state: FeedState, onEvent: (FeedEvent) -> Unit) {
                 }
             }
         }
+    }
+    // The chains fall once after Elite starts, then stay gone.
+    if (state.freed) LaunchedEffect(Unit) {
+        delay(1_200L)
+        onEvent(FeedEvent.OnFreedShown)
     }
     Text(
         stringResource(Res.string.feed_lib_fine),
@@ -204,11 +234,38 @@ private fun Library(state: FeedState, onEvent: (FeedEvent) -> Unit) {
     )
 }
 
-/** `.lb-c`: a 3:4 photo tile, darkened at the bottom under gold category, name and lessons. */
+/**
+ * `.lb-c`: a 3:4 photo tile, darkened at the bottom under gold category, name and lessons. Locked tiles sit
+ * under a dark veil with the gold chain, which rattles when tapped; [freed] tiles drop the chain once.
+ */
 @Composable
-private fun CourseTile(course: Course, locked: Boolean, saved: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun CourseTile(course: Course, locked: Boolean, freed: Boolean, saved: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = GWPPATheme.colors
-    Box(modifier = modifier.aspectRatio(0.75f).clip(RoundedCornerShape(18.dp)).background(colors.nightNavy).clickable(onClick = onClick)) {
+    val scope = rememberCoroutineScope()
+    val rattle = remember { Animatable(0f) }
+    val fall = remember { Animatable(if (freed) 0f else 1f) }
+    if (freed) LaunchedEffect(Unit) { fall.animateTo(1f, tween(900)) }
+    Box(
+        modifier = modifier
+            .aspectRatio(0.75f)
+            .clip(RoundedCornerShape(18.dp))
+            .background(colors.nightNavy)
+            .clickable {
+                if (locked) {
+                    // `.rattle`: a short shake of the chain, then the folder opens.
+                    scope.launch {
+                        rattle.animateTo(0f, keyframes {
+                            durationMillis = 320
+                            -7f at 50; 6f at 110; -4f at 170; 3f at 230; 0f at 320
+                        })
+                    }
+                    scope.launch {
+                        delay(280L)
+                        onClick()
+                    }
+                } else onClick()
+            }
+    ) {
         drawableNamed(course.image)?.let {
             Image(painterResource(it), null, contentScale = ContentScale.Crop, modifier = Modifier.matchParentSize())
         }
@@ -226,10 +283,14 @@ private fun CourseTile(course: Course, locked: Boolean, saved: Boolean, onClick:
                 color = colors.colorWhite.copy(alpha = 0.65f)
             )
         }
-        // `.lb-chain`: locked courses are dimmed under a gold lock.
-        if (locked) {
-            Box(Modifier.matchParentSize().background(colors.nightNavy.copy(alpha = 0.42f)), contentAlignment = Alignment.Center) {
-                Text("🔒", style = GWPPATheme.typography.archivoExpandedBold27)
+        // `.lb-chain`: the veil and gold chain on a locked folder; after Elite starts, the chain drops away.
+        if (locked || fall.value < 1f) {
+            val gone = if (locked) 0f else fall.value
+            Box(Modifier.matchParentSize().alpha(1f - gone).background(colors.nightNavy.copy(alpha = 0.55f)), contentAlignment = Alignment.Center) {
+                ChainIcon(
+                    color = colors.eliteGold,
+                    modifier = Modifier.offset(x = rattle.value.dp, y = (90 * gone).dp).rotate(rattle.value * 2 + 40 * gone).size(40.dp)
+                )
             }
         }
         if (saved) BookmarkIcon(colors.eliteGold, Modifier.align(Alignment.TopEnd).padding(10.dp).size(20.dp))
@@ -239,10 +300,13 @@ private fun CourseTile(course: Course, locked: Boolean, saved: Boolean, onClick:
 @Composable
 private fun Saved(state: FeedState, onEvent: (FeedEvent) -> Unit) {
     val colors = GWPPATheme.colors
-    val stories = FeedState.STORIES.indices.filter { "r$it" in state.profile.saved }
-    val courses = FeedState.COURSES.indices.filter { "c$it" in state.profile.saved }
-    if (stories.isEmpty() && courses.isEmpty()) {
-        FeedHeading(title = stringResource(Res.string.feed_saved_title), sub = stringResource(Res.string.feed_saved_empty))
+    val clips = state.savedClips
+    val courses = state.savedCourses
+    if (clips.isEmpty() && courses.isEmpty()) {
+        FeedHeading(
+            title = stringResource(Res.string.feed_saved_title),
+            sub = stringResource(if (state.membership.elite) Res.string.feed_saved_empty_elite else Res.string.feed_saved_empty)
+        )
         // `.cta3`: an ivory pill with spaced capitals.
         Text(
             stringResource(Res.string.feed_browse).uppercase(),
@@ -265,12 +329,13 @@ private fun Saved(state: FeedState, onEvent: (FeedEvent) -> Unit) {
         style = GWPPATheme.typography.archivoExpandedExtraBold32.copy(fontSize = 37.sp, lineHeight = 0.92.em),
         color = colors.colorWhite
     )
-    if (stories.isNotEmpty()) {
-        SavedKicker(stringResource(Res.string.feed_saved_stories))
+    // One section per folder that holds clips, then the saved library folders.
+    clips.forEach { (folder, stories) ->
+        SavedKicker(folder)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             stories.forEach { i ->
                 val story = FeedState.STORIES[i]
-                SavedRow(story.image, story.title, story.category, onClick = { onEvent(FeedEvent.OnFeedTabClick(FeedTab.FOR_YOU)) })
+                SavedRow(story.image, story.title, story.category, onClick = { onEvent(FeedEvent.OnSavedClipClick(i)) })
             }
         }
     }
