@@ -49,6 +49,10 @@ class IntroViewModel(
             IntroEvent.OnLogoLongPress -> if (BuildKonfig.DEMO_SHORTCUTS) state.update { it.copy(quickStartOpen = true) }
             IntroEvent.OnQuickStartDismiss -> state.update { it.copy(quickStartOpen = false) }
             is IntroEvent.OnQuickStart -> quickStart(event.lane)
+            IntroEvent.OnQuickHost -> {
+                state.update { it.copy(quickStartOpen = false) }
+                viewModelScope.launch { navigator.navigateTo(Screen.HostScreen) }
+            }
         }
     }
 

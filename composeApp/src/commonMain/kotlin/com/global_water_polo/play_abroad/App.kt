@@ -114,7 +114,7 @@ fun App() {
 internal fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.OpenerScreen else when (profile.lane) {
     Lane.ATHLETE -> Screen.HomeScreen
     Lane.PARENT -> Screen.ParentHomeScreen
-    Lane.COACH -> Screen.CoachHomeScreen
+    Lane.COACH -> if (profile.coachTier == "team" || profile.coachTier == "staff") Screen.CoachPendingScreen else Screen.CoachHomeScreen
     Lane.FAN -> Screen.FeedScreen
     Lane.CLUB, null -> Screen.OpenerScreen
 }

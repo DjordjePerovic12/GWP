@@ -27,6 +27,15 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.clubPlaceS
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubStaffScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubProfileScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.homeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachEmailScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachSchoolScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachRecruitScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachTeamScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachNeedsScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachInviteScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachStaffScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachPendingScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.hostScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.inboxScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.coachHomeScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.profileScreenComposable
@@ -109,6 +118,13 @@ fun BaseAppNavigation(
             whoScreenComposable(navController = navController, showSnackBar = showSnackBar)
             coachTypeScreenComposable(navController = navController, showSnackBar = showSnackBar)
             fanScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachEmailScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachSchoolScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachRecruitScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachTeamScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachNeedsScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachInviteScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachStaffScreenComposable(navController = navController, showSnackBar = showSnackBar)
             enrollScreenComposable(navController = navController, showSnackBar = showSnackBar)
             gradSuggestScreenComposable(navController = navController, showSnackBar = showSnackBar)
             availScreenComposable(navController = navController, showSnackBar = showSnackBar)
@@ -138,6 +154,8 @@ fun BaseAppNavigation(
         }
         parentHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         coachHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        coachPendingScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        hostScreenComposable(navController = navController, showSnackBar = showSnackBar)
         homeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         inboxScreenComposable(navController = navController, showSnackBar = showSnackBar)
         profileScreenComposable(navController = navController, showSnackBar = showSnackBar)

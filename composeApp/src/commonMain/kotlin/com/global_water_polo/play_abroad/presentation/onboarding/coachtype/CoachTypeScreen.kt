@@ -29,7 +29,8 @@ fun CoachTypeScreen(
         CoachTypeScreenContent(
             state = state,
             onTierClick = { viewModel.onEvent(OnboardingEvent.OnCoachTierClick(it)) },
-            onBackClick = { viewModel.onEvent(OnboardingEvent.NavigateBack) }
+            onBackClick = { viewModel.onEvent(OnboardingEvent.NavigateBack) },
+            onInviteClick = { viewModel.onEvent(OnboardingEvent.OnCoachInviteClick) }
         )
     }
 }

@@ -85,7 +85,20 @@ data class Profile(
     val nationalEvents: Set<String> = emptySet(),
     /** Feed: folders the athlete named, and which folder each saved clip ("r<index>") sits in (Elite). */
     val folders: List<String> = emptyList(),
-    val clipFolders: Map<String, String> = emptyMap()
+    val clipFolders: Map<String, String> = emptyMap(),
+    /** Coaches (v29): "college", "team" or "staff", and what each path asked. */
+    val coachTier: String = "",
+    val school: String = "",
+    val division: String = "",
+    val coachTeam: String = "",
+    val coachRole: String = "",
+    val recruitPositions: Set<String> = emptySet(),
+    val recruitClasses: Set<Int> = emptySet(),
+    val intl: String = "",
+    val highSchool: String = "",
+    val coachClub: String = "",
+    val coachNeeds: Set<String> = emptySet(),
+    val staffRoles: Set<String> = emptySet()
 ) {
     /** The main position, or empty. */
     val position: String get() = positions.firstOrNull().orEmpty()

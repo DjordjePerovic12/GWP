@@ -17,6 +17,7 @@ fun NavDestination?.globeMode(): GlobeMode = when {
     hasRoute<Screen.GlobeScreen>() -> GlobeMode.EXPLORE
     hasRoute<Screen.ParentHomeScreen>() || hasRoute<Screen.ProfileScreen>() || hasRoute<Screen.FeedScreen>() ||
         hasRoute<Screen.FlightRadarScreen>() || hasRoute<Screen.SettingsScreen>() ||
-        hasRoute<Screen.CoachHomeScreen>() -> GlobeMode.HIDDEN
+        hasRoute<Screen.CoachHomeScreen>() || hasRoute<Screen.HomeScreen>() || hasRoute<Screen.InboxScreen>() ||
+        hasRoute<Screen.CoachPendingScreen>() || hasRoute<Screen.HostScreen>() -> GlobeMode.HIDDEN
     else -> GlobeMode.BADGE
 }

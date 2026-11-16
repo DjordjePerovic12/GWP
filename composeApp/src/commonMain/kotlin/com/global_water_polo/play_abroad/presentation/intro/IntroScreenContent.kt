@@ -66,6 +66,7 @@ import com.global_water_polo.play_abroad.resources.brand_short
 import com.global_water_polo.play_abroad.resources.gwp_logo
 import com.global_water_polo.play_abroad.resources.haptics_off
 import com.global_water_polo.play_abroad.resources.haptics_on
+import com.global_water_polo.play_abroad.resources.quick_host
 import com.global_water_polo.play_abroad.resources.intro_global
 import com.global_water_polo.play_abroad.resources.intro_skip
 import com.global_water_polo.play_abroad.resources.intro_swipe_right
@@ -115,7 +116,8 @@ fun IntroScreenContent(
     onBallClick: () -> Unit,
     onLogoLongPress: () -> Unit = {},
     onQuickStart: (Lane) -> Unit = {},
-    onQuickStartDismiss: () -> Unit = {}
+    onQuickStartDismiss: () -> Unit = {},
+    onQuickHost: () -> Unit = {}
 ) {
     val colors = GWPPATheme.colors
     val typography = GWPPATheme.typography
@@ -158,7 +160,7 @@ fun IntroScreenContent(
             }
     ) {
         if (state.spunAll && !state.finished) TapRing(width = maxWidth.value, height = maxHeight.value)
-        if (state.quickStartOpen) QuickStartSheet(onPick = onQuickStart, onDismiss = onQuickStartDismiss)
+        if (state.quickStartOpen) QuickStartSheet(onPick = onQuickStart, onDismiss = onQuickStartDismiss, onHostClick = onQuickHost)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -296,7 +298,7 @@ private fun ManifestoPiece(text: String, shown: () -> Float) {
 
 /** Quick start (testing): pick a lane and open its home with a sample profile, skipping onboarding. */
 @Composable
-internal fun QuickStartSheet(onPick: (Lane) -> Unit, onDismiss: () -> Unit) {
+internal fun QuickStartSheet(onPick: (Lane) -> Unit, onDismiss: () -> Unit, onHostClick: () -> Unit = {}) {
     val colors = GWPPATheme.colors
     AppSheet(onDismiss = onDismiss) {
         Text(stringResource(Res.string.quick_title), style = GWPPATheme.typography.archivoExpandedBold27, color = colors.inkBlack)
@@ -315,6 +317,8 @@ internal fun QuickStartSheet(onPick: (Lane) -> Unit, onDismiss: () -> Unit) {
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
+        // The invite-only host club view (v29 reaches it from dev mode only); the saved profile is kept.
+        PrimaryButton(text = stringResource(Res.string.quick_host), onClick = onHostClick, style = ButtonStyle.GHOST, modifier = Modifier.padding(top = 8.dp))
     }
 }
 

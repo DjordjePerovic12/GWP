@@ -94,4 +94,20 @@ sealed class OnboardingEvent : BaseEvent {
 
     data class OnOrganizationChanged(val value: String) : OnboardingEvent()
     data object OnCreateAccountClick : OnboardingEvent()
+
+    // Coach paths (v29): college, high school or club, GWP staff.
+    data object OnCoachInviteClick : OnboardingEvent()
+    data class OnSchoolChanged(val value: String) : OnboardingEvent()
+    data class OnDivisionClick(val key: String) : OnboardingEvent()
+    data class OnCoachTeamClick(val key: String) : OnboardingEvent()
+    data class OnCoachRoleClick(val key: String) : OnboardingEvent()
+    data class OnRecruitPositionClick(val key: String) : OnboardingEvent()
+    data class OnRecruitClassClick(val year: Int) : OnboardingEvent()
+    data class OnIntlClick(val key: String) : OnboardingEvent()
+    data class OnHighSchoolChanged(val value: String) : OnboardingEvent()
+    data class OnCoachClubChanged(val value: String) : OnboardingEvent()
+    data class OnNeedClick(val key: String) : OnboardingEvent()
+    data class OnInviteCodeChanged(val value: String) : OnboardingEvent()
+    data class OnStaffRoleClick(val key: String) : OnboardingEvent()
+    data class OnCoachContinueClick(val step: FlowStep) : OnboardingEvent()
 }

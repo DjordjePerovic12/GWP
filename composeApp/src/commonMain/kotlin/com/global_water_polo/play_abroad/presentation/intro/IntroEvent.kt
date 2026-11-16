@@ -11,4 +11,5 @@ sealed class IntroEvent : BaseEvent {
     data object OnLogoLongPress : IntroEvent()
     data object OnQuickStartDismiss : IntroEvent()
     data class OnQuickStart(val lane: Lane) : IntroEvent()
+    data object OnQuickHost : IntroEvent()
 }

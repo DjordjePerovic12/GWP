@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDate
 import com.global_water_polo.play_abroad.core.utils.FreeYear
 import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
 import com.global_water_polo.play_abroad.core.utils.BirthdayCheck
+import com.global_water_polo.play_abroad.core.utils.EmailRules
 import com.global_water_polo.play_abroad.core.utils.LaneCalculator
 import com.global_water_polo.play_abroad.core.utils.LaneInfo
 import com.global_water_polo.play_abroad.core.utils.SummerGap
@@ -19,8 +20,24 @@ data class OnboardingState(
     override val isLoading: Boolean = false,
     override val error: BaseError? = null,
     val lane: Lane = Lane.ATHLETE,
-    /** What a coach coaches: "college" or "team" (club admins move to the club lane). */
+    /** What a coach coaches: "college", "team" or "staff" (invite only); club admins move to the club lane. */
     val coachTier: String = "",
+    /** College coaches (v29's c-school, c-recruit). */
+    val school: String = "",
+    val division: String = "",
+    val coachTeam: String = "",
+    val coachRole: String = "",
+    val recruitPositions: Set<String> = emptySet(),
+    val recruitClasses: Set<Int> = emptySet(),
+    /** International athletes on the recruiting board: "yes" or "no". */
+    val intl: String = "",
+    /** High school and club coaches (c-team, c-needs). */
+    val highSchool: String = "",
+    val coachClub: String = "",
+    val needs: Set<String> = emptySet(),
+    /** GWP staff (c-invite, c-staff). */
+    val inviteCode: String = "",
+    val staffRoles: Set<String> = emptySet(),
     val now: Set<String> = emptySet(),
     val level: Set<String> = emptySet(),
     val birthMonth: Int? = null,
@@ -82,6 +99,21 @@ data class OnboardingState(
         } else null
 
     val isTrip: Boolean get() = lane == Lane.PARENT && "trip" in now
+
+    /** A trip, tournament or clinic abroad: the team coach picks travel dates and a GWP trip lead follows up. */
+    val coachTravels: Boolean get() = needs.any { it in TRAVEL_NEEDS }
+
+    /** v29's RULES29: whether a coach step's Continue is on. */
+    fun coachStepDone(step: FlowStep): Boolean = when (step) {
+        FlowStep.COACH_EMAIL -> firstName.isNotBlank() && EmailRules.isUniversityEmail(email)
+        FlowStep.COACH_SCHOOL -> school.isNotBlank() && division.isNotEmpty() && coachTeam.isNotEmpty() && coachRole.isNotEmpty()
+        FlowStep.COACH_RECRUIT -> recruitPositions.isNotEmpty() && recruitClasses.isNotEmpty() && intl.isNotEmpty()
+        FlowStep.COACH_TEAM -> firstName.isNotBlank() && EmailRules.isEmail(email) && (highSchool.isNotBlank() || coachClub.isNotBlank())
+        FlowStep.COACH_NEEDS -> needs.isNotEmpty()
+        FlowStep.COACH_INVITE -> inviteCode.trim().length >= 4
+        FlowStep.COACH_STAFF -> firstName.isNotBlank() && coachClub.isNotBlank() && EmailRules.isEmail(email) && staffRoles.isNotEmpty()
+        else -> true
+    }
     val isParent: Boolean get() = lane == Lane.PARENT
 
     val enrollment: LocalDate?
@@ -155,5 +187,6 @@ data class OnboardingState(
         const val PLAN_ELITE = "elite"
         const val PLAN_NEXT = "next"
         private val EMAIL = Regex(".+@.+\\..+")
+        val TRAVEL_NEEDS = setOf("trip", "tournament", "clinic")
     }
 }

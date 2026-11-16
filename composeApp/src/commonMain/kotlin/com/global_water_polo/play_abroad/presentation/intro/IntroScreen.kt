@@ -87,6 +87,7 @@ fun IntroScreen(
         onBallClick = { viewModel.onEvent(IntroEvent.OnBallClick) },
         onLogoLongPress = { viewModel.onEvent(IntroEvent.OnLogoLongPress) },
         onQuickStart = { viewModel.onEvent(IntroEvent.OnQuickStart(it)) },
-        onQuickStartDismiss = { viewModel.onEvent(IntroEvent.OnQuickStartDismiss) }
+        onQuickStartDismiss = { viewModel.onEvent(IntroEvent.OnQuickStartDismiss) },
+        onQuickHost = { viewModel.onEvent(IntroEvent.OnQuickHost) }
     )
 }

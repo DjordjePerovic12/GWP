@@ -14,6 +14,8 @@ import com.global_water_polo.play_abroad.core.components.Headline
 import com.global_water_polo.play_abroad.core.components.HelpText
 import com.global_water_polo.play_abroad.core.components.OnboardingLayout
 import com.global_water_polo.play_abroad.core.components.PickCard
+import com.global_water_polo.play_abroad.core.components.TextLink
+import androidx.compose.foundation.layout.fillMaxWidth
 import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingState
 import com.global_water_polo.play_abroad.resources.*
@@ -35,7 +37,8 @@ fun CoachTypeScreenContent(
     modifier: Modifier = Modifier,
     state: OnboardingState,
     onTierClick: (String) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onInviteClick: () -> Unit = {}
 ) {
     OnboardingLayout(
         modifier = modifier,
@@ -53,6 +56,8 @@ fun CoachTypeScreenContent(
                 )
             }
         }
+        // v29: GWP staff join by invitation only.
+        TextLink(text = stringResource(Res.string.coach_invite_link), onClick = onInviteClick, modifier = Modifier.padding(top = 14.dp).fillMaxWidth())
     }
 }
 

@@ -93,6 +93,30 @@ class OnboardingViewModel(
                 state.update { it.copy(coachTier = event.tier) }
                 next(FlowStep.COACH_TYPE)
             }
+            // "Invited to join the GWP coaching staff?": the invite-only staff path.
+            OnboardingEvent.OnCoachInviteClick -> {
+                state.update { it.copy(coachTier = TIER_STAFF) }
+                next(FlowStep.COACH_TYPE)
+            }
+            is OnboardingEvent.OnSchoolChanged -> state.update { it.copy(school = event.value) }
+            is OnboardingEvent.OnDivisionClick -> state.update { it.copy(division = event.key) }
+            is OnboardingEvent.OnCoachTeamClick -> state.update { it.copy(coachTeam = event.key) }
+            is OnboardingEvent.OnCoachRoleClick -> state.update { it.copy(coachRole = event.key) }
+            is OnboardingEvent.OnRecruitPositionClick -> state.update { it.copy(recruitPositions = it.recruitPositions.toggle(event.key)) }
+            is OnboardingEvent.OnRecruitClassClick -> state.update { it.copy(recruitClasses = it.recruitClasses.toggle(event.year)) }
+            is OnboardingEvent.OnIntlClick -> state.update { it.copy(intl = event.key) }
+            is OnboardingEvent.OnHighSchoolChanged -> state.update { it.copy(highSchool = event.value) }
+            is OnboardingEvent.OnCoachClubChanged -> state.update { it.copy(coachClub = event.value) }
+            is OnboardingEvent.OnNeedClick -> state.update { it.copy(needs = it.needs.toggle(event.key)) }
+            is OnboardingEvent.OnInviteCodeChanged -> state.update { it.copy(inviteCode = event.value) }
+            is OnboardingEvent.OnStaffRoleClick -> state.update { it.copy(staffRoles = it.staffRoles.toggle(event.key)) }
+            is OnboardingEvent.OnCoachContinueClick -> if (state.value.coachStepDone(event.step)) {
+                // A trip, tournament or clinic sends the team coach to travel dates, and a GWP trip lead follows up.
+                if (event.step == FlowStep.COACH_NEEDS) {
+                    state.update { it.copy(looking = if (it.coachTravels) setOf("trip") else emptySet()) }
+                }
+                next(event.step)
+            }
             OnboardingEvent.OnFanContinueClick -> if (state.value.firstName.isNotBlank() && state.value.isEmailValid) finish()
             // Skip and the tour's own timer can both fire; the one-time steps move on only once.
             is OnboardingEvent.OnStepContinueClick -> if (event.step !in ONCE || event.step !in state.value.seen) next(event.step)
@@ -335,7 +359,8 @@ class OnboardingViewModel(
                 goHome(Screen.HomeScreen)
             }
             Lane.PARENT -> go(Screen.InviteScreen)
-            Lane.COACH -> goHome(Screen.CoachHomeScreen)
+            // College coaches land on their scouting board; team coaches and staff on the review screen.
+            Lane.COACH -> goHome(if (state.value.coachTier == "college") Screen.CoachHomeScreen else Screen.CoachPendingScreen)
             // The club profile is the club lane's last step; it ends with "Back to start".
             Lane.CLUB -> Unit
             // Fans go straight to the feed.
@@ -430,7 +455,19 @@ class OnboardingViewModel(
                 organization = s.organization.trim(),
                 looking = s.looking,
                 travelStartOffset = s.travelStartOffset,
-                travelMonths = if (s.travelMonths > 0) s.travelMonths else s.pathwayProgram.months
+                travelMonths = if (s.travelMonths > 0) s.travelMonths else s.pathwayProgram.months,
+                coachTier = s.coachTier,
+                school = s.school.trim(),
+                division = s.division,
+                coachTeam = s.coachTeam,
+                coachRole = s.coachRole,
+                recruitPositions = s.recruitPositions,
+                recruitClasses = s.recruitClasses,
+                intl = s.intl,
+                highSchool = s.highSchool.trim(),
+                coachClub = s.coachClub.trim(),
+                coachNeeds = s.needs,
+                staffRoles = s.staffRoles
             )
         }
     }
@@ -455,6 +492,9 @@ class OnboardingViewModel(
 
 /** What do you coach: the club admin choice moves to the club lane. */
 private const val TIER_ADMIN = "admin"
+private const val TIER_STAFF = "staff"
+
+private fun <T> Set<T>.toggle(value: T): Set<T> = if (value in this) this - value else this + value
 
 /** How long the dummy athlete call takes: a fast API round trip. */
 private const val DUMMY_CALL_MILLIS = 500L

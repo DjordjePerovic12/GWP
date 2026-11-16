@@ -38,7 +38,14 @@ enum class FlowStep {
     GRAD_SUGGEST,
     AVAIL,
     LEARN,
-    READY
+    READY,
+    COACH_EMAIL,
+    COACH_SCHOOL,
+    COACH_RECRUIT,
+    COACH_TEAM,
+    COACH_NEEDS,
+    COACH_INVITE,
+    COACH_STAFF
 }
 
 /** The one-tap question steps, all drawn by the shared ask screen. [multi] = pick any, otherwise pick one. */
@@ -96,13 +103,13 @@ private val CLUB_FLOW = listOf(FlowStep.LOOK, FlowStep.PLACE, FlowStep.FACILITIE
 fun OnboardingState.flow(): List<FlowStep> = when {
     lane == Lane.CLUB -> CLUB_FLOW
     lane == Lane.FAN -> listOf(FlowStep.FAN)
-    // Coaches planning a trip or a tournament pick dates before their scouting board.
-    lane == Lane.COACH -> listOfNotNull(
-        FlowStep.COACH_TYPE,
-        FlowStep.LOOK,
-        FlowStep.ACCOUNT,
-        if ("trip" in looking || "tournament" in looking) FlowStep.TRAVEL else null
-    )
+    // v29's three coach paths; every one ends in GWP's review.
+    lane == Lane.COACH -> when (coachTier) {
+        "college" -> listOf(FlowStep.COACH_TYPE, FlowStep.COACH_EMAIL, FlowStep.COACH_SCHOOL, FlowStep.COACH_RECRUIT)
+        "team" -> listOfNotNull(FlowStep.COACH_TYPE, FlowStep.COACH_TEAM, FlowStep.COACH_NEEDS, if (coachTravels) FlowStep.TRAVEL else null)
+        "staff" -> listOf(FlowStep.COACH_TYPE, FlowStep.COACH_INVITE, FlowStep.COACH_STAFF)
+        else -> listOf(FlowStep.COACH_TYPE)
+    }
     isTrip -> TRIP_FLOW
     else -> laneFlow()
 }
@@ -148,4 +155,11 @@ fun FlowStep.route(lane: Lane): Screen = when (this) {
     FlowStep.AVAIL -> Screen.AvailScreen(lane)
     FlowStep.LEARN -> Screen.LearnScreen(lane)
     FlowStep.READY -> Screen.ReadyScreen(lane)
+    FlowStep.COACH_EMAIL -> Screen.CoachEmailScreen
+    FlowStep.COACH_SCHOOL -> Screen.CoachSchoolScreen
+    FlowStep.COACH_RECRUIT -> Screen.CoachRecruitScreen
+    FlowStep.COACH_TEAM -> Screen.CoachTeamScreen
+    FlowStep.COACH_NEEDS -> Screen.CoachNeedsScreen
+    FlowStep.COACH_INVITE -> Screen.CoachInviteScreen
+    FlowStep.COACH_STAFF -> Screen.CoachStaffScreen
 }

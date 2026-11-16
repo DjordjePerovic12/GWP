@@ -30,6 +30,28 @@ sealed interface Screen {
     @Serializable
     data object CoachTypeScreen : Screen
 
+    // Coach paths (v29): college, high school or club, GWP staff.
+    @Serializable
+    data object CoachEmailScreen : Screen
+
+    @Serializable
+    data object CoachSchoolScreen : Screen
+
+    @Serializable
+    data object CoachRecruitScreen : Screen
+
+    @Serializable
+    data object CoachTeamScreen : Screen
+
+    @Serializable
+    data object CoachNeedsScreen : Screen
+
+    @Serializable
+    data object CoachInviteScreen : Screen
+
+    @Serializable
+    data object CoachStaffScreen : Screen
+
     /** "Follow the game": a fan's name and email, then the feed. */
     @Serializable
     data object FanScreen : Screen
@@ -189,6 +211,14 @@ sealed interface Screen {
 
     @Serializable
     data object CoachHomeScreen : Screen
+
+    /** "GWP is reviewing your account.": high school, club and staff coaches after sign-up. */
+    @Serializable
+    data object CoachPendingScreen : Screen
+
+    /** The invite-only host club view (demo: from Quick start). */
+    @Serializable
+    data object HostScreen : Screen
 
     // Athlete app: one route per tab (v29: Home, Feed, Globe+, Inbox, Profile)
     @Serializable
