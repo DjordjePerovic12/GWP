@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.em
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.ChoiceChip
@@ -57,12 +58,13 @@ fun PathwaySection(
     onGlobeClick: () -> Unit,
     onProgramClick: (Program) -> Unit,
     onCityClick: (String) -> Unit,
-    onClinicClick: (Int) -> Unit
+    onClinicClick: (Int) -> Unit,
+    heroImage: DrawableResource = Res.drawable.f_harbour
 ) {
     val colors = GWPPATheme.colors
     val pathway = state.profile.pathway
     PhotoHero(
-        image = Res.drawable.f_harbour,
+        image = heroImage,
         kicker = stringResource(Res.string.path_kicker),
         title = stringResource(Res.string.path_hero),
         sub = stringResource(Res.string.path_hero_sub),
@@ -187,7 +189,16 @@ private fun StepCard(step: PathwayStep, destinations: List<String>, onClick: () 
             .padding(16.dp)
     ) {
         Text(timingLabel(step).uppercase(), style = GWPPATheme.typography.archivoBold11, color = colors.chlorineBlue)
-        Text(stringResource(step.program.title), style = GWPPATheme.typography.archivoExpandedBold16, color = colors.inkBlack)
+        Text(
+            when (step.pick) {
+                "fall" -> stringResource(Res.string.pick_fall_name)
+                "winter" -> stringResource(Res.string.pick_winter_name)
+                "spring" -> stringResource(Res.string.pick_spring_name)
+                else -> stringResource(step.program.title)
+            },
+            style = GWPPATheme.typography.archivoExpandedBold16,
+            color = colors.inkBlack
+        )
         Text(stringResource(whyText(step.why)), style = GWPPATheme.typography.archivoRegular14, color = colors.slateGrey)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
             destinations.forEach { id ->
@@ -204,6 +215,7 @@ fun timingLabel(step: PathwayStep): String = when (step.timing) {
     PathwayTiming.SUMMER -> stringResource(Res.string.timing_summer, step.year)
     PathwayTiming.SPRING -> stringResource(Res.string.timing_spring, step.year)
     PathwayTiming.FALL -> stringResource(Res.string.timing_fall, step.year)
+    PathwayTiming.WINTER -> stringResource(Res.string.timing_winter, step.year, step.year + 1)
     PathwayTiming.SEASON -> stringResource(Res.string.timing_season, step.year, step.year + 1)
 }
 
@@ -217,6 +229,7 @@ private fun whyText(why: PathwayWhy) = when (why) {
     PathwayWhy.CLUB_BLOCK -> Res.string.why_club_block
     PathwayWhy.FITS_BEFORE_CLOCK -> Res.string.why_fits_clock
     PathwayWhy.CONFIRM_NCAA -> Res.string.why_confirm_ncaa
+    PathwayWhy.IN_FREE_YEAR -> Res.string.why_in_free_year
 }
 
 /**

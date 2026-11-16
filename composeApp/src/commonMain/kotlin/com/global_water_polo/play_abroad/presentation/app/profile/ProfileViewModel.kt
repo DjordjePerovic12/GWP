@@ -16,6 +16,8 @@ import com.global_water_polo.play_abroad.core.components.membership.MembershipSh
 import com.global_water_polo.play_abroad.core.navigation.Screen
 import com.global_water_polo.play_abroad.core.navigation.utils.Navigator
 import com.global_water_polo.play_abroad.core.navigation.utils.openTab
+import com.global_water_polo.play_abroad.core.utils.AccountGate
+import com.global_water_polo.play_abroad.core.utils.LockAction
 import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
 import com.global_water_polo.play_abroad.core.components.isVideo
 import com.global_water_polo.play_abroad.domain.model.GalleryItem
@@ -25,6 +27,7 @@ import com.global_water_polo.play_abroad.domain.model.Portfolio
 import kotlin.time.Clock
 import com.global_water_polo.play_abroad.domain.repository.ProfileRepository
 import com.global_water_polo.play_abroad.domain.repository.cancelPlan
+import com.global_water_polo.play_abroad.domain.repository.lockStep
 import com.global_water_polo.play_abroad.domain.repository.startPlan
 import com.global_water_polo.play_abroad.domain.repository.switchToNext
 import com.global_water_polo.play_abroad.presentation.base.BaseViewModel
@@ -67,7 +70,7 @@ class ProfileViewModel(
         when (event) {
             is ProfileEvent.OnTabClick -> openTab(event.tab.route)
             is ProfileEvent.OnSegmentClick -> state.update { it.copy(segment = event.segment) }
-            is ProfileEvent.OnMembershipSheet -> state.update { it.copy(membershipSheet = event.sheet) }
+            is ProfileEvent.OnMembershipSheet -> if (event.sheet == null || !lockedAccount()) state.update { it.copy(membershipSheet = event.sheet) }
             is ProfileEvent.OnStartPlan -> profileRepository.startPlan(event.plan, event.yearly)
             ProfileEvent.OnSwitchToNext -> profileRepository.switchToNext()
             ProfileEvent.OnCancelPlan -> profileRepository.cancelPlan()
@@ -91,9 +94,32 @@ class ProfileViewModel(
                         level = if (event.level.isEmpty()) it.level else setOf(event.level)
                     )
                 }
-                state.update { it.copy(sheet = null, segment = ProfileSegment.PATH) }
+                state.update { it.copy(sheet = null) }
             }
             ProfileEvent.OnExploreGlobeClick -> openTab(Screen.GlobeScreen())
+            is ProfileEvent.OnLock -> {
+                state.update { it.copy(lockView = profileRepository.lockStep(event.action, it.lockView)) }
+                if (event.action == LockAction.DONE) openTab(Screen.HomeScreen)
+            }
+            is ProfileEvent.OnNationalTeamClick -> if (!lockedAccount()) profileRepository.update {
+                it.copy(nationalTeams = if (event.team in it.nationalTeams) it.nationalTeams - event.team else it.nationalTeams + event.team)
+            }
+            is ProfileEvent.OnNationalEventClick -> if (!lockedAccount()) profileRepository.update {
+                it.copy(nationalEvents = if (event.event in it.nationalEvents) it.nationalEvents - event.event else it.nationalEvents + event.event)
+            }
+            ProfileEvent.OnNotificationsClick -> profileRepository.update { it.copy(notifications = !it.notifications) }
+            ProfileEvent.OnHomeAirportClick -> openTab(Screen.FlightRadarScreen)
+            is ProfileEvent.OnFaqClick -> state.update { it.copy(openFaq = if (it.openFaq == event.index) null else event.index) }
+            ProfileEvent.OnSettingsClick -> openTab(Screen.SettingsScreen)
+            // Prototype: signing out deletes the saved profile and kept files and starts again at the globe.
+            ProfileEvent.OnSignOutClick -> {
+                profileRepository.reset()
+                viewModelScope.launch {
+                    navigator.navigateTo(Screen.OpenerScreen) {
+                        popUpTo<Screen.HomeScreen> { inclusive = true }
+                    }
+                }
+            }
             is ProfileEvent.OnProgramClick -> state.update { it.copy(sheet = ProfileSheet.ProgramDetail(event.program)) }
             is ProfileEvent.OnProgramCtaClick -> {
                 val s = state.value
@@ -128,7 +154,7 @@ class ProfileViewModel(
                 if (event.index in it.labSent) return@update it
                 it.copy(labAngles = it.labAngles + (event.index to it.labAngles[event.index].orEmpty() - event.angle))
             }
-            is ProfileEvent.OnLabSendClick -> {
+            is ProfileEvent.OnLabSendClick -> if (!lockedAccount()) {
                 val s = state.value
                 // Coach reviews are part of GWP Elite.
                 if (!s.membership.elite) {
@@ -146,7 +172,7 @@ class ProfileViewModel(
             is ProfileEvent.OnWorkoutToggle -> profileRepository.update {
                 it.copy(workoutDone = if (event.index in it.workoutDone) it.workoutDone - event.index else it.workoutDone + event.index)
             }
-            is ProfileEvent.OnEditInfo -> state.update { it.copy(sheet = ProfileSheet.Editor(event.group)) }
+            is ProfileEvent.OnEditInfo -> if (!lockedAccount()) state.update { it.copy(sheet = ProfileSheet.Editor(event.group)) }
             is ProfileEvent.OnInfoSaved -> {
                 updatePortfolio { it.copy(info = event.info) }
                 state.update { it.copy(sheet = null) }
@@ -157,30 +183,30 @@ class ProfileViewModel(
             }
             // Prototype: picked files are copied into app storage (so they survive a restart) and stay on the
             // device; nothing is uploaded yet. A picked photo or highlight also lands in the gallery.
-            is ProfileEvent.OnPhotoPicked -> keep(event.file) { file ->
+            is ProfileEvent.OnPhotoPicked -> if (!lockedAccount()) keep(event.file) { file ->
                 updatePortfolio {
                     val item = GalleryItem(newId(), file, video = false)
                     it.copy(gallery = listOf(item) + it.gallery, photoId = item.id)
                 }
             }
-            is ProfileEvent.OnHighlightPicked -> keep(event.file) { file ->
+            is ProfileEvent.OnHighlightPicked -> if (!lockedAccount()) keep(event.file) { file ->
                 updatePortfolio {
                     val item = GalleryItem(newId(), file, video = true)
                     it.copy(gallery = listOf(item) + it.gallery, highlightId = item.id)
                 }
             }
-            is ProfileEvent.OnTranscriptPicked -> keep(event.file) { file -> updatePortfolio { it.copy(transcript = file) } }
-            ProfileEvent.OnLetterRequestClick -> state.update { it.copy(sheet = ProfileSheet.LetterRequest) }
+            is ProfileEvent.OnTranscriptPicked -> if (!lockedAccount()) keep(event.file) { file -> updatePortfolio { it.copy(transcript = file) } }
+            ProfileEvent.OnLetterRequestClick -> if (!lockedAccount()) state.update { it.copy(sheet = ProfileSheet.LetterRequest) }
             // Prototype: no email goes to the coach.
             is ProfileEvent.OnLetterRequested -> {
                 updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, event.club)) }
                 state.update { it.copy(sheet = null) }
             }
-            is ProfileEvent.OnLetterUploaded -> keep(event.file) { file ->
+            is ProfileEvent.OnLetterUploaded -> if (!lockedAccount()) keep(event.file) { file ->
                 updatePortfolio { it.copy(letters = it.letters + Letter(newId(), event.from, file = file)) }
             }
             is ProfileEvent.OnLetterRemove -> updatePortfolio { p -> p.copy(letters = p.letters.filterNot { it.id == event.id }) }
-            is ProfileEvent.OnGalleryAdd -> viewModelScope.launch {
+            is ProfileEvent.OnGalleryAdd -> if (!lockedAccount()) viewModelScope.launch {
                 val files = event.files.map { MediaFiles.keep(it) }
                 updatePortfolio { p ->
                     val base = newId()
@@ -208,6 +234,13 @@ class ProfileViewModel(
             }
             is ProfileEvent.OnVisibilityClick -> profileRepository.update { it.copy(visibility = event.visibility) }
         }
+    }
+
+    /** While the account is locked, an action opens the lock sheet instead (v29's click guard). */
+    private fun lockedAccount(): Boolean {
+        if (!AccountGate.locked(state.value.profile)) return false
+        state.update { it.copy(sheet = null, lockView = it.lockView.copy(sheet = true)) }
+        return true
     }
 
     /** Copies a picked file into app storage, then hands the copy on. */

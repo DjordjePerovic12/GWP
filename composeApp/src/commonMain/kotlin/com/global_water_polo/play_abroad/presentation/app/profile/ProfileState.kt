@@ -3,7 +3,11 @@ package com.global_water_polo.play_abroad.presentation.app.profile
 import com.global_water_polo.play_abroad.core.components.membership.Membership
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
 import com.global_water_polo.play_abroad.core.components.membership.membershipOf
+import com.global_water_polo.play_abroad.core.utils.AccountGate
 import com.global_water_polo.play_abroad.core.utils.FreeYear
+import com.global_water_polo.play_abroad.core.utils.Lock
+import com.global_water_polo.play_abroad.core.utils.LockView
+import com.global_water_polo.play_abroad.core.utils.isMinor
 import com.global_water_polo.play_abroad.core.utils.NcaaClockCalculator
 import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
 import com.global_water_polo.play_abroad.domain.model.InfoGroup
@@ -13,13 +17,16 @@ import com.global_water_polo.play_abroad.domain.model.Program
 import com.global_water_polo.play_abroad.presentation.base.BaseError
 import com.global_water_polo.play_abroad.presentation.base.BaseViewState
 
+/** v29's four Profile sections, in order. */
 enum class ProfileSegment(val key: String) {
-    PATH("path"),
+    CARD("card"),
     LAB("lab"),
-    PORTFOLIO("port");
+    MEMBER("member"),
+    ACCOUNT("account");
 
     companion object {
-        fun of(key: String): ProfileSegment = entries.firstOrNull { it.key == key } ?: PATH
+        /** "port" (the old Portfolio) opens the Card. */
+        fun of(key: String): ProfileSegment = entries.firstOrNull { it.key == key } ?: CARD
     }
 }
 
@@ -50,12 +57,19 @@ data class ProfileState(
     override val isLoading: Boolean = false,
     override val error: BaseError? = null,
     val profile: Profile = Profile(),
-    val segment: ProfileSegment = ProfileSegment.PATH,
+    val segment: ProfileSegment = ProfileSegment.CARD,
     val preview: Boolean = false,
     val galleryFilter: GalleryFilter = GalleryFilter.ALL,
     val sheet: ProfileSheet? = null,
-    val membershipSheet: MembershipSheet? = null
+    val membershipSheet: MembershipSheet? = null,
+    val lockView: LockView = LockView(),
+    /** Account › Questions: the open answer. */
+    val openFaq: Int? = null
 ) : BaseViewState(isLoading, error) {
+
+    val lock: Lock get() = AccountGate.lockOf(profile)
+    val inboxBadge: Int get() = AccountGate.badge(profile)
+    val minor: Boolean get() = profile.isMinor()
 
     val membership: Membership get() = membershipOf(profile)
 

@@ -4,7 +4,9 @@ import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
+import com.global_water_polo.play_abroad.domain.model.Pathway
 import com.global_water_polo.play_abroad.domain.model.PathwayStep
+import com.global_water_polo.play_abroad.domain.model.Profile
 import com.global_water_polo.play_abroad.domain.model.PathwayTiming
 import com.global_water_polo.play_abroad.domain.model.PathwayWhy
 import com.global_water_polo.play_abroad.domain.model.Program
@@ -135,6 +137,64 @@ object PathwayCalculator {
             steps += PathwayStep(Program.GAP_YEAR, after, 8, PathwayTiming.SEASON, if (fits) PathwayWhy.FITS_BEFORE_CLOCK else PathwayWhy.CONFIRM_NCAA)
         }
         return steps.sortedWith(compareBy({ it.year }, { it.month }, { it.program.ordinal }))
+    }
+
+    /**
+     * v29's plan (buildPath28 + computePath): one step from the first step picked in onboarding or in
+     * "Adjust my plan". "summer" (the default) is the summer after school, "year" the year abroad, "fall",
+     * "winter" and "spring" a ten-week season after school. In college, the next summer or fall from [today].
+     */
+    fun planSteps(
+        firstStep: String,
+        availability: String,
+        gradMonth: Int?,
+        gradYear: Int?,
+        inCollege: Boolean,
+        freeYear: FreeYear?,
+        today: LocalDate = NcaaClockCalculator.today()
+    ): List<PathwayStep> {
+        val y = today.year
+        val m = today.month.number
+        val gy = gradYear ?: (y + 1)
+        val gm = gradMonth ?: 6
+        val summer = if (inCollege) (if (m <= 5) y else y + 1) else if (gm <= 8) gy else gy + 1
+        val fall = if (inCollege) (if (m >= 8) y + 1 else y) else if (gm <= 8) gy else gy + 1
+        val fits = freeYear != null && !freeYear.running && freeYear.free >= 1
+        val seasonWhy = if (fits) PathwayWhy.IN_FREE_YEAR else PathwayWhy.CONFIRM_NCAA
+        val step = when (firstStep) {
+            "year" -> PathwayStep(Program.GAP_YEAR, fall, 8, PathwayTiming.SEASON, if (fits) PathwayWhy.FITS_BEFORE_CLOCK else PathwayWhy.CONFIRM_NCAA)
+            "fall" -> PathwayStep(Program.FALL, fall, 9, PathwayTiming.FALL, seasonWhy, pick = "fall")
+            "winter" -> PathwayStep(Program.SPRING, fall, 12, PathwayTiming.WINTER, seasonWhy, pick = "winter")
+            "spring" -> PathwayStep(Program.SPRING, fall + 1, 3, PathwayTiming.SPRING, seasonWhy, pick = "spring")
+            else -> PathwayStep(Program.SUMMER, summer, 6, PathwayTiming.SUMMER, if (availability == "jo") PathwayWhy.AFTER_JO else PathwayWhy.BETWEEN_YEARS)
+        }
+        return listOf(step)
+    }
+
+    /** The whole plan from the saved answers (v29's buildPath28). */
+    fun planOf(p: Profile): Pathway {
+        val college = "college" in p.now
+        val steps = planSteps(
+            firstStep = p.firstStep,
+            availability = p.availability,
+            gradMonth = p.gradMonth,
+            gradYear = p.gradYear,
+            inCollege = college,
+            freeYear = p.freeYear
+        )
+        val education = when {
+            college -> "college"
+            p.laneInfo()?.let { it.age >= 19 } == true -> "grad"
+            else -> "hs"
+        }
+        return Pathway(
+            goal = p.goal,
+            level = p.level.firstOrNull().orEmpty(),
+            education = education,
+            timing = setOfNotNull(p.firstStep.ifEmpty { null }),
+            destinations = emptySet(),
+            steps = steps
+        )
     }
 
     /** Year a seasonal program would run for a given start, null for flexible programs. */

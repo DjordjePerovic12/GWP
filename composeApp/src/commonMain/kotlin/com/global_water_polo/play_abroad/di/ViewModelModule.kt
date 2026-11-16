@@ -1,6 +1,8 @@
 package com.global_water_polo.play_abroad.di
 
 import org.koin.core.module.dsl.viewModelOf
+import com.global_water_polo.play_abroad.presentation.app.home.HomeViewModel
+import com.global_water_polo.play_abroad.presentation.app.inbox.InboxViewModel
 import com.global_water_polo.play_abroad.presentation.app.profile.ProfileViewModel
 import com.global_water_polo.play_abroad.presentation.app.feed.FeedViewModel
 import com.global_water_polo.play_abroad.presentation.app.globe.GlobeViewModel
@@ -26,6 +28,8 @@ val viewModelModule = module {
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::ParentHomeViewModel)
     viewModelOf(::CoachHomeViewModel)
+    viewModelOf(::HomeViewModel)
+    viewModelOf(::InboxViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::FeedViewModel)
     viewModelOf(::GlobeViewModel)

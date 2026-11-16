@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.global_water_polo.play_abroad.core.components.model3d.BALL_FRONT_SPIN
+import com.global_water_polo.play_abroad.core.components.model3d.BALL_FRONT_TILT
 import com.global_water_polo.play_abroad.core.components.model3d.BallFrame
 import kotlin.math.PI
 import kotlin.math.exp
@@ -52,8 +53,8 @@ class OpenerTimeline(
 
     fun spin(t: Float, u: Float?): Float = BALL_FRONT_SPIN + spinAuto(t) + (u?.let(::spinPost) ?: 0f)
 
-    /** The lean: a little more from far away, settling to a slight look at the top. */
-    fun tilt(t: Float): Float = lerp(0.42f, 0.14f, seg(t, 0f, 3.4f, ::io2))
+    /** The lean: a little more from far away, settling on the logo square-on. */
+    fun tilt(t: Float): Float = lerp(0.42f, BALL_FRONT_TILT, seg(t, 0f, 3.4f, ::io2))
 
     fun frame(t: Float, u: Float?) = BallFrame(
         radius = ballRadius(t, u) / height,

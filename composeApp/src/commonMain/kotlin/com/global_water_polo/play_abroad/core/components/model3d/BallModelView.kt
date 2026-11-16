@@ -24,8 +24,14 @@ data class BallFrame(
 /** Vertical field of view the platform views use, in degrees (the reference opener's VFOV). */
 const val BALL_FOV_DEGREES = 26f
 
-/** Spin that turns the GWP logo panel to face the viewer (the logo sits at about 20 W on the ball's map). */
-const val BALL_FRONT_SPIN = -1.13f
+/**
+ * Spin that turns the GWP logo panel to face the viewer. The 16 Nov ball export (gwppa-blender INTRO_KIT.md)
+ * puts the logo at 18 N 32 W in the intro's axes: +32 degrees brings 32 W to a camera on +Z.
+ */
+const val BALL_FRONT_SPIN = 0.56f
+
+/** Lean (top toward the viewer) that brings the logo's 18 N to the centre, as the web intro's hero pose does. */
+const val BALL_FRONT_TILT = 0.31f
 
 /** Camera distance (in ball radii) that makes the ball look [radius] of the view's height. */
 fun ballCameraDistance(radius: Float): Float {

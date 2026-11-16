@@ -71,7 +71,18 @@ data class Profile(
     val callRequested: Boolean = false,
     val abroadRequested: Boolean = false,
     /** Onboarding is done and the user reached their home; the app reopens there. */
-    val onboarded: Boolean = false
+    val onboarded: Boolean = false,
+    /**
+     * v29 lock: the app stays locked until the email link is tapped and, for an athlete under 18, a parent
+     * confirms. Both default to true so profiles saved before v29 open unlocked; onboarding sets them.
+     */
+    val emailVerified: Boolean = true,
+    val parentConfirmed: Boolean = true,
+    /** Inbox sample: the college coach's transcript request, "" until "approved" or "declined". */
+    val transcriptRequest: String = "",
+    /** Profile card: national teams and international events played. */
+    val nationalTeams: Set<String> = emptySet(),
+    val nationalEvents: Set<String> = emptySet()
 ) {
     /** The main position, or empty. */
     val position: String get() = positions.firstOrNull().orEmpty()

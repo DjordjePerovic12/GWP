@@ -48,6 +48,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.AppTabBar
+import com.global_water_polo.play_abroad.core.utils.AccountGate
 import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.core.components.SmallText
 import com.global_water_polo.play_abroad.core.components.drawableNamed
@@ -116,7 +117,7 @@ fun FeedScreenContent(
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = statusTop + 6.dp)
             )
         }
-        AppTabBar(current = AppTab.FEED, onSelect = { onEvent(FeedEvent.OnTabClick(it)) }, dark = true)
+        AppTabBar(current = AppTab.FEED, onSelect = { onEvent(FeedEvent.OnTabClick(it)) }, dark = true, inboxBadge = AccountGate.badge(state.profile))
     }
 }
 

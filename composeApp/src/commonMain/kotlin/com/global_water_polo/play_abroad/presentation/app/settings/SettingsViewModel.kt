@@ -46,8 +46,8 @@ class SettingsViewModel(
     fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.OnTabClick -> open(event.tab.route)
-            SettingsEvent.OnEditProfileClick -> open(Screen.ProfileScreen(segment = "port"))
-            SettingsEvent.OnPreviewClick -> open(Screen.ProfileScreen(segment = "port", preview = true))
+            SettingsEvent.OnEditProfileClick -> open(Screen.ProfileScreen(segment = "card"))
+            SettingsEvent.OnPreviewClick -> open(Screen.ProfileScreen(segment = "card", preview = true))
             is SettingsEvent.OnMembershipSheet -> state.update { it.copy(membershipSheet = event.sheet) }
             is SettingsEvent.OnStartPlan -> profileRepository.startPlan(event.plan, event.yearly)
             SettingsEvent.OnSwitchToNext -> profileRepository.switchToNext()
@@ -61,7 +61,7 @@ class SettingsViewModel(
                 profileRepository.reset()
                 viewModelScope.launch {
                     navigator.navigateTo(Screen.OpenerScreen) {
-                        popUpTo<Screen.ProfileScreen> { inclusive = true }
+                        popUpTo<Screen.HomeScreen> { inclusive = true }
                     }
                 }
             }

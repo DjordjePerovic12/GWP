@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.AppTabBar
+import com.global_water_polo.play_abroad.core.utils.AccountGate
 import com.global_water_polo.play_abroad.core.components.FormField
 import com.global_water_polo.play_abroad.presentation.app.globe.components.Crest
 import com.global_water_polo.play_abroad.resources.*
@@ -244,18 +245,25 @@ fun GlobeScreenContent(
                             }
                         }
                     }
-                    Text(
-                        stringResource(Res.string.globe_programs),
-                        style = GWPPATheme.typography.archivoBold12,
-                        color = colors.colorWhite,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.08f))
-                            .border(1.dp, Color.White.copy(alpha = 0.22f), CircleShape)
-                            .clickable { onEvent(GlobeEvent.OnProgramsClick) }
-                            .padding(horizontal = 14.dp, vertical = 7.dp)
-                    )
+                    // v29: "Programs" goes Home (the plan and programs); "My trips" opens the trip tracker.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        listOf(
+                            stringResource(Res.string.globe_programs) to GlobeEvent.OnProgramsClick,
+                            stringResource(Res.string.globe_my_trips) to GlobeEvent.OnMyTripsClick
+                        ).forEach { (label, click) ->
+                            Text(
+                                label,
+                                style = GWPPATheme.typography.archivoBold12,
+                                color = colors.colorWhite,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.08f))
+                                    .border(1.dp, Color.White.copy(alpha = 0.22f), CircleShape)
+                                    .clickable { onEvent(click) }
+                                    .padding(horizontal = 14.dp, vertical = 7.dp)
+                            )
+                        }
+                    }
                     Text(
                         stringResource(Res.string.globe_hint),
                         style = GWPPATheme.typography.archivoRegular13,
@@ -265,7 +273,15 @@ fun GlobeScreenContent(
                     )
                 }
             }
-            AppTabBar(current = AppTab.GLOBE, onSelect = { onEvent(GlobeEvent.OnTabClick(it)) }, dark = true)
+            AppTabBar(
+                current = AppTab.GLOBE,
+                onSelect = { onEvent(GlobeEvent.OnTabClick(it)) },
+                dark = true,
+                inboxBadge = AccountGate.badge(state.profile),
+                lock = AccountGate.lockOf(state.profile),
+                // The Inbox holds the email link and the parent's confirmation.
+                onLockClick = { onEvent(GlobeEvent.OnTabClick(AppTab.INBOX)) }
+            )
         }
     }
 }

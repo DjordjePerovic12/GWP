@@ -3,7 +3,9 @@ package com.global_water_polo.play_abroad.core.utils
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.number
+import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.domain.model.NcaaClock
+import com.global_water_polo.play_abroad.domain.model.Profile
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -154,3 +156,23 @@ object LaneCalculator {
     /** Seasons kept going to college in [college] (fall), never below 0 or above 5. */
     fun seasons(clock: NcaaClock, college: Int): Int = max(0, min(5, NcaaClockCalculator.seasons(clock, college)))
 }
+
+/** First full-time college enrollment, when they're in college and gave one. */
+val Profile.enrollment: LocalDate?
+    get() = if ("college" in now && enrollMonth != null && enrollYear != null) LocalDate(enrollYear, enrollMonth, 1) else null
+
+/** Where this athlete stands with the NCAA window; null without a birthday. */
+fun Profile.laneInfo(today: LocalDate = NcaaClockCalculator.today()): LaneInfo? =
+    birthday?.let { LaneCalculator.laneOf(it, enrollment, pro = "pro" in now, today = today) }
+
+/** The summer between school and preseason, from the saved finish and availability. */
+val Profile.summerGap: SummerGap?
+    get() = LaneCalculator.summerGap(gradMonth ?: return null, gradYear ?: return null, availability)
+
+/** The year between school and the NCAA window, if there is one. */
+val Profile.freeYear: FreeYear?
+    get() = PathwayCalculator.freeYear(birthday ?: return null, gradMonth ?: return null, gradYear ?: return null, "college" in now)
+
+/** An athlete under 18: a parent confirms the account. */
+fun Profile.isMinor(today: LocalDate = NcaaClockCalculator.today()): Boolean =
+    lane == Lane.ATHLETE && (birthday?.let { NcaaClockCalculator.ageOn(it, today) } ?: 99) < 18

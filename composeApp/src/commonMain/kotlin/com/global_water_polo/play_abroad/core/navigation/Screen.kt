@@ -190,8 +190,14 @@ sealed interface Screen {
     @Serializable
     data object CoachHomeScreen : Screen
 
-    // Athlete app: one route per tab
-    /** [segment] opens a section ("path", "lab", "port"); [preview] opens the portfolio as coaches see it. */
+    // Athlete app: one route per tab (v29: Home, Feed, Globe+, Inbox, Profile)
+    @Serializable
+    data object HomeScreen : Screen
+
+    @Serializable
+    data object InboxScreen : Screen
+
+    /** [segment] opens a section ("card", "lab", "member", "account"); [preview] opens the card as coaches see it. */
     @Serializable
     data class ProfileScreen(val segment: String = "", val preview: Boolean = false) : Screen
 

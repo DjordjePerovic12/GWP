@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.global_water_polo.play_abroad.core.components.AccountLockLayer
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheetHost
 import com.global_water_polo.play_abroad.core.utils.observeWithLifecycle
 import com.global_water_polo.play_abroad.presentation.app.profile.components.BuildPathwaySheet
@@ -54,6 +55,8 @@ fun ProfileScreen(
         onSwitchToNext = { viewModel.onEvent(ProfileEvent.OnSwitchToNext) },
         onCancel = { viewModel.onEvent(ProfileEvent.OnCancelPlan) }
     )
+
+    AccountLockLayer(profile = state.profile, view = state.lockView, onAction = { viewModel.onEvent(ProfileEvent.OnLock(it)) })
 }
 
 @Composable

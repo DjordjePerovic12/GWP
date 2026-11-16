@@ -3,6 +3,7 @@ package com.global_water_polo.play_abroad.presentation.app.profile
 import io.github.vinceglb.filekit.PlatformFile
 import com.global_water_polo.play_abroad.core.components.AppTab
 import com.global_water_polo.play_abroad.core.components.membership.MembershipSheet
+import com.global_water_polo.play_abroad.core.utils.LockAction
 import com.global_water_polo.play_abroad.domain.model.InfoGroup
 import com.global_water_polo.play_abroad.domain.model.PersonalInfo
 import com.global_water_polo.play_abroad.domain.model.Program
@@ -58,4 +59,13 @@ sealed class ProfileEvent : BaseEvent {
     data class OnUseOnProfile(val id: Long) : ProfileEvent()
     data class OnGalleryRemove(val id: Long) : ProfileEvent()
     data class OnVisibilityClick(val visibility: ProfileVisibility) : ProfileEvent()
+
+    data class OnLock(val action: LockAction) : ProfileEvent()
+    data class OnNationalTeamClick(val team: String) : ProfileEvent()
+    data class OnNationalEventClick(val event: String) : ProfileEvent()
+    data object OnNotificationsClick : ProfileEvent()
+    data object OnHomeAirportClick : ProfileEvent()
+    data class OnFaqClick(val index: Int) : ProfileEvent()
+    data object OnSignOutClick : ProfileEvent()
+    data object OnSettingsClick : ProfileEvent()
 }

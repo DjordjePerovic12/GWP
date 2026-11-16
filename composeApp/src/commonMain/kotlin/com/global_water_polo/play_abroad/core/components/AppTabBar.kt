@@ -35,46 +35,63 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.global_water_polo.play_abroad.core.navigation.Screen
+import com.global_water_polo.play_abroad.core.utils.Lock
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
-/** The athlete app's five tabs, in tab bar order; Globe+ sits raised in the middle. */
+/** The athlete app's five tabs, in tab bar order (v29); Globe+ sits raised in the middle. */
 enum class AppTab(val label: StringResource, val route: Screen) {
-    PROFILE(Res.string.tab_profile, Screen.ProfileScreen()),
+    HOME(Res.string.tab_home, Screen.HomeScreen),
     FEED(Res.string.tab_feed, Screen.FeedScreen),
     GLOBE(Res.string.tab_globe, Screen.GlobeScreen()),
-    TRAVEL(Res.string.tab_travel, Screen.FlightRadarScreen),
-    SETTINGS(Res.string.tab_settings, Screen.SettingsScreen)
+    INBOX(Res.string.tab_inbox, Screen.InboxScreen),
+    PROFILE(Res.string.tab_profile, Screen.ProfileScreen())
 }
 
-/** The prototype's `.tabbar`: four icon tabs and the raised Globe+ button in the centre. */
+/**
+ * The prototype's `.tabbar`: four icon tabs and the raised Globe+ button in the centre, Inbox with a gold
+ * count of what needs them. While the account is locked, the lock pill floats just above the bar.
+ */
 @Composable
 fun AppTabBar(
-    current: AppTab,
+    current: AppTab?,
     onSelect: (AppTab) -> Unit,
     modifier: Modifier = Modifier,
-    dark: Boolean = false
+    dark: Boolean = false,
+    inboxBadge: Int = 0,
+    lock: Lock = Lock.NONE,
+    onLockClick: () -> Unit = {}
 ) {
     val colors = GWPPATheme.colors
     val background = if (dark) colors.nightNavy else colors.colorWhite
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(background)
-            .windowInsetsPadding(WindowInsets.navigationBars)
-    ) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(if (dark) Color.White.copy(alpha = 0.1f) else colors.lineGrey))
-        Row(
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().height(62.dp)
+    Column(modifier = modifier.fillMaxWidth()) {
+        LockPill(lock = lock, onClick = onLockClick)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(background)
+                .windowInsetsPadding(WindowInsets.navigationBars)
         ) {
-            AppTab.entries.forEach { tab ->
-                if (tab == AppTab.GLOBE) {
-                    GlobeButton(selected = current == tab, onClick = { onSelect(tab) })
-                } else {
-                    TabItem(tab = tab, selected = current == tab, dark = dark, onClick = { onSelect(tab) })
+            Box(Modifier.fillMaxWidth().height(1.dp).background(if (dark) Color.White.copy(alpha = 0.1f) else colors.lineGrey))
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().height(62.dp)
+            ) {
+                AppTab.entries.forEach { tab ->
+                    if (tab == AppTab.GLOBE) {
+                        GlobeButton(selected = current == tab, onClick = { onSelect(tab) })
+                    } else {
+                        TabItem(
+                            tab = tab,
+                            selected = current == tab,
+                            dark = dark,
+                            badge = if (tab == AppTab.INBOX) inboxBadge else 0,
+                            onClick = { onSelect(tab) }
+                        )
+                    }
                 }
             }
         }
@@ -82,7 +99,7 @@ fun AppTabBar(
 }
 
 @Composable
-private fun TabItem(tab: AppTab, selected: Boolean, dark: Boolean, onClick: () -> Unit) {
+private fun TabItem(tab: AppTab, selected: Boolean, dark: Boolean, badge: Int, onClick: () -> Unit) {
     val colors = GWPPATheme.colors
     val tint = when {
         selected && dark -> colors.colorWhite
@@ -93,12 +110,28 @@ private fun TabItem(tab: AppTab, selected: Boolean, dark: Boolean, onClick: () -
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(3.dp),
+        // No clip here: the Inbox count sits over the icon's corner.
         modifier = Modifier
-            .clip(CircleShape)
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
-        Canvas(Modifier.size(24.dp)) { drawTabIcon(tab, tint) }
+        Box {
+            Canvas(Modifier.size(24.dp)) { drawTabIcon(tab, tint) }
+            // `.tb-n`: the gold count on Inbox.
+            if (badge > 0) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 10.dp, y = (-6).dp)
+                        .size(18.dp)
+                        .clip(CircleShape)
+                        .background(colors.eliteGold)
+                ) {
+                    Text(badge.toString(), style = GWPPATheme.typography.archivoBold11, color = colors.inkBlack)
+                }
+            }
+        }
         Text(stringResource(tab.label), style = GWPPATheme.typography.archivoSemiBold11, color = tint)
     }
 }
@@ -117,6 +150,14 @@ private fun GlobeButton(selected: Boolean, onClick: () -> Unit) {
             .clickable(onClick = onClick)
     ) {
         Canvas(Modifier.size(28.dp)) { drawTabIcon(AppTab.GLOBE, Color.White) }
+        // `.tb-plus i`: the small gold "+" on the globe.
+        Text(
+            "+",
+            style = GWPPATheme.typography.archivoBold13,
+            color = colors.inkBlack,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = 4.dp).size(16.dp).clip(CircleShape).background(colors.eliteGold)
+        )
     }
 }
 
@@ -126,17 +167,13 @@ private fun DrawScope.drawTabIcon(tab: AppTab, color: Color) {
     val stroke = Stroke(width = 1.8f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
     fun p(x: Float, y: Float) = Offset(x * u, y * u)
     when (tab) {
-        AppTab.PROFILE -> {
-            // Graduation cap.
-            val cap = Path().apply {
-                moveTo(2f * u, 9f * u); lineTo(12f * u, 4.5f * u); lineTo(22f * u, 9f * u); lineTo(12f * u, 13.5f * u); close()
+        AppTab.HOME -> {
+            val house = Path().apply {
+                moveTo(4f * u, 11.5f * u); lineTo(12f * u, 5f * u); lineTo(20f * u, 11.5f * u); lineTo(20f * u, 20f * u)
+                lineTo(14.5f * u, 20f * u); lineTo(14.5f * u, 15f * u); lineTo(9.5f * u, 15f * u); lineTo(9.5f * u, 20f * u)
+                lineTo(4f * u, 20f * u); close()
             }
-            drawPath(cap, color, style = stroke)
-            val body = Path().apply {
-                moveTo(6f * u, 11f * u); lineTo(6f * u, 16f * u)
-                cubicTo(6f * u, 18f * u, 18f * u, 18f * u, 18f * u, 16f * u); lineTo(18f * u, 11f * u)
-            }
-            drawPath(body, color, style = stroke)
+            drawPath(house, color, style = stroke)
         }
         AppTab.FEED -> {
             drawRoundRect(color, p(4f, 4f), Size(16f * u, 16f * u), androidx.compose.ui.geometry.CornerRadius(3f * u), style = stroke)
@@ -148,26 +185,22 @@ private fun DrawScope.drawTabIcon(tab: AppTab, color: Color) {
             drawLine(color, p(3f, 12f), p(21f, 12f), stroke.width, StrokeCap.Round)
             drawOval(color, p(8f, 3f), Size(8f * u, 18f * u), style = stroke)
         }
-        AppTab.TRAVEL -> {
-            val plane = Path().apply {
-                moveTo(3f * u, 13f * u); lineTo(21f * u, 5f * u); lineTo(15f * u, 21f * u); lineTo(11f * u, 14f * u); close()
-                moveTo(11f * u, 14f * u); lineTo(21f * u, 5f * u)
+        AppTab.INBOX -> {
+            // A tray: the box and its dipped opening.
+            drawRoundRect(color, p(3.5f, 5f), Size(17f * u, 14f * u), androidx.compose.ui.geometry.CornerRadius(2.5f * u), style = stroke)
+            val tray = Path().apply {
+                moveTo(3.5f * u, 13f * u); lineTo(8.5f * u, 13f * u); lineTo(10f * u, 15.5f * u)
+                lineTo(14f * u, 15.5f * u); lineTo(15.5f * u, 13f * u); lineTo(20.5f * u, 13f * u)
             }
-            drawPath(plane, color, style = stroke)
+            drawPath(tray, color, style = stroke)
         }
-        AppTab.SETTINGS -> {
-            drawCircle(color, radius = 3f * u, center = p(12f, 12f), style = stroke)
-            for (i in 0 until 8) {
-                val a = i * kotlin.math.PI.toFloat() / 4f
-                drawLine(
-                    color,
-                    p(12f + 6.5f * kotlin.math.cos(a), 12f + 6.5f * kotlin.math.sin(a)),
-                    p(12f + 9f * kotlin.math.cos(a), 12f + 9f * kotlin.math.sin(a)),
-                    stroke.width,
-                    StrokeCap.Round
-                )
+        AppTab.PROFILE -> {
+            drawCircle(color, radius = 3.8f * u, center = p(12f, 8.5f), style = stroke)
+            val shoulders = Path().apply {
+                moveTo(4.5f * u, 20f * u); cubicTo(5f * u, 15.5f * u, 8f * u, 13.5f * u, 12f * u, 13.5f * u)
+                cubicTo(16f * u, 13.5f * u, 19f * u, 15.5f * u, 19.5f * u, 20f * u)
             }
-            drawCircle(color, radius = 6.5f * u, center = p(12f, 12f), style = stroke)
+            drawPath(shoulders, color, style = stroke)
         }
     }
 }

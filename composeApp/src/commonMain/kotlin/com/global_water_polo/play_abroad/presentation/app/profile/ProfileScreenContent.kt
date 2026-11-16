@@ -35,14 +35,20 @@ import com.global_water_polo.play_abroad.core.components.membership.MembershipSh
 import com.global_water_polo.play_abroad.core.components.membership.trialLeft
 import com.global_water_polo.play_abroad.domain.model.Profile
 import com.global_water_polo.play_abroad.presentation.app.profile.components.LabSection
-import com.global_water_polo.play_abroad.presentation.app.profile.components.PathwaySection
+import com.global_water_polo.play_abroad.presentation.app.profile.components.AccountSection
+import com.global_water_polo.play_abroad.presentation.app.profile.components.MembershipSection
+import com.global_water_polo.play_abroad.presentation.app.profile.components.NationalTeamSection
+import com.global_water_polo.play_abroad.BuildKonfig
+import com.global_water_polo.play_abroad.core.utils.LockAction
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import com.global_water_polo.play_abroad.presentation.app.profile.components.PortfolioSection
 import com.global_water_polo.play_abroad.presentation.app.profile.components.TodayRow
 import com.global_water_polo.play_abroad.resources.*
 import com.global_water_polo.play_abroad.core.components.PickedImage
 import com.global_water_polo.play_abroad.ui.theme.GWPPATheme
 
-/** Profile tab (the prototype's meTab): identity, membership, then Pathway, GWP LAB or Portfolio. */
+/** Profile tab (v29's me28): identity, membership, then Card, GWP LAB, Membership or Account. */
 @Composable
 fun ProfileScreenContent(
     modifier: Modifier = Modifier,
@@ -69,23 +75,48 @@ fun ProfileScreenContent(
             if (state.membership.elite) TodayRow(done = state.profile.workoutDone, onClick = { onEvent(ProfileEvent.OnTodayClick) })
             SegmentBar(current = state.segment, onClick = { onEvent(ProfileEvent.OnSegmentClick(it)) })
             when (state.segment) {
-                ProfileSegment.PATH -> PathwaySection(
-                    state = state,
-                    onBuildClick = { onEvent(ProfileEvent.OnBuildPathwayClick) },
-                    onGlobeClick = { onEvent(ProfileEvent.OnExploreGlobeClick) },
-                    onProgramClick = { onEvent(ProfileEvent.OnProgramClick(it)) },
-                    onCityClick = { onEvent(ProfileEvent.OnCityClick(it)) },
-                    onClinicClick = { onEvent(ProfileEvent.OnClinicClick(it)) }
-                )
+                ProfileSegment.CARD -> {
+                    NationalTeamSection(
+                        teams = state.profile.nationalTeams,
+                        events = state.profile.nationalEvents,
+                        onTeamClick = { onEvent(ProfileEvent.OnNationalTeamClick(it)) },
+                        onEventClick = { onEvent(ProfileEvent.OnNationalEventClick(it)) }
+                    )
+                    Spacer(Modifier.height(18.dp))
+                    PortfolioSection(state = state, onEvent = onEvent)
+                }
                 ProfileSegment.LAB -> LabSection(
                     state = state,
                     onTestClick = { onEvent(ProfileEvent.OnLabTestClick(it)) },
                     onExampleClick = { onEvent(ProfileEvent.OnLabExampleClick) }
                 )
-                ProfileSegment.PORTFOLIO -> PortfolioSection(state = state, onEvent = onEvent)
+                ProfileSegment.MEMBER -> MembershipSection(
+                    onNextClick = { onEvent(ProfileEvent.OnMembershipSheet(MembershipSheet.NEXT)) },
+                    onEliteClick = { onEvent(ProfileEvent.OnMembershipSheet(MembershipSheet.PAYWALL)) }
+                )
+                ProfileSegment.ACCOUNT -> AccountSection(
+                    profile = state.profile,
+                    membership = state.membership,
+                    minor = state.minor,
+                    openFaq = state.openFaq,
+                    onSubscriptionClick = {
+                        onEvent(ProfileEvent.OnMembershipSheet(if (state.membership.plan == null) MembershipSheet.PAYWALL else MembershipSheet.MANAGE))
+                    },
+                    onNotificationsClick = { onEvent(ProfileEvent.OnNotificationsClick) },
+                    onHomeAirportClick = { onEvent(ProfileEvent.OnHomeAirportClick) },
+                    onFaqClick = { onEvent(ProfileEvent.OnFaqClick(it)) },
+                    onSignOutClick = { onEvent(ProfileEvent.OnSignOutClick) },
+                    onSettingsClick = if (BuildKonfig.DEMO_SHORTCUTS) ({ onEvent(ProfileEvent.OnSettingsClick) }) else null
+                )
             }
         }
-        AppTabBar(current = AppTab.PROFILE, onSelect = { onEvent(ProfileEvent.OnTabClick(it)) })
+        AppTabBar(
+            current = AppTab.PROFILE,
+            onSelect = { onEvent(ProfileEvent.OnTabClick(it)) },
+            inboxBadge = state.inboxBadge,
+            lock = state.lock,
+            onLockClick = { onEvent(ProfileEvent.OnLock(LockAction.OPEN)) }
+        )
     }
 }
 
@@ -114,7 +145,7 @@ private fun Identity(state: ProfileState) {
     }
 }
 
-/** Pathway / GWP LAB / Portfolio, the prototype's `.seg3`. */
+/** Card / GWP LAB / Membership / Account, the prototype's `.seg3`. */
 @Composable
 private fun SegmentBar(current: ProfileSegment, onClick: (ProfileSegment) -> Unit) {
     val colors = GWPPATheme.colors
@@ -133,9 +164,10 @@ private fun SegmentBar(current: ProfileSegment, onClick: (ProfileSegment) -> Uni
             Text(
                 text = stringResource(
                     when (segment) {
-                        ProfileSegment.PATH -> Res.string.me_seg_path
+                        ProfileSegment.CARD -> Res.string.me_seg_card
                         ProfileSegment.LAB -> Res.string.me_seg_lab
-                        ProfileSegment.PORTFOLIO -> Res.string.me_seg_port
+                        ProfileSegment.MEMBER -> Res.string.me_seg_member
+                        ProfileSegment.ACCOUNT -> Res.string.me_seg_account
                     }
                 ),
                 style = GWPPATheme.typography.archivoBold13,

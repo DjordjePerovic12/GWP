@@ -26,6 +26,8 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.tripPlanSc
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubPlaceScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubStaffScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.clubProfileScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.homeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.inboxScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.coachHomeScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.profileScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.feedScreenComposable
@@ -136,6 +138,8 @@ fun BaseAppNavigation(
         }
         parentHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
         coachHomeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        homeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+        inboxScreenComposable(navController = navController, showSnackBar = showSnackBar)
         profileScreenComposable(navController = navController, showSnackBar = showSnackBar)
         feedScreenComposable(navController = navController, showSnackBar = showSnackBar)
         globeScreenComposable(navController = navController, showSnackBar = showSnackBar)

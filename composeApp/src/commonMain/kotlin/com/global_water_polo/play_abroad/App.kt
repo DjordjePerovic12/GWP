@@ -112,7 +112,7 @@ fun App() {
 
 /** Where the app opens: the lane's home once onboarding is done, else the intro. */
 internal fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.OpenerScreen else when (profile.lane) {
-    Lane.ATHLETE -> Screen.ProfileScreen()
+    Lane.ATHLETE -> Screen.HomeScreen
     Lane.PARENT -> Screen.ParentHomeScreen
     Lane.COACH -> Screen.CoachHomeScreen
     Lane.FAN -> Screen.FeedScreen

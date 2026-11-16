@@ -32,7 +32,7 @@ import com.global_water_polo.play_abroad.core.components.ButtonStyle
 import com.global_water_polo.play_abroad.core.components.OnboardingLayout
 import com.global_water_polo.play_abroad.core.components.PrimaryButton
 import com.global_water_polo.play_abroad.core.components.SmallText
-import com.global_water_polo.play_abroad.core.utils.LaneKind
+import com.global_water_polo.play_abroad.presentation.app.home.components.PlanTable
 import com.global_water_polo.play_abroad.presentation.onboarding.FlowStep
 import com.global_water_polo.play_abroad.presentation.onboarding.OnboardingState
 import com.global_water_polo.play_abroad.presentation.onboarding.progress
@@ -94,83 +94,8 @@ fun ReadyScreenContent(
                 )
             }
         }
-        Column(
-            Modifier
-                .padding(top = 14.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(colors.colorWhite)
-                .border(1.dp, colors.lineGrey, RoundedCornerShape(18.dp))
-        ) {
-            planRows(state).forEachIndexed { i, (label, value) ->
-                if (i > 0) HorizontalDivider(color = colors.lineGrey)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp)
-                ) {
-                    Text(label, style = GWPPATheme.typography.archivoRegular15, color = colors.slateGrey, modifier = Modifier.weight(1f))
-                    Text(value, style = GWPPATheme.typography.archivoBold16, color = colors.inkBlack, textAlign = TextAlign.End, modifier = Modifier.weight(1.3f))
-                }
-            }
-        }
+        PlanTable(parent = parent, now = state.now, lane = state.laneInfo, free = state.freeYear, gap = state.summerGap, firstStep = state.firstStep)
         SmallText(text = stringResource(if (parent) Res.string.ready_fine_parent else Res.string.ready_fine), modifier = Modifier.padding(top = 12.dp))
-    }
-}
-
-/** v29's planRows: only the rows that apply to this athlete's lane. */
-@Composable
-private fun planRows(state: OnboardingState): List<Pair<String, String>> {
-    val parent = state.isParent
-    val lane = state.laneInfo
-    val free = state.freeYear
-    val gap = state.summerGap
-    val months = stringArrayResource(Res.array.months)
-    val status = when {
-        "committed" in state.now -> stringResource(Res.string.now_committed)
-        "looking" in state.now -> stringResource(Res.string.now_looking)
-        "college" in state.now -> stringResource(Res.string.now_college)
-        "pro" in state.now -> stringResource(Res.string.now_pro)
-        "unsure" in state.now -> stringResource(Res.string.now_unsure)
-        else -> stringResource(Res.string.ready_not_set)
-    }
-    return buildList {
-        add(stringResource(if (parent) Res.string.ready_where_their else Res.string.ready_where_your) to status)
-        add(
-            stringResource(Res.string.ready_window) to when {
-                lane == null -> stringResource(Res.string.ready_window_add)
-                lane.lane == LaneKind.PRO -> stringResource(Res.string.ready_window_pro)
-                lane.lane == LaneKind.CLOSED -> stringResource(Res.string.ready_window_closed)
-                lane.running -> stringResource(Res.string.ready_window_running, lane.yearN, lane.clock.closes)
-                else -> stringResource(Res.string.ready_window_opens, lane.clock.year)
-            }
-        )
-        if (free != null && free.free >= 1 && lane != null && lane.lane !in setOf(LaneKind.PRO, LaneKind.CLOSED, LaneKind.RUNNING)) {
-            add(
-                stringResource(Res.string.ready_free) to if (free.free == 1) {
-                    stringResource(Res.string.ready_free_one, "${free.college}-${lane.clock.year.toString().takeLast(2)}")
-                } else stringResource(Res.string.ck_tl_free_n, free.free)
-            )
-        }
-        if (gap != null) {
-            add(
-                stringResource(Res.string.ready_summer) to if (gap.weeks > 0) {
-                    stringResource(Res.string.ready_summer_dates, "${months[gap.from.month.ordinal]} ${gap.from.day}", "${months[gap.to.month.ordinal]} ${gap.to.day}", gap.weeks)
-                } else stringResource(Res.string.ready_summer_none)
-            )
-        }
-        add(
-            stringResource(Res.string.ready_first) to stringResource(
-                when (state.firstStep) {
-                    "fall" -> Res.string.ready_step_fall
-                    "winter" -> Res.string.ready_step_winter
-                    "spring" -> Res.string.ready_step_spring
-                    "year" -> Res.string.avail_year
-                    "summer" -> Res.string.avail_summer
-                    else -> if ("pro" in state.now) Res.string.ready_step_pro else Res.string.avail_summer
-                }
-            )
-        )
     }
 }
 

@@ -145,7 +145,7 @@ fun FlightRadarScreenContent(
             }
             SmallText(text = stringResource(Res.string.fly_fine), modifier = Modifier.padding(top = 12.dp))
         }
-        AppTabBar(current = AppTab.TRAVEL, onSelect = { onEvent(FlightRadarEvent.OnTabClick(it)) })
+        AppTabBar(current = AppTab.GLOBE, onSelect = { onEvent(FlightRadarEvent.OnTabClick(it)) })
     }
 }
 

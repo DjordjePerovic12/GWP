@@ -88,7 +88,7 @@ fun SettingsScreenContent(
             }
             SmallText(text = stringResource(Res.string.set_proto), center = true, modifier = Modifier.fillMaxWidth().padding(top = 18.dp))
         }
-        AppTabBar(current = AppTab.SETTINGS, onSelect = onTabClick)
+        AppTabBar(current = AppTab.PROFILE, onSelect = onTabClick)
     }
 }
 

@@ -328,7 +328,12 @@ class OnboardingViewModel(
     private fun finish() {
         saveProfile()
         when (state.value.lane) {
-            Lane.ATHLETE -> goHome(Screen.ProfileScreen())
+            Lane.ATHLETE -> {
+                // v29: the app opens locked until the email link (and, under 18, a parent) confirms.
+                val minor = state.value.isMinor
+                profileRepository.update { it.copy(emailVerified = false, parentConfirmed = !minor, pathway = PathwayCalculator.planOf(it)) }
+                goHome(Screen.HomeScreen)
+            }
             Lane.PARENT -> go(Screen.InviteScreen)
             Lane.COACH -> goHome(Screen.CoachHomeScreen)
             // The club profile is the club lane's last step; it ends with "Back to start".

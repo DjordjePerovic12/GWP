@@ -1578,4 +1578,141 @@
         <item quantity="one">%1$d month</item>
         <item quantity="other">%1$d months</item>
     </plurals>
+
+    <!-- v29 app shell (phase 3) -->
+    <string name="tab_home">Home</string>
+    <string name="tab_inbox">Inbox</string>
+    <string name="globe_my_trips">My trips ›</string>
+    <string name="timing_winter">Winter %1$d-%2$d</string>
+    <string name="why_in_free_year">Ten weeks inside your free year. Costs no college season.</string>
+    <string name="pick_fall_name">Fall abroad, 10 weeks</string>
+    <string name="pick_winter_name">Winter abroad, 10 weeks</string>
+    <string name="pick_spring_name">Spring abroad, 10 weeks</string>
+    <string name="pick28_fall">Fall, 10 weeks</string>
+    <string name="pick28_winter">Winter, 10 weeks</string>
+    <string name="pick28_spring">Spring, 10 weeks</string>
+
+    <string name="lock_email_title">Check your inbox</string>
+    <string name="lock_email_sub">Tap the link to unlock everything</string>
+    <string name="lock_parent_title">Waiting for your parent</string>
+    <string name="lock_parent_sub">They confirm, then everything opens</string>
+    <string name="lock_sheet_email">Verify your email to unlock this.</string>
+    <string name="lock_sheet_email_body">We sent a link to %1$s. One tap and saving, inquiries and your profile open.</string>
+    <string name="lock_sheet_parent">Waiting for your parent.</string>
+    <string name="lock_sheet_parent_body">Athletes under 18 have a linked parent. Once they confirm, saving, inquiries and coach visibility open.</string>
+    <string name="lock_open_link">Open the link (demo)</string>
+    <string name="lock_send_again">Send it again</string>
+    <string name="lock_sent_again">Sent again</string>
+    <string name="lock_remind">Remind them</string>
+    <string name="lock_parent_confirmed">They confirmed (demo)</string>
+    <string name="lock_remind_sms">Can you confirm my Global Water Polo account? The link is in your email.</string>
+    <string name="lock_fine">Prototype. No email is sent.</string>
+    <string name="youre_in_brand">Global Water Polo</string>
+    <string name="youre_in">You're in, %1$s.</string>
+    <string name="youre_in_plain">You're in.</string>
+
+    <string name="home_morning">Good morning</string>
+    <string name="home_afternoon">Good afternoon</string>
+    <string name="home_evening">Good evening</string>
+    <string name="home_title">Your next chapter</string>
+    <string name="home_chip_opens">Window opens Fall %1$d</string>
+    <string name="plan_title">%1$s's next chapter.</string>
+    <string name="plan_title_plain">Your next chapter.</string>
+    <string name="plan_steps">Steps</string>
+    <string name="plan_adjust">Adjust my plan</string>
+    <string name="plan_finish">Finish school</string>
+    <string name="plan_when_free">When you're free</string>
+    <string name="plan_rebuild">Rebuild my plan</string>
+    <string name="plan_fine">A plan to discuss with GWP, not a placement. Every step starts as an inquiry.</string>
+
+    <string name="inbox_title">Inbox</string>
+    <string name="inbox_needs">Needs you</string>
+    <string name="inbox_all_clear">All clear</string>
+    <string name="inbox_nothing">Nothing needs you right now.</string>
+    <string name="inbox_activity">Activity</string>
+    <string name="inbox_sample">Sample</string>
+    <string name="inbox_verify_title">Verify your email</string>
+    <string name="inbox_verify_body">We sent a link to %1$s.</string>
+    <string name="inbox_parent_title">Your parent needs to confirm</string>
+    <string name="inbox_parent_body">Sent to %1$s.</string>
+    <string name="inbox_transcript_title">A college coach requested your transcript</string>
+    <string name="inbox_transcript_body">You decide what to share, item by item. You can take access back anytime.</string>
+    <string name="inbox_approve">Approve</string>
+    <string name="inbox_decline">Decline</string>
+    <string name="inbox_transcript_shared">Transcript shared with the coach (sample).</string>
+    <string name="inbox_transcript_declined">Request declined (sample).</string>
+    <string name="inbox_fine">Coaches can request, only you decide what they see.</string>
+    <string name="inbox_fine_minor">Until you turn 18, your parent approves requests too.</string>
+
+    <string name="me_seg_card">Card</string>
+    <string name="me_seg_member">Membership</string>
+    <string name="me_seg_account">Account</string>
+    <string name="mb_lead">Programs are the trips and placements, open to everyone. Membership is the support around them: resources, reviews and help while you're abroad.</string>
+    <string name="mb_next">GWP Next</string>
+    <string name="mb_next_sub">Your profile, on your terms.</string>
+    <string name="mb_elite">GWP Elite</string>
+    <string name="mb_elite_sub">Everything, all year.</string>
+    <string name="mb_see_next">See Next</string>
+    <string name="mb_see_elite">See Elite</string>
+    <string name="mb_fine">7 days free on either plan. Programs and inquiries never need a membership.</string>
+    <string-array name="mb_next_perks">
+        <item>Your recruiting profile, shared on your terms</item>
+        <item>Transcripts, data and showcase videos</item>
+        <item>The full feed and development programs</item>
+        <item>Buy single library folders</item>
+    </string-array>
+    <string-array name="mb_elite_perks">
+        <item>Everything in Next</item>
+        <item>GWP LAB video reviews by coaches</item>
+        <item>The full library, every folder</item>
+        <item>Save clips to your own folders</item>
+        <item>Strength, nutrition and mental performance</item>
+        <item>Support while you're abroad, beyond logistics</item>
+        <item>The GWP newsletter and resources</item>
+    </string-array>
+
+    <string name="acc_parent">Parent</string>
+    <string name="acc_parent_ok">Confirmed</string>
+    <string name="acc_parent_wait">Waiting</string>
+    <string name="acc_heard">How you found us</string>
+    <string name="acc_not_answered">Not answered</string>
+    <string name="acc_questions">Questions</string>
+    <string name="acc_privacy">Privacy</string>
+    <string name="acc_cookies">Cookies and privacy</string>
+    <string name="acc_cookies_value">Essential only</string>
+    <string name="acc_demo_settings">Settings (demo)</string>
+    <string-array name="acc_faq_q">
+        <item>Is a program a booking?</item>
+        <item>Who can see my profile?</item>
+        <item>What does membership add?</item>
+        <item>How is my NCAA window calculated?</item>
+        <item>Why does my parent need to confirm?</item>
+    </string-array>
+    <string-array name="acc_faq_a">
+        <item>No. Every request is an inquiry. GWP talks to the club about your level and dates, then builds the real plan with you.</item>
+        <item>Only coaches you approve. Private documents like transcripts are shared item by item, and you can take access back.</item>
+        <item>Support around your program: resources, GWP LAB reviews, the full library and help while you're abroad. Programs themselves are open to everyone.</item>
+        <item>From your birthday and your first full-time college term, under the Division I and II age-based rule. It's an estimate, so confirm with your school's compliance office.</item>
+        <item>Athletes under 18 have a linked parent account. Until a parent confirms, saving, inquiries and coach visibility wait.</item>
+    </string-array>
+
+    <string name="nt_title">National team</string>
+    <string name="nt_optional">Optional</string>
+    <string name="nt_teams">Teams</string>
+    <string name="nt_events">Events played</string>
+    <string-array name="nt_team_options">
+        <item>Senior national team</item>
+        <item>U20</item>
+        <item>U18</item>
+        <item>U16</item>
+        <item>ODP</item>
+    </string-array>
+    <string-array name="nt_event_options">
+        <item>World Championships</item>
+        <item>European Championships</item>
+        <item>Pan American Games</item>
+        <item>World Cup</item>
+        <item>Youth Olympic Games</item>
+        <item>Other international events</item>
+    </string-array>
 </resources>

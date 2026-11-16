@@ -5,6 +5,7 @@ import com.global_water_polo.play_abroad.presentation.opener.components.OpenerSt
 import com.global_water_polo.play_abroad.presentation.opener.components.OpenerTimeline
 import com.global_water_polo.play_abroad.presentation.opener.components.BallSpinMemory
 import com.global_water_polo.play_abroad.core.components.model3d.BallModelView
+import com.global_water_polo.play_abroad.core.components.model3d.BALL_FRONT_TILT
 import com.global_water_polo.play_abroad.core.components.model3d.BallFrame
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.mutableFloatStateOf
@@ -141,7 +142,7 @@ fun GlobeStage(
                         radius = d.value / 2f / h,
                         centerY = cy.value / h,
                         spin = handOver.spin + OpenerTimeline.IDLE_SPEED * (clock - handOver.at),
-                        tilt = 0.14f,
+                        tilt = BALL_FRONT_TILT,
                         visible = !LoaderVisibility.showing
                     )
                 },

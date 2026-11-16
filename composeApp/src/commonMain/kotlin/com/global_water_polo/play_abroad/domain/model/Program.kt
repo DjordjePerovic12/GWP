@@ -45,9 +45,19 @@ data class ProgramDetails(
     val steps: List<String>
 )
 
-/** One step of "my pathway": a program, when it would happen and why it fits. */
+/**
+ * One step of "my pathway": a program, when it would happen and why it fits. [pick] is v29's ten-week
+ * season ("fall", "winter", "spring"), shown by its own name instead of the program's.
+ */
 @Serializable
-data class PathwayStep(val program: Program, val year: Int, val month: Int, val timing: PathwayTiming, val why: PathwayWhy)
+data class PathwayStep(
+    val program: Program,
+    val year: Int,
+    val month: Int,
+    val timing: PathwayTiming,
+    val why: PathwayWhy,
+    val pick: String = ""
+)
 
 /** How a step's timing is worded. */
 enum class PathwayTiming {
@@ -55,6 +65,8 @@ enum class PathwayTiming {
     SUMMER,
     SPRING,
     FALL,
+    /** December to February, across two years. */
+    WINTER,
     SEASON
 }
 
@@ -68,7 +80,9 @@ enum class PathwayWhy {
     AFTER_GRADUATION,
     CLUB_BLOCK,
     FITS_BEFORE_CLOCK,
-    CONFIRM_NCAA
+    CONFIRM_NCAA,
+    /** A ten-week season inside the free year. */
+    IN_FREE_YEAR
 }
 
 /**
