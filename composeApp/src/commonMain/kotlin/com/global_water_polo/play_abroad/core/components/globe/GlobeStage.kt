@@ -263,8 +263,8 @@ private fun SpinningGlobe(
             val p = mesh.project(pin.latitude, pin.longitude, angle, tilt, c.x, c.y, r) ?: return@forEach
             val dot = (if (pin.active) 7f else 4f) * density
             if (pin.active) drawCircle(Color.White.copy(alpha = 0.85f), radius = dot * 2.2f, center = p, style = Stroke(width = 2f * density))
-            drawCircle(Color(0xFF0B1117), radius = dot + 1.5f * density, center = p)
-            drawCircle(Color(0xFFF5C400), radius = dot, center = p)
+            drawCircle(Color(0xFF0F2834), radius = dot + 1.5f * density, center = p)
+            drawCircle(Color(0xFFDFAE3B), radius = dot, center = p)
         }
     }
 }

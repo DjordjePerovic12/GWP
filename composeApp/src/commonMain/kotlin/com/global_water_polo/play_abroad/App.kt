@@ -115,5 +115,6 @@ internal fun homeOf(profile: Profile): Screen = if (!profile.onboarded) Screen.O
     Lane.ATHLETE -> Screen.ProfileScreen()
     Lane.PARENT -> Screen.ParentHomeScreen
     Lane.COACH -> Screen.CoachHomeScreen
+    Lane.FAN -> Screen.FeedScreen
     Lane.CLUB, null -> Screen.OpenerScreen
 }

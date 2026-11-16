@@ -51,5 +51,6 @@ object DemoProfiles {
             onboarded = true
         )
         Lane.CLUB -> Profile()
+        Lane.FAN -> Profile(lane = lane, firstName = "Sam", email = "fan@example.com", onboarded = true)
     }
 }

@@ -26,6 +26,14 @@ sealed interface Screen {
     @Serializable
     data object WhoScreen : Screen
 
+    /** "What do you coach?": college, high school or club, or club admin (the club lane). */
+    @Serializable
+    data object CoachTypeScreen : Screen
+
+    /** "Follow the game": a fan's name and email, then the feed. */
+    @Serializable
+    data object FanScreen : Screen
+
     // One-tap questions, all drawn by the shared ask screen. Each has its own route: with one route for all of
     // them, launchSingleTop would swap one question for the next instead of stacking them (no Back, no animation).
     @Serializable

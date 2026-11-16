@@ -36,6 +36,8 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.birthdaySc
 import com.global_water_polo.play_abroad.core.navigation.destinations.clockScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.emailScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.introScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.coachTypeScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.fanScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.openerScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.inviteScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.lookScreenComposable
@@ -98,6 +100,8 @@ fun BaseAppNavigation(
         introScreenComposable(navController = navController, showSnackBar = showSnackBar)
         navigation<Screen.OnboardingGraph>(startDestination = Screen.WhoScreen) {
             whoScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            coachTypeScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            fanScreenComposable(navController = navController, showSnackBar = showSnackBar)
             askScreenComposable(navController = navController, showSnackBar = showSnackBar)
             gradScreenComposable(navController = navController, showSnackBar = showSnackBar)
             freeYearScreenComposable(navController = navController, showSnackBar = showSnackBar)

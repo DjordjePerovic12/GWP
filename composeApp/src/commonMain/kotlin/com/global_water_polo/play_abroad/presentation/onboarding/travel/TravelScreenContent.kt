@@ -83,7 +83,7 @@ fun TravelScreenContent(
                 when (lane) {
                     Lane.ATHLETE -> Res.string.travel_title_athlete
                     Lane.PARENT -> Res.string.travel_title_parent
-                    Lane.COACH -> Res.string.travel_title_coach
+                    Lane.COACH, Lane.FAN -> Res.string.travel_title_coach
                     Lane.CLUB -> Res.string.travel_title_club
                 }
             )
@@ -93,7 +93,7 @@ fun TravelScreenContent(
                 when (lane) {
                     Lane.ATHLETE -> Res.string.travel_help_athlete
                     Lane.PARENT -> Res.string.travel_help_parent
-                    Lane.COACH, Lane.CLUB -> Res.string.travel_help_team
+                    Lane.COACH, Lane.CLUB, Lane.FAN -> Res.string.travel_help_team
                 }
             )
         )

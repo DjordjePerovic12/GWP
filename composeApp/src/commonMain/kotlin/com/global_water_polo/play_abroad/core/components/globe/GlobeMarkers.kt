@@ -45,7 +45,7 @@ const val ZOOM_DEEP = 2.2f
 const val ZOOM_CLOSE = 4.2f
 
 private val Navy = Color(0xFF0B1628)
-private val Ball = Color(0xFFF5C400)
+private val Ball = Color(0xFFDFAE3B)
 private val Gold = Color(0xFFA8864E)
 
 /**

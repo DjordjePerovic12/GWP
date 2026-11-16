@@ -16,6 +16,8 @@ data class OnboardingState(
     override val isLoading: Boolean = false,
     override val error: BaseError? = null,
     val lane: Lane = Lane.ATHLETE,
+    /** What a coach coaches: "college" or "team" (club admins move to the club lane). */
+    val coachTier: String = "",
     val now: Set<String> = emptySet(),
     val level: Set<String> = emptySet(),
     val birthMonth: Int? = null,

@@ -4,23 +4,23 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// Colors from the GWP spin onboarding prototype (friendly-melomakarona-953fa1.netlify.app)
-val inkBlack = Color(0xFF0B1117) // --ink
-val slateGrey = Color(0xFF56606A) // --ink-2
-val mistGrey = Color(0xFF8B939A) // --ink-3
-val lineGrey = Color(0xFFDCDDD6) // --line
-val boneWhite = Color(0xFFF2F2EE) // --bone
-val colorWhite = Color(0xFFFFFFFF) // --paper
-val chlorineBlue = Color(0xFF1546FF) // --chlorine
-val chlorineBlueSoft = Color(0xFFE6EBFF) // --chlorine-soft
-val ballYellow = Color(0xFFF5C400) // --ball
-val ballYellowSoft = Color(0xFFFFF5CC) // --ball-soft
+// Colors from the GWP prototype, v29 palette (navy, gold, ivory): gwp-app-v29.netlify.app
+val inkBlack = Color(0xFF0F2834) // --ink (v29 petrol)
+val slateGrey = Color(0xFF4B5A62) // --ink-2
+val mistGrey = Color(0xFF6A747A) // --ink-3
+val lineGrey = Color(0xFFE1D9CA) // --line
+val boneWhite = Color(0xFFF2EDE3) // --bone
+val colorWhite = Color(0xFFFBF8F2) // --paper
+val chlorineBlue = Color(0xFF0F2834) // --chlorine (v29: petrol, no more blue)
+val chlorineBlueSoft = Color(0xFFF3E8CC) // --chlorine-soft
+val ballYellow = Color(0xFFDFAE3B) // --ball (v29 gold)
+val ballYellowSoft = Color(0xFFF6EAC8) // --ball-soft
 val liveRed = Color(0xFFE5402C) // --live
 val nightNavy = Color(0xFF04101E) // clock takeover background
 val poolTeal = Color(0xFF0D8F7A) // feed card gradient
 val graphiteGrey = Color(0xFF3B3F46) // feed card gradient
-val eliteGold = Color(0xFFC9A96A) // GWP Elite membership
-val antiqueGold = Color(0xFFA8864E) // --gold in the athlete app: kickers on light cards
+val eliteGold = Color(0xFFDDB45C) // --gold3: GWP Elite and gold accents on dark
+val antiqueGold = Color(0xFFB08A3E) // --gold: kickers on light cards
 val sandBeige = Color(0xFFEBE5D8) // --chlorine-soft in the athlete app: segment bars, the % pill, photo stripes
 val sandLight = Color(0xFFEFEADF) // the lighter stripe of an empty photo card
 
@@ -91,19 +91,11 @@ val gwppaColors = GWPPAColors(
 )
 
 /**
- * The athlete app's palette (the prototype's `.device.app` overrides): navy where onboarding is chlorine blue,
- * gold where it is ball yellow, warm bone and paper backgrounds, warmer greys and lines. App.kt switches to
- * it on the app's tabs; onboarding keeps [gwppaColors].
+ * The athlete app's palette (the prototype's `.device.app` overrides on top of the v29 palette): a softer
+ * beige and a lighter gold. App.kt switches to it on the app's tabs; onboarding keeps [gwppaColors].
  */
 val appColors = gwppaColors.copy(
-    inkBlack = Color(0xFF0B1628), // --ink
-    slateGrey = Color(0xFF4C5566), // --ink-2
-    mistGrey = Color(0xFF8A909A), // --ink-3
-    lineGrey = Color(0xFFDDD6C7), // --line
-    boneWhite = Color(0xFFF1EDE4), // --bone
-    colorWhite = Color(0xFFFBF9F4), // --paper / --ivory
-    chlorineBlue = Color(0xFF0B1628), // --chlorine: navy in the app
-    chlorineBlueSoft = sandBeige, // --chlorine-soft
-    ballYellow = eliteGold, // --ball: gold in the app
+    chlorineBlueSoft = sandBeige, // --chlorine-soft in the app
+    ballYellow = eliteGold, // --ball in the app (#DDB45C)
     ballYellowSoft = Color(0xFFF3ECDD)
 )

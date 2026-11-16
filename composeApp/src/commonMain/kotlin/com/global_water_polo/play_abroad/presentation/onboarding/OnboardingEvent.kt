@@ -8,6 +8,9 @@ sealed class OnboardingEvent : BaseEvent {
     data object OnBackToGlobeClick : OnboardingEvent()
     data object OnBackToStartClick : OnboardingEvent()
     data class OnRoleClick(val lane: Lane) : OnboardingEvent()
+    /** "college", "team" or "admin" on What do you coach. */
+    data class OnCoachTierClick(val tier: String) : OnboardingEvent()
+    data object OnFanContinueClick : OnboardingEvent()
 
     /** Continue on a step that has nothing to validate (free year, tour, link, world). */
     data class OnStepContinueClick(val step: FlowStep) : OnboardingEvent()

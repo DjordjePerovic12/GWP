@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.OnboardingLayout
@@ -35,7 +36,8 @@ private val ROLES = listOf(
     Role(Lane.ATHLETE, Res.string.entry_athlete_name, Res.string.entry_athlete_action),
     Role(Lane.PARENT, Res.string.entry_parent_name, Res.string.entry_parent_action),
     Role(Lane.COACH, Res.string.entry_coach_name, Res.string.entry_coach_action),
-    Role(Lane.CLUB, Res.string.entry_club_name, Res.string.entry_club_action)
+    // Club admins pick "I coach", then Club admin.
+    Role(Lane.FAN, Res.string.entry_fan_name, Res.string.entry_fan_action)
 )
 
 /** "How are you part of the game?": four numbered ways in, like the prototype's entry rows. */
@@ -98,10 +100,20 @@ private fun RoleRow(number: String, role: Role, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(vertical = 16.dp)
     ) {
-        Text(text = number, style = GWPPATheme.typography.archivoBold13, color = colors.mistGrey, modifier = Modifier.width(36.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        // v29's `.role`: a gold number, the name in wide capitals, the line in small spaced capitals.
+        Text(
+            text = number,
+            style = GWPPATheme.typography.archivoBold11.copy(letterSpacing = 0.1.em),
+            color = colors.antiqueGold,
+            modifier = Modifier.width(36.dp).align(Alignment.Top).padding(top = 5.dp)
+        )
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(text = stringResource(role.name).uppercase(), style = GWPPATheme.typography.archivoExpandedExtraBold23, color = colors.inkBlack)
-            Text(text = stringResource(role.action), style = GWPPATheme.typography.archivoRegular14, color = colors.slateGrey)
+            Text(
+                text = stringResource(role.action).uppercase(),
+                style = GWPPATheme.typography.archivoBold11.copy(letterSpacing = 0.14.em),
+                color = colors.slateGrey
+            )
         }
         Canvas(Modifier.size(22.dp)) {
             val stroke = 2.dp.toPx()

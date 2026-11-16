@@ -36,7 +36,8 @@ private fun optionsFor(lane: Lane): List<LookOption> = when (lane) {
         LookOption("abroad", Res.string.look_abroad, Res.string.look_abroad_parent_sub),
         LookOption("trip", Res.string.look_trip, Res.string.look_trip_parent_sub)
     )
-    Lane.COACH -> listOf(
+    // Fans never reach this step; they share the coach options to keep the switch whole.
+    Lane.COACH, Lane.FAN -> listOf(
         LookOption("recruit", Res.string.look_recruit_coach, Res.string.look_recruit_coach_sub),
         LookOption("develop", Res.string.look_develop, Res.string.look_develop_coach_sub),
         LookOption("trip", Res.string.look_trip, Res.string.look_trip_coach_sub),
@@ -71,7 +72,7 @@ fun LookScreenContent(
                 when (lane) {
                     Lane.ATHLETE -> Res.string.look_title_athlete
                     Lane.PARENT -> Res.string.look_title_parent
-                    Lane.COACH -> Res.string.look_title_coach
+                    Lane.COACH, Lane.FAN -> Res.string.look_title_coach
                     Lane.CLUB -> Res.string.look_title_club
                 }
             )
@@ -80,7 +81,7 @@ fun LookScreenContent(
             text = stringResource(
                 when (lane) {
                     Lane.ATHLETE -> Res.string.look_help_athlete
-                    Lane.COACH -> Res.string.look_help_coach
+                    Lane.COACH, Lane.FAN -> Res.string.look_help_coach
                     Lane.PARENT, Lane.CLUB -> Res.string.look_help_all
                 }
             )

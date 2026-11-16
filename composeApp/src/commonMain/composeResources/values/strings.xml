@@ -269,15 +269,28 @@
     <!-- Entry: how are you part of the game -->
     <string name="entry_rule_left">003 / Entry</string>
     <string name="entry_rule_right">Choose one</string>
-    <string name="entry_title">How are you part of the game?</string>
+    <string name="entry_title">How are you involved in water polo?</string>
     <string name="entry_athlete_action">Build your pathway</string>
     <string name="entry_parent_action">Explore their future</string>
-    <string name="entry_coach_action">Recruit &amp; develop</string>
-    <string name="entry_athlete_name">Athlete</string>
-    <string name="entry_parent_name">Parent</string>
-    <string name="entry_coach_name">Coach</string>
-    <string name="entry_club_name">Club admin</string>
-    <string name="entry_club_action">Team trips / tournament access</string>
+    <string name="entry_coach_action">College, high school, club</string>
+    <string name="entry_athlete_name">I play</string>
+    <string name="entry_parent_name">My child plays</string>
+    <string name="entry_coach_name">I coach</string>
+    <string name="entry_fan_name">I follow the sport</string>
+    <string name="entry_fan_action">Games, highlights, the world of water polo</string>
+    <string name="coach_type_title">What do you coach?</string>
+    <string name="coach_type_help">Coach accounts are free. GWP reviews every account before it opens.</string>
+    <string name="coach_tier_college">College coach</string>
+    <string name="coach_tier_college_sub">Recruit athletes. Sign up with your university email.</string>
+    <string name="coach_tier_team">High school or club coach</string>
+    <string name="coach_tier_team_sub">Your team: trips abroad, tournaments and workouts.</string>
+    <string name="coach_tier_admin">Club admin</string>
+    <string name="coach_tier_admin_sub">Run the club: team trips, tournament registration, coaches education.</string>
+    <string name="fan_title">Follow the game.</string>
+    <string name="fan_help">Games, highlights and the clubs around the world. Free.</string>
+    <string name="fan_name">Name</string>
+    <string name="fan_email">Email</string>
+    <string name="fan_start">Start watching</string>
 
     <!-- Where are you now -->
     <string name="now_title_athlete">Where are you right now?</string>

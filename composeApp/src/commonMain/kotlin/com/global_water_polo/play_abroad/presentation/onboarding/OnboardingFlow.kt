@@ -30,7 +30,9 @@ enum class FlowStep {
     PLACE,
     FACILITIES,
     STAFF,
-    CLUB_PROFILE
+    CLUB_PROFILE,
+    COACH_TYPE,
+    FAN
 }
 
 /** The one-tap question steps, all drawn by the shared ask screen. [multi] = pick any, otherwise pick one. */
@@ -67,8 +69,10 @@ private val CLUB_FLOW = listOf(FlowStep.LOOK, FlowStep.PLACE, FlowStep.FACILITIE
 
 fun OnboardingState.flow(): List<FlowStep> = when {
     lane == Lane.CLUB -> CLUB_FLOW
+    lane == Lane.FAN -> listOf(FlowStep.FAN)
     // Coaches planning a trip or a tournament pick dates before their scouting board.
     lane == Lane.COACH -> listOfNotNull(
+        FlowStep.COACH_TYPE,
         FlowStep.LOOK,
         FlowStep.ACCOUNT,
         if ("trip" in looking || "tournament" in looking) FlowStep.TRAVEL else null
@@ -114,4 +118,6 @@ fun FlowStep.route(lane: Lane): Screen = when (this) {
     FlowStep.FACILITIES -> Screen.FacilitiesScreen
     FlowStep.STAFF -> Screen.ClubStaffScreen
     FlowStep.CLUB_PROFILE -> Screen.ClubProfileScreen
+    FlowStep.COACH_TYPE -> Screen.CoachTypeScreen
+    FlowStep.FAN -> Screen.FanScreen
 }

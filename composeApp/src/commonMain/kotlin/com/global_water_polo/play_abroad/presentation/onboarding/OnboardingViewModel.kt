@@ -82,6 +82,15 @@ class OnboardingViewModel(
                 state.update { if (it.lane == event.lane) it.copy(looking = emptySet(), isLoading = false) else OnboardingState(lane = event.lane) }
                 go(state.value.flow().first().route(event.lane))
             }
+            // Club admins run the club lane; college and team coaches carry on in the coach lane.
+            is OnboardingEvent.OnCoachTierClick -> if (event.tier == TIER_ADMIN) {
+                state.update { OnboardingState(lane = Lane.CLUB) }
+                go(state.value.flow().first().route(Lane.CLUB))
+            } else {
+                state.update { it.copy(coachTier = event.tier) }
+                next(FlowStep.COACH_TYPE)
+            }
+            OnboardingEvent.OnFanContinueClick -> if (state.value.firstName.isNotBlank() && state.value.isEmailValid) finish()
             // Skip and the tour's own timer can both fire; the one-time steps move on only once.
             is OnboardingEvent.OnStepContinueClick -> if (event.step !in ONCE || event.step !in state.value.seen) next(event.step)
 
@@ -269,6 +278,8 @@ class OnboardingViewModel(
             Lane.COACH -> goHome(Screen.CoachHomeScreen)
             // The club profile is the club lane's last step; it ends with "Back to start".
             Lane.CLUB -> Unit
+            // Fans go straight to the feed.
+            Lane.FAN -> goHome(Screen.FeedScreen)
         }
     }
 
@@ -376,6 +387,9 @@ class OnboardingViewModel(
         val ONCE = setOf(FlowStep.TOUR, FlowStep.WORLD)
     }
 }
+
+/** What do you coach: the club admin choice moves to the club lane. */
+private const val TIER_ADMIN = "admin"
 
 /** How long the dummy athlete call takes: a fast API round trip. */
 private const val DUMMY_CALL_MILLIS = 500L
