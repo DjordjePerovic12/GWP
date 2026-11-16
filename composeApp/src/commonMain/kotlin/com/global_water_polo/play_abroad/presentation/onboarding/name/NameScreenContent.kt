@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import com.global_water_polo.play_abroad.core.components.BarStart
-import com.global_water_polo.play_abroad.core.components.ClockChip
 import com.global_water_polo.play_abroad.core.components.FormField
 import com.global_water_polo.play_abroad.core.components.Headline
 import com.global_water_polo.play_abroad.core.components.HelpText
@@ -37,11 +36,10 @@ fun NameScreenContent(
     OnboardingLayout(
         modifier = modifier,
         barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.NAME)) },
-        barEnd = { ClockChip(countdown = state.countdown, clockYear = state.window?.clock?.year) },
         bottom = { PrimaryButton(text = stringResource(Res.string.common_continue), onClick = onContinueClick, enabled = state.isNameValid) }
     ) {
-        Headline(text = stringResource(if (athlete) Res.string.name_title_clock else Res.string.name_title_parent))
-        HelpText(text = stringResource(if (athlete) Res.string.name_help_clock else Res.string.name_help_parent))
+        Headline(text = stringResource(Res.string.name_title_athlete))
+        HelpText(text = stringResource(if (athlete) Res.string.name_help_plan else Res.string.name_help_parent))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 24.dp)) {
             FormField(label = stringResource(Res.string.name_first), value = state.firstName, onValueChange = onFirstNameChanged, capitalization = KeyboardCapitalization.Words)
             FormField(label = stringResource(Res.string.name_last), value = state.lastName, onValueChange = onLastNameChanged, capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Done)

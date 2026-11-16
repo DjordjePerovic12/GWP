@@ -22,6 +22,13 @@ data class Profile(
     val level: Set<String> = emptySet(),
     val gradMonth: Int? = null,
     val gradYear: Int? = null,
+    /** v29 onboarding: first full-time college enrollment, when free after school, the first step picked. */
+    val enrollMonth: Int? = null,
+    val enrollYear: Int? = null,
+    val availability: String = "",
+    val firstStep: String = "",
+    /** Under 18: the parent who confirms the account. */
+    val parentEmail: String = "",
     val goal: String = "",
     val club: String = "",
     val stops: Set<String> = emptySet(),

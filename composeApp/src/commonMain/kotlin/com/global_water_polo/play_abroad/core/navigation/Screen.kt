@@ -72,6 +72,27 @@ sealed interface Screen {
     }
 
     @Serializable
+    data class EnrollScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+    @Serializable
+    data class GradSuggestScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+    @Serializable
+    data class AvailScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+    @Serializable
+    data class LearnScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+    @Serializable
+    data class ReadyScreen(val lane: String) : Screen {
+        constructor(lane: Lane) : this(lane.name)
+    }
+
+    @Serializable
     data class FreeYearScreen(val lane: String) : Screen {
         constructor(lane: Lane) : this(lane.name)
     }

@@ -26,6 +26,25 @@ sealed class OnboardingEvent : BaseEvent {
     data class OnLastNameChanged(val value: String) : OnboardingEvent()
     data object OnNameContinueClick : OnboardingEvent()
 
+    data class OnEnrollMonthClick(val month: Int) : OnboardingEvent()
+    data class OnEnrollYearClick(val year: Int) : OnboardingEvent()
+    data object OnEnrollContinueClick : OnboardingEvent()
+
+    /** The suggested finish: yes, a different date, or already finished. */
+    data object OnGradSuggestYesClick : OnboardingEvent()
+    data object OnGradSuggestDifferentClick : OnboardingEvent()
+    data object OnGradSuggestDoneClick : OnboardingEvent()
+
+    data class OnAvailabilityClick(val value: String) : OnboardingEvent()
+    data class OnFirstStepClick(val value: String) : OnboardingEvent()
+    data object OnAvailContinueClick : OnboardingEvent()
+
+    data object OnLearnNextClick : OnboardingEvent()
+    data object OnLearnBackClick : OnboardingEvent()
+
+    data object OnReadyContinueClick : OnboardingEvent()
+    data class OnParentEmailChanged(val value: String) : OnboardingEvent()
+
     data class OnGradChanged(val month: Int?, val year: Int?) : OnboardingEvent()
     data object OnGradContinueClick : OnboardingEvent()
 

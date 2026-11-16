@@ -33,8 +33,8 @@ fun GradScreenContent(
     onContinueClick: () -> Unit
 ) {
     val parent = state.lane == Lane.PARENT
-    // Last year through 2032, like the prototype's GRAD_YEARS.
-    val years = remember { (NcaaClockCalculator.today().year - 1..2032).toList() }
+    // Six years back (already finished) through 2032, like the prototype's GRAD_YEARS.
+    val years = remember { (NcaaClockCalculator.today().year - 6..2032).toList() }
     OnboardingLayout(
         modifier = modifier,
         barStart = { BarStart(onBackClick = onBackClick, progress = state.progress(FlowStep.GRAD)) },
@@ -44,7 +44,8 @@ fun GradScreenContent(
         Headline(
             text = stringResource(
                 when {
-                    state.inCollege -> Res.string.grad_title_college
+                    state.inCollege -> if (parent) Res.string.grad_title_college_parent else Res.string.grad_title_college
+                    state.gradDone -> if (parent) Res.string.grad_title_done_parent else Res.string.grad_title_done
                     parent -> Res.string.grad_title_parent
                     else -> Res.string.grad_title_athlete
                 }
@@ -52,11 +53,7 @@ fun GradScreenContent(
         )
         HelpText(
             text = stringResource(
-                when {
-                    state.inCollege -> Res.string.grad_help_college
-                    parent -> Res.string.grad_help_parent
-                    else -> Res.string.grad_help_athlete
-                }
+                if (state.inCollege) Res.string.grad_help_college else Res.string.grad_help_any
             )
         )
         MonthYearWheels(

@@ -1,5 +1,8 @@
 package com.global_water_polo.play_abroad.presentation.onboarding
 
+import com.global_water_polo.play_abroad.presentation.onboarding.ask.components.levelKeys
+import com.global_water_polo.play_abroad.domain.model.NcaaWindow
+import com.global_water_polo.play_abroad.core.utils.LaneCalculator
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavOptionsBuilder
 import kotlinx.coroutines.delay
@@ -110,8 +113,45 @@ class OnboardingViewModel(
             }
             OnboardingEvent.OnGradContinueClick -> if (state.value.isGradSet) next(FlowStep.GRAD)
 
+            is OnboardingEvent.OnEnrollMonthClick -> updateWindow { it.copy(enrollMonth = event.month) }
+            is OnboardingEvent.OnEnrollYearClick -> updateWindow { it.copy(enrollYear = event.year) }
+            OnboardingEvent.OnEnrollContinueClick -> if (state.value.isEnrollSet) next(FlowStep.ENROLL)
+
+            OnboardingEvent.OnGradSuggestYesClick -> state.value.birthday?.let { dob ->
+                val (month, year) = LaneCalculator.gradGuess(dob)
+                state.update { it.copy(gradMonth = month, gradYear = year, gradCustom = false, gradDone = false) }
+                next(FlowStep.GRAD_SUGGEST)
+            }
+            OnboardingEvent.OnGradSuggestDifferentClick -> {
+                state.update { it.copy(gradCustom = true, gradDone = false) }
+                next(FlowStep.GRAD_SUGGEST)
+            }
+            OnboardingEvent.OnGradSuggestDoneClick -> {
+                state.update { it.copy(gradCustom = true, gradDone = true) }
+                next(FlowStep.GRAD_SUGGEST)
+            }
+
+            is OnboardingEvent.OnAvailabilityClick -> state.update { it.copy(availability = event.value) }
+            is OnboardingEvent.OnFirstStepClick -> state.update { it.copy(firstStep = toggleSingle(it.firstStep, event.value)) }
+            OnboardingEvent.OnAvailContinueClick -> if (state.value.availability.isNotEmpty()) next(FlowStep.AVAIL)
+
+            // The three cards: Next walks through them, Back walks back, then out of the step.
+            OnboardingEvent.OnLearnNextClick -> if (state.value.learnIndex < 2) {
+                state.update { it.copy(learnIndex = it.learnIndex + 1) }
+            } else {
+                next(FlowStep.LEARN)
+            }
+            OnboardingEvent.OnLearnBackClick -> if (state.value.learnIndex > 0) {
+                state.update { it.copy(learnIndex = it.learnIndex - 1) }
+            } else {
+                viewModelScope.launch { navigator.navigateUp() }
+            }
+
+            OnboardingEvent.OnReadyContinueClick -> next(FlowStep.READY)
+            is OnboardingEvent.OnParentEmailChanged -> state.update { it.copy(parentEmail = event.value) }
+
             is OnboardingEvent.OnEmailChanged -> state.update { it.copy(email = event.value) }
-            OnboardingEvent.OnEmailContinueClick -> if (state.value.isEmailValid) next(FlowStep.EMAIL)
+            OnboardingEvent.OnEmailContinueClick -> if (if (state.value.lane == Lane.COACH || state.value.lane == Lane.CLUB) state.value.isEmailValid else state.value.canSendPlan) next(FlowStep.EMAIL)
 
             is OnboardingEvent.OnHeardFromClick -> state.update { it.copy(heardFrom = event.value) }
             is OnboardingEvent.OnRelationClick -> state.update { it.copy(relation = event.value) }
@@ -193,11 +233,15 @@ class OnboardingViewModel(
     private fun onAskPick(step: AskStep, key: String) = state.update { s ->
         when (step) {
             AskStep.NOW -> {
-                val now = toggleMulti(s.now, key)
+                // Pick one; the levels that no longer fit drop off.
+                val now = if (key in s.now) emptySet() else setOf(key)
                 // A different starting point asks a different probe; switching to or from a team trip resets the dates.
                 val tripChanged = ("trip" in now) != ("trip" in s.now)
                 s.copy(
                     now = now,
+                    level = s.level.filter { it in levelKeys(now) }.toSet(),
+                    enrollMonth = if ("college" in now) s.enrollMonth else null,
+                    enrollYear = if ("college" in now) s.enrollYear else null,
                     probe = "",
                     travelStartOffset = if (tripChanged) null else s.travelStartOffset,
                     travelMonths = if (tripChanged) 0 else s.travelMonths
@@ -233,20 +277,31 @@ class OnboardingViewModel(
 
     private fun onBirthdayChanged(event: OnboardingEvent.OnBirthdayChanged) {
         val complete = event.month != null && event.day != null && event.year != null
-        val problem = if (complete) NcaaClockCalculator.problem(event.year!!, event.month!!, event.day!!) else null
-        val window = if (complete && problem == null) {
-            NcaaClockCalculator.window(NcaaClockCalculator.dateOrNull(event.year!!, event.month!!, event.day!!)!!)
-        } else null
-        state.update {
+        updateWindow {
             it.copy(
                 birthMonth = event.month,
                 birthDay = event.day,
                 birthYear = event.year,
-                birthdayProblem = problem,
-                window = window,
-                countdown = window?.let { w -> NcaaClockCalculator.countdown(w.clock) }
+                birthdayProblem = if (complete) {
+                    LaneCalculator.check(event.year!!, event.month!!, event.day!!, parent = it.isParent, now = it.now, level = it.level)
+                } else null
             )
         }
+    }
+
+    /**
+     * Applies [change], then works the NCAA window out again from the birthday and, when already in college,
+     * the first full-time enrollment (which can open the window before 19).
+     */
+    private fun updateWindow(change: (OnboardingState) -> OnboardingState) = state.update { old ->
+        val s = change(old)
+        val dob = s.birthday
+        val window = dob?.let {
+            val (clock, _) = LaneCalculator.windowOf(it, s.enrollment)
+            val fall = NcaaClockCalculator.firstFall()
+            NcaaWindow(clock, fall, LaneCalculator.seasons(clock, fall), LaneCalculator.seasons(clock, fall + 1))
+        }
+        s.copy(window = window, countdown = window?.let { w -> NcaaClockCalculator.countdown(w.clock) })
     }
 
     /**
@@ -350,6 +405,11 @@ class OnboardingViewModel(
                 lastName = s.lastName.trim(),
                 gradMonth = s.gradMonth,
                 gradYear = s.gradYear,
+                enrollMonth = s.enrollMonth,
+                enrollYear = s.enrollYear,
+                availability = s.availability,
+                firstStep = s.firstStep,
+                parentEmail = s.parentEmail.trim(),
                 goal = s.goal,
                 club = s.club,
                 stops = s.stops,

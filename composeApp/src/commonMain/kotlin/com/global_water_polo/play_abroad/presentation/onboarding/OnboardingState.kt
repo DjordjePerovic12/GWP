@@ -3,7 +3,10 @@ package com.global_water_polo.play_abroad.presentation.onboarding
 import kotlinx.datetime.LocalDate
 import com.global_water_polo.play_abroad.core.utils.FreeYear
 import com.global_water_polo.play_abroad.core.utils.PathwayCalculator
-import com.global_water_polo.play_abroad.domain.model.BirthdayProblem
+import com.global_water_polo.play_abroad.core.utils.BirthdayCheck
+import com.global_water_polo.play_abroad.core.utils.LaneCalculator
+import com.global_water_polo.play_abroad.core.utils.LaneInfo
+import com.global_water_polo.play_abroad.core.utils.SummerGap
 import com.global_water_polo.play_abroad.domain.model.ClockCountdown
 import com.global_water_polo.play_abroad.domain.model.Lane
 import com.global_water_polo.play_abroad.domain.model.NcaaWindow
@@ -23,13 +26,27 @@ data class OnboardingState(
     val birthMonth: Int? = null,
     val birthDay: Int? = null,
     val birthYear: Int? = null,
-    val birthdayProblem: BirthdayProblem? = null,
+    val birthdayProblem: BirthdayCheck? = null,
+    /** First full-time college enrollment (only asked when already in college); it can open the window early. */
+    val enrollMonth: Int? = null,
+    val enrollYear: Int? = null,
     val window: NcaaWindow? = null,
     val countdown: ClockCountdown? = null,
     val firstName: String = "",
     val lastName: String = "",
     val gradMonth: Int? = null,
     val gradYear: Int? = null,
+    /** "Different date" on the suggested finish, or "already finished": the month and year wheels. */
+    val gradCustom: Boolean = false,
+    val gradDone: Boolean = false,
+    /** When are you free: "grad" (right after school), "jo" (after Junior Olympics) or "preseason". */
+    val availability: String = "",
+    /** The first step picked under the summer gap: summer, fall, winter, spring or year. */
+    val firstStep: String = "",
+    /** Which of the three cards before the clock is showing, 0 to 2. */
+    val learnIndex: Int = 0,
+    /** Under 18: a parent's email to confirm the account. */
+    val parentEmail: String = "",
     val goal: String = "",
     val club: String = "",
     val probe: String = "",
@@ -65,6 +82,22 @@ data class OnboardingState(
         } else null
 
     val isTrip: Boolean get() = lane == Lane.PARENT && "trip" in now
+    val isParent: Boolean get() = lane == Lane.PARENT
+
+    val enrollment: LocalDate?
+        get() = if (inCollege && enrollMonth != null && enrollYear != null) LocalDate(enrollYear, enrollMonth, 1) else null
+
+    /** Where the athlete stands with the NCAA window; null until the birthday is in. */
+    val laneInfo: LaneInfo? get() = birthday?.let { LaneCalculator.laneOf(it, enrollment, pro = "pro" in now) }
+
+    val summerGap: SummerGap?
+        get() = LaneCalculator.summerGap(gradMonth ?: return null, gradYear ?: return null, availability)
+
+    /** An athlete under 18: a parent confirms the account. */
+    val isMinor: Boolean get() = lane == Lane.ATHLETE && (laneInfo?.age ?: 99) < 18
+    val isParentEmailValid: Boolean get() = EMAIL.matches(parentEmail.trim())
+    val canSendPlan: Boolean get() = isEmailValid && (!isMinor || isParentEmailValid)
+    val isEnrollSet: Boolean get() = enrollMonth != null && enrollYear != null
     val inCollege: Boolean get() = "college" in now
 
     val freeYear: FreeYear?

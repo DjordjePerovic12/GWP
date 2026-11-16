@@ -9,7 +9,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import org.jetbrains.compose.resources.stringArrayResource
+import com.global_water_polo.play_abroad.core.utils.seasonLabel
+import com.global_water_polo.play_abroad.resources.*
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -243,6 +250,184 @@ fun ClockScreenContent(
                 )
                 SeasonStrip(firstYear = window.clock.year, modifier = Modifier.padding(top = 16.dp))
             }
+            // Scroll down: the timeline draws in, then the choice, then the fine print (v29's ck28 cards).
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .padding(top = 28.dp)
+                    .fillMaxWidth()
+                    .graphicsLayer { alpha = after }
+            ) {
+                TimelineCard(state = state, your = your)
+                ChoiceCard(state = state, your = your)
+                Text(
+                    stringResource(if (your) Res.string.ck_fine else Res.string.ck_fine_parent),
+                    style = typography.archivoRegular13,
+                    color = Color.White.copy(alpha = 0.5f)
+                )
+            }
+        }
+    }
+}
+
+/** A dark see-through card on the night sky. */
+@Composable
+private fun NightCard(kicker: String, content: @Composable () -> Unit) {
+    val colors = GWPPATheme.colors
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.White.copy(alpha = 0.06f))
+            .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(20.dp))
+            .padding(18.dp)
+    ) {
+        Text(
+            kicker.uppercase(),
+            style = GWPPATheme.typography.archivoBold11.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 0.16.em),
+            color = colors.eliteGold
+        )
+        content()
+    }
+}
+
+private class TimelineRow(val title: String, val line: String, val at: LocalDate, val accent: Boolean = false)
+
+/** `.tl28`: finish school, the free year, the clock, five seasons, the close, with "You are here" in place. */
+@Composable
+private fun TimelineCard(state: OnboardingState, your: Boolean) {
+    val colors = GWPPATheme.colors
+    val lane = state.laneInfo ?: return
+    val clock = lane.clock
+    val today = NcaaClockCalculator.today()
+    val months = stringArrayResource(Res.array.months)
+    val free = state.freeYear
+    val rows = buildList {
+        val gm = state.gradMonth
+        val gy = state.gradYear
+        if (gm != null && gy != null && !state.inCollege) {
+            val at = LocalDate(gy, gm, 20)
+            add(TimelineRow(stringResource(if (at < today) Res.string.ck_tl_finished else Res.string.ck_tl_finish), "${months[gm - 1]} $gy", at))
+        }
+        if (free != null && free.free >= 1 && !lane.running) {
+            add(
+                TimelineRow(
+                    if (free.free == 1) stringResource(Res.string.ck_tl_free) else stringResource(Res.string.ck_tl_free_n, free.free),
+                    stringResource(Res.string.ck_tl_free_line, "${free.college}-${clock.year.toString().takeLast(2)}"),
+                    LocalDate(free.college, 8, 1),
+                    accent = true
+                )
+            )
+        }
+        add(
+            TimelineRow(
+                stringResource(if (lane.running) Res.string.ck_tl_started else Res.string.ck_tl_starts),
+                if (lane.openedByEnrollment) {
+                    stringResource(Res.string.ck_tl_by_enroll, "${months[clock.start.month.ordinal]} ${clock.start.year}")
+                } else stringResource(Res.string.ck_tl_by_age, clock.year),
+                clock.start
+            )
+        )
+        repeat(5) { i -> add(TimelineRow(stringResource(Res.string.clock_season, i + 1), seasonLabel(clock.year + i), LocalDate(clock.year + i, 8, 15))) }
+        add(TimelineRow(stringResource(Res.string.ck_tl_closes), stringResource(Res.string.ck_tl_closes_line, clock.closes), LocalDate(clock.closes, 6, 1)))
+    }
+    val here = rows.indexOfFirst { it.at > today }.let { if (it < 0) rows.size else it }
+    NightCard(kicker = stringResource(if (your) Res.string.ck_timeline_your else Res.string.ck_timeline_their)) {
+        Text(stringResource(Res.string.learn_2_h), style = GWPPATheme.typography.archivoExpandedBold21, color = colors.colorWhite)
+        Column(Modifier.padding(top = 4.dp)) {
+            rows.forEachIndexed { i, row ->
+                if (i == here) HereRow(today, months)
+                TimelineLine(row.title, row.line, if (row.accent) colors.ballYellow else colors.colorWhite)
+            }
+            if (here == rows.size) HereRow(today, months)
+        }
+    }
+}
+
+@Composable
+private fun TimelineLine(title: String, line: String, dot: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(vertical = 6.dp)) {
+        Box(Modifier.padding(top = 5.dp).size(8.dp).clip(CircleShape).background(dot))
+        Column {
+            Text(title, style = GWPPATheme.typography.archivoBold16, color = Color.White)
+            Text(line, style = GWPPATheme.typography.archivoRegular13, color = Color.White.copy(alpha = 0.62f))
+        }
+    }
+}
+
+@Composable
+private fun HereRow(today: LocalDate, months: List<String>) {
+    val colors = GWPPATheme.colors
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(colors.liveRed.copy(alpha = 0.16f))
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(colors.liveRed))
+        Text(stringResource(Res.string.ck_tl_here), style = GWPPATheme.typography.archivoBold13, color = Color.White)
+        Text("${months[today.month.ordinal]} ${today.year}", style = GWPPATheme.typography.archivoRegular13, color = Color.White.copy(alpha = 0.62f))
+    }
+}
+
+/** `.cmp28`: straight to college against a year abroad first, and what that costs. */
+@Composable
+private fun ChoiceCard(state: OnboardingState, your: Boolean) {
+    val colors = GWPPATheme.colors
+    val lane = state.laneInfo ?: return
+    if (lane.running) {
+        NightCard(kicker = stringResource(Res.string.ck_between)) {
+            Text(stringResource(if (your) Res.string.ck_between_line else Res.string.ck_between_line_parent), style = GWPPATheme.typography.archivoRegular15, color = Color.White.copy(alpha = 0.8f))
+        }
+        return
+    }
+    val free = state.freeYear ?: return
+    val months = stringArrayResource(Res.array.months)
+    NightCard(kicker = stringResource(if (your) Res.string.ck_choice_your else Res.string.ck_choice_their)) {
+        state.summerGap?.let { gap ->
+            Text(
+                if (gap.weeks > 0) {
+                    stringResource(Res.string.ck_gap, "${months[gap.from.month.ordinal]} ${gap.from.day}", "${months[gap.to.month.ordinal]} ${gap.to.day}", gap.weeks)
+                } else stringResource(Res.string.avail_gap_none),
+                style = GWPPATheme.typography.archivoRegular15,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+        }
+        SeasonsRow(stringResource(Res.string.ck_straight, free.college), free.straight)
+        SeasonsRow(stringResource(Res.string.ck_abroad, free.college + 1), free.abroad)
+        Text(
+            when {
+                free.free >= 1 || free.abroad == free.straight -> stringResource(Res.string.ck_verdict_free)
+                free.abroad == 0 -> stringResource(Res.string.ck_verdict_closing)
+                else -> stringResource(if (your) Res.string.ck_verdict_uses else Res.string.ck_verdict_uses_parent, free.abroad)
+            },
+            style = GWPPATheme.typography.archivoBold16,
+            color = colors.ballYellow
+        )
+    }
+}
+
+/** A label, five season pips (kept ones lit) and "N of 5 seasons". */
+@Composable
+private fun SeasonsRow(label: String, kept: Int) {
+    val colors = GWPPATheme.colors
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(label, style = GWPPATheme.typography.archivoRegular13, color = Color.White.copy(alpha = 0.7f))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            repeat(5) { i ->
+                Box(Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(if (i < kept) colors.ballYellow else Color.White.copy(alpha = 0.14f)))
+            }
+            Text(
+                stringResource(Res.string.ck_of_five, kept),
+                style = GWPPATheme.typography.archivoBold13,
+                color = Color.White,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }

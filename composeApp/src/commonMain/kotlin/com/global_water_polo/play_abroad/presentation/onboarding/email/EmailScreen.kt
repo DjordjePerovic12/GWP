@@ -29,6 +29,8 @@ fun EmailScreen(
         EmailScreenContent(
             state = state,
             onEmailChanged = { viewModel.onEvent(OnboardingEvent.OnEmailChanged(it)) },
+            onParentEmailChanged = { viewModel.onEvent(OnboardingEvent.OnParentEmailChanged(it)) },
+            onHeardClick = { viewModel.onEvent(OnboardingEvent.OnHeardFromClick(it)) },
             onBackClick = { viewModel.onEvent(OnboardingEvent.NavigateBack) },
             onContinueClick = { viewModel.onEvent(OnboardingEvent.OnEmailContinueClick) }
         )

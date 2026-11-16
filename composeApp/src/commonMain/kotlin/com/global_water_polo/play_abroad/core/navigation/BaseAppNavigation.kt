@@ -38,6 +38,11 @@ import com.global_water_polo.play_abroad.core.navigation.destinations.emailScree
 import com.global_water_polo.play_abroad.core.navigation.destinations.introScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.coachTypeScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.fanScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.enrollScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.gradSuggestScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.availScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.learnScreenComposable
+import com.global_water_polo.play_abroad.core.navigation.destinations.readyScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.openerScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.inviteScreenComposable
 import com.global_water_polo.play_abroad.core.navigation.destinations.lookScreenComposable
@@ -102,6 +107,11 @@ fun BaseAppNavigation(
             whoScreenComposable(navController = navController, showSnackBar = showSnackBar)
             coachTypeScreenComposable(navController = navController, showSnackBar = showSnackBar)
             fanScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            enrollScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            gradSuggestScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            availScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            learnScreenComposable(navController = navController, showSnackBar = showSnackBar)
+            readyScreenComposable(navController = navController, showSnackBar = showSnackBar)
             askScreenComposable(navController = navController, showSnackBar = showSnackBar)
             gradScreenComposable(navController = navController, showSnackBar = showSnackBar)
             freeYearScreenComposable(navController = navController, showSnackBar = showSnackBar)

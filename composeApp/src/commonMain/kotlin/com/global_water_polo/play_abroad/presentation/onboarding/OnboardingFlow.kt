@@ -1,6 +1,7 @@
 package com.global_water_polo.play_abroad.presentation.onboarding
 
 import com.global_water_polo.play_abroad.core.navigation.Screen
+import com.global_water_polo.play_abroad.core.utils.LaneKind
 import com.global_water_polo.play_abroad.domain.model.Lane
 
 /** Every onboarding step of every lane, in the prototype's final order (BASEFLOW, FLOW.c, FLOW.k, FLOW.trip). */
@@ -32,12 +33,17 @@ enum class FlowStep {
     STAFF,
     CLUB_PROFILE,
     COACH_TYPE,
-    FAN
+    FAN,
+    ENROLL,
+    GRAD_SUGGEST,
+    AVAIL,
+    LEARN,
+    READY
 }
 
 /** The one-tap question steps, all drawn by the shared ask screen. [multi] = pick any, otherwise pick one. */
 enum class AskStep(val multi: Boolean) {
-    NOW(multi = true),
+    NOW(multi = false),
     LEVEL(multi = true),
     GOAL(multi = false),
     CLUB(multi = false),
@@ -56,11 +62,31 @@ enum class ProbeKind {
     BEYOND
 }
 
-private val FULL_FLOW = listOf(
-    FlowStep.NOW, FlowStep.LEVEL, FlowStep.BIRTHDAY, FlowStep.CLOCK, FlowStep.NAME, FlowStep.GRAD, FlowStep.FREE,
-    FlowStep.GOAL, FlowStep.CLUB, FlowStep.PROBE, FlowStep.STOP, FlowStep.TOUR, FlowStep.EMAIL, FlowStep.LINK,
-    FlowStep.WORLD, FlowStep.TRIAL, FlowStep.MATCH
-)
+/**
+ * v29's order for athletes and parents: ask everything first, then one big reveal. Steps that don't apply to
+ * the athlete's lane drop out (no clock when going pro or the window closed, no cards once it runs).
+ */
+private fun OnboardingState.laneFlow(): List<FlowStep> {
+    val lane = laneInfo?.lane
+    val college = inCollege
+    return buildList {
+        add(FlowStep.NOW)
+        if (college) add(FlowStep.ENROLL)
+        add(FlowStep.LEVEL)
+        add(FlowStep.NAME)
+        add(FlowStep.BIRTHDAY)
+        if (lane != LaneKind.CLOSED) {
+            add(if (college) FlowStep.GRAD else FlowStep.GRAD_SUGGEST)
+            if (!college && gradCustom) add(FlowStep.GRAD)
+        }
+        if (lane != LaneKind.PRO && lane != LaneKind.CLOSED) add(FlowStep.AVAIL)
+        if (lane != LaneKind.RUNNING && lane != LaneKind.PRO && lane != LaneKind.CLOSED && !college) add(FlowStep.LEARN)
+        if (lane != LaneKind.PRO && lane != LaneKind.CLOSED) add(FlowStep.CLOCK)
+        add(FlowStep.TOUR)
+        add(FlowStep.READY)
+        add(FlowStep.EMAIL)
+    }
+}
 
 // A parent planning a team trip skips the athlete's clock: who, dates, email, the inquiry, done.
 private val TRIP_FLOW = listOf(FlowStep.NOW, FlowStep.NAME, FlowStep.TRAVEL, FlowStep.EMAIL, FlowStep.TRIP_PLAN, FlowStep.LINK)
@@ -78,10 +104,7 @@ fun OnboardingState.flow(): List<FlowStep> = when {
         if ("trip" in looking || "tournament" in looking) FlowStep.TRAVEL else null
     )
     isTrip -> TRIP_FLOW
-    // With the full five-year window left, every program fits: All offers replaces the single pathway.
-    else -> FULL_FLOW
-        .filter { it != FlowStep.PROBE || probeKind != null }
-        .map { if (it == FlowStep.MATCH && fullWindow) FlowStep.OFFERS else it }
+    else -> laneFlow()
 }
 
 /** Share of the flow done on [step], for the progress bar. */
@@ -120,4 +143,9 @@ fun FlowStep.route(lane: Lane): Screen = when (this) {
     FlowStep.CLUB_PROFILE -> Screen.ClubProfileScreen
     FlowStep.COACH_TYPE -> Screen.CoachTypeScreen
     FlowStep.FAN -> Screen.FanScreen
+    FlowStep.ENROLL -> Screen.EnrollScreen(lane)
+    FlowStep.GRAD_SUGGEST -> Screen.GradSuggestScreen(lane)
+    FlowStep.AVAIL -> Screen.AvailScreen(lane)
+    FlowStep.LEARN -> Screen.LearnScreen(lane)
+    FlowStep.READY -> Screen.ReadyScreen(lane)
 }

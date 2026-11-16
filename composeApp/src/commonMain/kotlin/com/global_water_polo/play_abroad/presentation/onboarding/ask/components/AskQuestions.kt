@@ -28,13 +28,13 @@ fun askQuestion(step: AskStep, state: OnboardingState): AskQuestion {
     return when (step) {
         AskStep.NOW -> AskQuestion(
             title = t(Res.string.now_title_athlete, Res.string.now_title_parent),
-            help = Res.string.pick_all_that_fit,
+            help = Res.string.pick_one,
+            // v29: five clean answers, pick one. It decides which screens follow.
             options = listOfNotNull(
                 AskOption("committed", Res.string.now_committed),
-                AskOption("ready", t(Res.string.now_ready_athlete, Res.string.now_ready_parent), Res.string.now_ready_sub),
                 AskOption("looking", Res.string.now_looking),
-                AskOption("beyond", t(Res.string.now_beyond_athlete, Res.string.now_beyond_parent), Res.string.now_beyond_sub),
                 AskOption("college", Res.string.now_college),
+                AskOption("pro", Res.string.now_pro, Res.string.now_pro_sub),
                 AskOption("unsure", Res.string.now_unsure),
                 if (parent) AskOption("trip", Res.string.now_trip, Res.string.now_trip_sub) else null
             )
@@ -42,13 +42,14 @@ fun askQuestion(step: AskStep, state: OnboardingState): AskQuestion {
         AskStep.LEVEL -> AskQuestion(
             title = t(Res.string.level_title_athlete, Res.string.level_title_parent),
             help = Res.string.pick_all_that_apply,
+            // Only the levels that fit where they are now.
             options = listOf(
                 AskOption("hs", Res.string.level_hs),
                 AskOption("club", Res.string.level_club),
-                AskOption("odp", Res.string.level_odp),
+                AskOption("odp", Res.string.level_odp, Res.string.level_odp_sub),
                 AskOption("college", Res.string.level_college),
                 AskOption("senior", Res.string.level_senior)
-            )
+            ).filter { it.key in levelKeys(state.now) }
         )
         AskStep.GOAL -> AskQuestion(
             title = t(Res.string.goal_title_athlete, Res.string.goal_title_parent),
@@ -159,4 +160,12 @@ private fun probeQuestion(kind: ProbeKind): AskQuestion = when (kind) {
             AskOption("best", Res.string.probe_best, say = Res.string.probe_say_best)
         )
     )
+}
+
+/** v29's levelKeys: the levels that fit the answer to Where are you now. */
+fun levelKeys(now: Set<String>): Set<String> = when {
+    "college" in now -> setOf("club", "odp", "college", "senior")
+    "pro" in now -> setOf("hs", "club", "odp", "senior")
+    "committed" in now || "looking" in now -> setOf("hs", "club", "odp")
+    else -> setOf("hs", "club", "odp", "college", "senior")
 }
